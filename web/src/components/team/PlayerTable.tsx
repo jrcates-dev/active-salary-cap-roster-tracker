@@ -5,21 +5,15 @@ import { statusText, YEAR_NOTE } from "@/lib/availability";
 import { UNIT_LABEL, money } from "@/lib/format";
 import type { Group, Player, Unit } from "@/lib/types";
 import { playerSlice, SLICE_SHORT, Swatch, type SliceKey } from "../Availability";
+import { ariaSort, SortHeader, type SortDir } from "../Sort";
+import { Chip, Select } from "../ui/controls";
 import { useMoneyMode } from "./MoneyMode";
 
 type SortKey = "name" | "group" | "cap" | "flag" | "years_left";
 
 type Filter = Exclude<SliceKey, "dead">;
-const SLICE_ORDER: Record<Filter, number> = {
-  inactive: 0,
-  season: 1,
-  year: 2,
-  questionable: 3,
-  active: 4,
-  unknown: 5,
-};
+const SLICE_RANK: Record<Filter, number> = { inactive: 0, season: 1, year: 2, questionable: 3, active: 4, unknown: 5 };
 const FILTERS: (Filter | "all")[] = ["all", "active", "questionable", "inactive", "season", "year", "unknown"];
-const FILTER_LABEL: Record<Filter, string> = SLICE_SHORT;
 const FILTER_TITLE: Partial<Record<Filter, string>> = {
   season: "On a reserve list and able to come back this season",
   year: YEAR_NOTE,
@@ -27,17 +21,9 @@ const FILTER_TITLE: Partial<Record<Filter, string>> = {
 /** Rows shown before "Show all"; filters and sorting still apply to every player. */
 const PAGE = 30;
 
-export function PlayerTable({
-  color,
-  players,
-  groups,
-}: {
-  color: string;
-  players: Player[];
-  groups: Group[];
-}) {
+export function PlayerTable({ players, groups }: { players: Player[]; groups: Group[] }) {
   const { fmt } = useMoneyMode();
-  const [sort, setSort] = useState<{ key: SortKey; desc: boolean }>({ key: "cap", desc: true });
+  const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: "cap", dir: "desc" });
   const [flag, setFlag] = useState<Filter | "all">("all");
   const [unit, setUnit] = useState<Unit | "all">("all");
   const [query, setQuery] = useState("");
@@ -65,7 +51,7 @@ export function PlayerTable({
         (unit === "all" || p.unit === unit) &&
         (!q || p.name.toLowerCase().includes(q) || (p.pos ?? "").toLowerCase() === q),
     );
-    const dir = sort.desc ? -1 : 1;
+    const dir = sort.dir === "desc" ? -1 : 1;
     const val = (p: Player): number | string => {
       switch (sort.key) {
         case "name":
@@ -75,7 +61,7 @@ export function PlayerTable({
         case "cap":
           return p.cap;
         case "flag":
-          return SLICE_ORDER[playerSlice(p) as Filter];
+          return SLICE_RANK[playerSlice(p) as Filter];
         case "years_left":
           return p.years_left ?? -1;
       }
@@ -89,25 +75,19 @@ export function PlayerTable({
   }, [players, flag, unit, query, sort, groupOrder]);
 
   const total = rows.reduce((acc, p) => acc + p.cap, 0);
+  const filtered = flag !== "all" || unit !== "all" || query.trim() !== "";
 
-  const header = (key: SortKey, label: string, align = "text-left") => (
-    <th
-      scope="col"
-      aria-sort={sort.key === key ? (sort.desc ? "descending" : "ascending") : "none"}
-      className={`px-3 py-2 font-medium ${align}`}
-    >
-      <button
-        type="button"
-        className="inline-flex items-center gap-1 hover:text-fg"
-        onClick={() =>
-          setSort((s) => ({ key, desc: s.key === key ? !s.desc : key === "cap" || key === "years_left" }))
-        }
+  const header = (key: SortKey, label: string, align: "left" | "right" = "left", natural: SortDir = "asc") => (
+    <th scope="col" aria-sort={ariaSort(sort.key === key, sort.dir)} className={align === "right" ? "text-right" : "text-left"}>
+      <SortHeader
+        active={sort.key === key}
+        dir={sort.dir}
+        label={label}
+        align={align}
+        onClick={() => setSort((s) => ({ key, dir: s.key === key ? (s.dir === "desc" ? "asc" : "desc") : natural }))}
       >
         {label}
-        <span aria-hidden className="text-fg-faint">
-          {sort.key === key ? (sort.desc ? "▾" : "▴") : ""}
-        </span>
-      </button>
+      </SortHeader>
     </th>
   );
 
@@ -116,129 +96,108 @@ export function PlayerTable({
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter by status">
           {FILTERS.map((f) => (
-            <button
+            <Chip
               key={f}
-              type="button"
-              aria-pressed={flag === f}
-              title={f === "all" ? undefined : FILTER_TITLE[f]}
+              active={flag === f}
               onClick={() => setFlag(f)}
-              className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm ${
-                flag === f
-                  ? "border-fg-muted bg-panel-raised text-fg"
-                  : "border-border text-fg-muted hover:text-fg"
-              }`}
+              count={counts[f] ?? 0}
+              title={f === "all" ? undefined : FILTER_TITLE[f]}
+              swatch={f !== "all" ? <Swatch k={f} size={10} /> : undefined}
             >
-              {f !== "all" && <Swatch k={f} color={color} size={10} />}
-              {f === "all" ? "All" : FILTER_LABEL[f]}
-              <span className="num text-fg-faint">{counts[f] ?? 0}</span>
-            </button>
+              {f === "all" ? "All" : SLICE_SHORT[f]}
+            </Chip>
           ))}
         </div>
-        <select
-          aria-label="Filter by unit"
-          value={unit}
-          onChange={(e) => setUnit(e.target.value as Unit | "all")}
-          className="rounded-md border border-border bg-panel px-2 py-1 text-sm text-fg"
-        >
+        <Select label="Filter by unit" value={unit} onChange={(v) => setUnit(v as Unit | "all")}>
           <option value="all">All units</option>
           {(["offense", "defense", "special_teams"] as Unit[]).map((u) => (
             <option key={u} value={u}>
               {UNIT_LABEL[u]}
             </option>
           ))}
-        </select>
+        </Select>
         <input
           type="search"
-          placeholder="Search players"
+          placeholder="Search"
           aria-label="Search players"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="ml-auto w-full rounded-md border border-border bg-panel px-3 py-1 text-sm text-fg placeholder:text-fg-faint sm:w-56"
+          className="h-7 w-full rounded-md border border-line bg-surface px-2.5 text-[13px] text-ink placeholder:text-ink-4 transition-colors duration-(--dur-1) hover:border-line-2 focus:border-line-2 focus:outline-none sm:ml-auto sm:w-48"
         />
       </div>
-      <div className="overflow-x-auto rounded-lg border border-border">
-        <table className="w-full min-w-[640px] text-sm">
-          <thead className="bg-panel text-fg-muted">
-            <tr>
-              {header("name", "Player")}
-              {header("group", "Group")}
-              {header("cap", "Cap number", "text-right")}
-              {header("flag", "Status")}
-              {header("years_left", "Years left", "text-right")}
-            </tr>
-          </thead>
-          <tbody>
-            {(showAll ? rows : rows.slice(0, PAGE)).map((p) => {
-              const status = statusText(p);
-              return (
-                <tr key={p.key} className="border-t border-border hover:bg-panel">
-                  <td className="px-3 py-2">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-fg">{p.name}</span>
+      <div className="card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="tbl w-full min-w-[640px] text-sm">
+            <thead className="bg-surface-2">
+              <tr>
+                {header("name", "Player")}
+                {header("group", "Group")}
+                {header("cap", "Cap", "right", "desc")}
+                {header("flag", "Status")}
+                {header("years_left", "Years", "right", "desc")}
+              </tr>
+            </thead>
+            <tbody>
+              {(showAll ? rows : rows.slice(0, PAGE)).map((p) => (
+                <tr key={p.key}>
+                  <td>
+                    <span className="flex items-center gap-2">
+                      <span className="font-medium">{p.name}</span>
                       {p.source !== "contract" && (
                         <span
-                          className="rounded border border-border px-1.5 text-[11px] text-fg-muted"
+                          className="rounded border border-line px-1 text-[10px] leading-4 text-ink-3 uppercase"
                           title={
                             p.source === "derived_rookie_scale"
                               ? "Rookie contract not yet in the free data. Cap number derived from the rookie wage scale."
                               : "No contract in the free data. Counted at the league minimum for the player's experience."
                           }
                         >
-                          {p.source === "derived_rookie_scale" ? "rookie est." : "min. est."}
+                          est
                         </span>
                       )}
-                    </div>
+                    </span>
                   </td>
-                  <td className="px-3 py-2 text-fg-muted">
-                    <span className="num text-base text-fg">{p.group ?? "?"}</span>
-                    {p.pos && p.pos !== p.group && <span className="ml-1.5">{p.pos}</span>}
+                  <td className="text-ink-2">
+                    <span className="num font-medium text-ink">{p.group ?? "?"}</span>
+                    {p.pos && p.pos !== p.group && <span className="ml-1.5 text-xs">{p.pos}</span>}
                   </td>
-                  <td className="num px-3 py-2 text-right text-base text-fg">
+                  <td className="num text-right font-medium">
                     {fmt(p.cap)}
                     {p.cap !== p.contract_cap && (
-                      <span className="block text-xs text-fg-muted" title="Practice squad pay, prorated">
+                      <span className="block text-[11px] font-normal text-ink-3" title="Practice squad pay, prorated">
                         of {money(p.contract_cap)}
                       </span>
                     )}
                   </td>
-                  <td className="px-3 py-2">
+                  <td>
                     <span className="inline-flex items-center gap-2">
-                      <Swatch k={playerSlice(p)} color={color} />
-                      <span className="text-fg">{status}</span>
-                      {(p.outlook_note ?? p.injury) && (
-                        <span className="text-fg-muted">{p.outlook_note ?? p.injury}</span>
-                      )}
+                      <Swatch k={playerSlice(p)} />
+                      <span>{statusText(p)}</span>
+                      {(p.outlook_note ?? p.injury) && <span className="text-ink-3">{p.outlook_note ?? p.injury}</span>}
                     </span>
                   </td>
-                  <td className="num px-3 py-2 text-right text-base text-fg-muted">
-                    {p.years_left ?? "–"}
-                  </td>
+                  <td className="num text-right text-ink-2">{p.years_left ?? "–"}</td>
                 </tr>
-              );
-            })}
-          </tbody>
-          <tfoot className="border-t border-border bg-panel text-fg-muted">
-            <tr>
-              <td className="px-3 py-2" colSpan={2}>
-                {rows.length} players{flag !== "all" || unit !== "all" || query ? " match" : ""}
-              </td>
-              <td className="num px-3 py-2 text-right text-base text-fg">{fmt(total)}</td>
-              <td colSpan={2} className="px-3 py-2 text-right">
-                {rows.length > PAGE && (
-                  <button
-                    type="button"
-                    onClick={() => setShowAll((v) => !v)}
-                    className="text-fg underline-offset-4 hover:underline"
-                  >
-                    {showAll ? `Show top ${PAGE}` : `Show all ${rows.length}`}
-                  </button>
-                )}
-              </td>
-            </tr>
-          </tfoot>
-        </table>
+              ))}
+            </tbody>
+            <tfoot className="border-t border-line bg-surface-2 text-ink-2">
+              <tr>
+                <td colSpan={2} className="num">
+                  {rows.length} players{filtered ? " match" : ""}
+                </td>
+                <td className="num text-right font-semibold text-ink">{fmt(total)}</td>
+                <td colSpan={2} className="text-right">
+                  {rows.length > PAGE && (
+                    <button type="button" onClick={() => setShowAll((v) => !v)} className="font-medium text-ink underline-offset-4 hover:underline">
+                      {showAll ? `Top ${PAGE}` : `All ${rows.length}`}
+                    </button>
+                  )}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
       </div>
     </div>
   );
 }
-

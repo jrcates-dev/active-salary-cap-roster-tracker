@@ -12,6 +12,9 @@ export interface Pair {
   def: string[];
   offLabel: string;
   defLabel: string;
+  /** Two or three characters for a card: "OL", "front", "RBs". */
+  offShort: string;
+  defShort: string;
 }
 
 export const PAIRS: Pair[] = [
@@ -22,6 +25,8 @@ export const PAIRS: Pair[] = [
     def: ["IDL", "EDGE"],
     offLabel: "offensive line",
     defLabel: "defensive front",
+    offShort: "OL",
+    defShort: "front",
   },
   {
     key: "coverage",
@@ -30,6 +35,8 @@ export const PAIRS: Pair[] = [
     def: ["CB", "S"],
     offLabel: "receivers and tight ends",
     defLabel: "secondary",
+    offShort: "receivers",
+    defShort: "secondary",
   },
   {
     key: "run",
@@ -38,6 +45,8 @@ export const PAIRS: Pair[] = [
     def: ["LB"],
     offLabel: "running backs",
     defLabel: "linebackers",
+    offShort: "RBs",
+    defShort: "LBs",
   },
   {
     key: "passgame",
@@ -46,6 +55,8 @@ export const PAIRS: Pair[] = [
     def: ["EDGE", "CB", "S"],
     offLabel: "quarterbacks",
     defLabel: "pass rush and secondary",
+    offShort: "QB",
+    defShort: "pass defense",
   },
 ];
 
@@ -172,8 +183,36 @@ export function biggestEdges(edges: Edge[], n = 2): Edge[] {
 /** The winning and losing side of an edge. */
 export function edgeSides(e: Edge) {
   return e.favors === "off"
-    ? { win: e.offTeam, winLabel: e.pair.offLabel, winRank: e.offRank, winMoney: e.off, lose: e.defTeam, loseLabel: e.pair.defLabel, loseRank: e.defRank, loseMoney: e.def }
-    : { win: e.defTeam, winLabel: e.pair.defLabel, winRank: e.defRank, winMoney: e.def, lose: e.offTeam, loseLabel: e.pair.offLabel, loseRank: e.offRank, loseMoney: e.off };
+    ? {
+        win: e.offTeam,
+        winLabel: e.pair.offLabel,
+        winShort: e.pair.offShort,
+        winRank: e.offRank,
+        winMoney: e.off,
+        lose: e.defTeam,
+        loseLabel: e.pair.defLabel,
+        loseShort: e.pair.defShort,
+        loseRank: e.defRank,
+        loseMoney: e.def,
+      }
+    : {
+        win: e.defTeam,
+        winLabel: e.pair.defLabel,
+        winShort: e.pair.defShort,
+        winRank: e.defRank,
+        winMoney: e.def,
+        lose: e.offTeam,
+        loseLabel: e.pair.offLabel,
+        loseShort: e.pair.offShort,
+        loseRank: e.offRank,
+        loseMoney: e.off,
+      };
+}
+
+/** "Patriots front 6th vs Packers OL 28th", for a card. */
+export function edgeShort(e: Edge, nick: (team: string) => string): string {
+  const x = edgeSides(e);
+  return `${nick(x.win)} ${x.winShort} ${ordinal(x.winRank)} vs ${nick(x.lose)} ${x.loseShort} ${ordinal(x.loseRank)}`;
 }
 
 /** "Patriots defensive front (6th) vs Packers offensive line (28th)" */

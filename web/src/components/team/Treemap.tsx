@@ -2,16 +2,17 @@
 
 import { hierarchy, treemap, treemapSquarify, type HierarchyRectangularNode } from "d3-hierarchy";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { textOn } from "@/design/tokens";
 import { money, pct } from "@/lib/format";
 import type { Group, Player } from "@/lib/types";
-import { playerSlice, sliceStyle, Swatch } from "../Availability";
-import { Tip, TipRow } from "../Tip";
+import { playerSlice, sliceClass, Swatch } from "../Availability";
+import { Tip, TipRow, TipTitle } from "../Tip";
 import { statusText } from "@/lib/availability";
 
 type Node = { name: string; code?: string; player?: Player; children?: Node[] };
 
-const HEADER = 20;
+const HEADER = 26;
+/** Tiles narrower or shorter than this are not controls: they keep the hover tip and the list below carries them. */
+const MIN_TARGET = 24;
 /** Smallest type a tile label may shrink to before the tile goes unlabeled. */
 const MIN_TYPE = 10;
 const LINE = 1.12;
@@ -28,17 +29,7 @@ type Measure = (text: string, size: number, weight: number) => number;
  * biggest name that fits, shortened to "C. Davis" or "Davis" when needed, with
  * the cap number, share and status underneath while there is room.
  */
-export function Treemap({
-  color,
-  groups,
-  players,
-  teamTotal,
-}: {
-  color: string;
-  groups: Group[];
-  players: Player[];
-  teamTotal: number;
-}) {
+export function Treemap({ groups, players, teamTotal }: { groups: Group[]; players: Player[]; teamTotal: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const fontRef = useRef<HTMLSpanElement>(null);
   const [width, setWidth] = useState(0);
@@ -90,26 +81,26 @@ export function Treemap({
 
   return (
     <div>
-      <nav aria-label="Treemap level" className="mb-3 flex items-center gap-2 text-sm">
+      <nav aria-label="Treemap level" className="mb-3 flex items-center gap-1.5 text-[13px]">
         <button
           type="button"
           onClick={() => setFocus(null)}
-          className={focus ? "text-fg-muted underline-offset-4 hover:text-fg hover:underline" : "text-fg"}
+          className={`rounded-md px-2 py-1 transition-colors duration-(--dur-1) ${
+            focus ? "text-ink-2 hover:bg-surface-2 hover:text-ink" : "bg-surface-2 font-medium text-ink"
+          }`}
         >
           All groups
         </button>
         {focusGroup && (
           <>
-            <span className="text-fg-faint">/</span>
-            <span className="text-fg">{focusGroup.label}</span>
+            <span className="text-ink-3">/</span>
+            <span className="rounded-md bg-surface-2 px-2 py-1 font-medium text-ink">{focusGroup.label}</span>
           </>
         )}
-        <span className="ml-auto text-xs text-fg-faint">
-          {focus ? "Tap a player for details" : "Tap a group to zoom in"}
-        </span>
+        <span className="ml-auto text-xs text-ink-3">{focus ? "Tap a player" : "Tap a group to zoom"}</span>
       </nav>
-      <span ref={fontRef} className="num" hidden />
-      <div ref={ref} className="relative w-full" style={{ height }}>
+      <span ref={fontRef} className="fig" hidden />
+      <div ref={ref} className="relative w-full overflow-hidden rounded-lg" style={{ height }}>
         {groupNodes.map((g) => (
           <GroupHeader
             key={g.data.code}
@@ -123,7 +114,6 @@ export function Treemap({
           <Leaf
             key={l.data.player!.key}
             node={l}
-            color={color}
             teamTotal={teamTotal}
             measure={measure}
             onClick={focus ? undefined : () => setFocus(l.data.player!.group ?? null)}
@@ -131,18 +121,18 @@ export function Treemap({
         ))}
       </div>
       {focusGroup && (
-        <ol className="mt-3 divide-y divide-border rounded-lg border border-border text-sm">
+        <ol className="card mt-3 divide-y divide-line text-sm">
           {players
             .filter((p) => p.group === focusGroup.code)
             .sort((a, b) => b.cap - a.cap)
             .map((p) => (
               <li key={p.key} className="flex items-center gap-3 px-3 py-1.5">
-                <Swatch k={playerSlice(p)} color={color} />
+                <Swatch k={playerSlice(p)} />
                 <span className="min-w-0 flex-1 truncate">
                   {p.name}
-                  <span className="ml-2 text-fg-muted">{statusText(p)}</span>
+                  <span className="ml-2 text-ink-3">{statusText(p)}</span>
                 </span>
-                <span className="num text-base">{money(p.cap)}</span>
+                <span className="num font-medium">{money(p.cap)}</span>
               </li>
             ))}
         </ol>
@@ -169,25 +159,23 @@ function GroupHeader({
       type="button"
       onClick={onClick}
       title={zoomed ? "Zoom out" : `Zoom into ${node.data.name}`}
-      className="absolute flex items-center gap-2 overflow-hidden px-1 text-left text-xs whitespace-nowrap text-fg-muted hover:text-fg"
+      className="absolute flex items-center gap-2 overflow-hidden px-1.5 text-left text-[11px] whitespace-nowrap text-ink-3 transition-colors duration-(--dur-1) hover:text-ink"
       style={{ left: node.x0, top: node.y0, width: w, height: HEADER - 2 }}
     >
-      <span className="num text-sm font-semibold text-fg">{node.data.code}</span>
+      <span className="num text-xs font-semibold text-ink">{node.data.code}</span>
       {w > 90 && <span className="num">{money(v)}</span>}
-      {w > 150 && <span>{pct(v / teamTotal)}</span>}
+      {w > 150 && <span className="num">{pct(v / teamTotal)}</span>}
     </button>
   );
 }
 
 function Leaf({
   node,
-  color,
   teamTotal,
   measure,
   onClick,
 }: {
   node: HierarchyRectangularNode<Node>;
-  color: string;
   teamTotal: number;
   measure: Measure | null;
   onClick?: () => void;
@@ -196,24 +184,26 @@ function Leaf({
   const w = node.x1 - node.x0;
   const h = node.y1 - node.y0;
   const k = playerSlice(p);
-  const ink = k === "active" ? textOn(color) : "#f3f4f6";
+  const ink = k === "active" ? "var(--team-ink)" : "var(--ink)";
   const status = statusText(p);
   const label = measure ? fitLabel(p, w, h, k !== "active" ? status : null, teamTotal, measure) : null;
+  const control = w >= MIN_TARGET && h >= MIN_TARGET;
+  const Tag = control ? "button" : "div";
   return (
     <Tip
-      className="absolute cursor-pointer overflow-hidden rounded-[3px]"
-      style={{ left: node.x0, top: node.y0, width: w, height: h, ...sliceStyle(k, color) }}
+      className={`${sliceClass(k)} absolute overflow-hidden rounded-[4px] transition-[filter] duration-(--dur-1) hover:brightness-110 ${control ? "cursor-pointer" : ""}`}
+      style={{ left: node.x0, top: node.y0, width: w, height: h }}
       content={
-        <div className="space-y-1">
-          <div className="font-semibold">
-            {p.name} <span className="text-fg-muted">{p.pos}</span>
-          </div>
-          <TipRow label="Cap number" value={money(p.cap)} />
+        <div>
+          <TipTitle>
+            {p.name} <span className="font-normal text-ink-3">{p.pos}</span>
+          </TipTitle>
+          <TipRow label="Cap" value={money(p.cap)} />
           <TipRow label="Share of team" value={pct(p.cap / teamTotal)} />
-          <TipRow label={status} value="" swatch={<Swatch k={k} color={color} />} />
-          {p.injury && <TipRow label="Injury" value={p.injury} />}
+          <TipRow label={status} value="" swatch={<Swatch k={k} />} />
+          {(p.outlook_note ?? p.injury) && <TipRow label="Injury" value={p.outlook_note ?? p.injury} />}
           {p.source !== "contract" && (
-            <div className="pt-1 text-xs text-fg-muted">
+            <div className="pt-1 text-xs text-ink-3">
               {p.source === "derived_rookie_scale"
                 ? "Cap number estimated from the rookie wage scale"
                 : "Cap number estimated at the league minimum"}
@@ -222,11 +212,9 @@ function Leaf({
         </div>
       }
     >
-      <button
-        type="button"
-        onClick={onClick}
-        aria-label={`${p.name}, ${money(p.cap)}, ${status}`}
-        className="num block h-full w-full overflow-hidden text-left"
+      <Tag
+        {...(control ? { type: "button" as const, onClick, "aria-label": label ? undefined : `${p.name}, ${money(p.cap)}, ${status}` } : {})}
+        className="fig block h-full w-full overflow-hidden text-left"
         style={{ color: ink, padding: label?.pad ?? 0 }}
       >
         {label && (
@@ -234,7 +222,7 @@ function Leaf({
             {label.name.map((line) => (
               <span
                 key={line}
-                className="block font-semibold whitespace-nowrap"
+                className="block font-semibold tracking-tight whitespace-nowrap"
                 style={{ fontSize: label.size, lineHeight: LINE }}
               >
                 {line}
@@ -242,7 +230,7 @@ function Leaf({
             ))}
             {label.cap && (
               <span
-                className="block whitespace-nowrap opacity-90"
+                className="num block font-medium whitespace-nowrap opacity-90"
                 style={{ fontSize: label.capSize, lineHeight: LINE }}
               >
                 {label.cap}
@@ -250,7 +238,7 @@ function Leaf({
             )}
             {label.status && (
               <span
-                className="block whitespace-nowrap opacity-75"
+                className="block font-normal whitespace-nowrap opacity-80"
                 style={{ fontSize: label.statusSize, lineHeight: LINE }}
               >
                 {label.status}
@@ -258,14 +246,14 @@ function Leaf({
             )}
           </>
         )}
-      </button>
+      </Tag>
     </Tip>
   );
 }
 
 /**
- * Measures text in the display font on a canvas. The family is read from a hidden
- * `.num` element so it follows the stylesheet, and the cache is dropped once web
+ * Measures text in the site font on a canvas. The family is read from a hidden
+ * `.fig` element so it follows the stylesheet, and the cache is dropped once web
  * fonts finish loading so fallback-font widths never stick.
  */
 function useDisplayMeasure(fontRef: React.RefObject<HTMLSpanElement | null>): Measure | null {

@@ -1,44 +1,338 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens. Color does four jobs and nothing else:
+ *   surfaces and ink      neutral, one scale per theme
+ *   team color            identity (set per element by the .tc class, see tokens.ts)
+ *   intensity ramp        one amber hue for "share of cap" in the league heatmap
+ *   accent                one orange, only where it carries meaning (a real edge, focus)
+ * Availability states are patterns on the team color (.s-*), so none depends on hue.
+ */
 :root {
-  --bg: #0b0d12;
-  --panel: #12151d;
-  --panel-raised: #181c26;
-  --border: #262b38;
-  --text: #f3f4f6;
-  --text-muted: #9aa3b5;
-  --text-faint: #5f6778;
-  --dead: #6b7280;
-  --font-display: var(--font-barlow-condensed), "Barlow Condensed", "Arial Narrow", sans-serif;
-  --font-body: var(--font-inter), Inter, system-ui, sans-serif;
+  color-scheme: light;
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #f2f4f7;
+  --surface-3: #e8ebf0;
+  --line: #e5e8ed;
+  --line-2: #cdd3dc;
+  --ink: #111827;
+  --ink-2: #4b5565;
+  --ink-3: #5f6b7c;
+  --ink-4: #7c8798;
+  --accent: #c43f0c;
+  --accent-ink: #ffffff;
+  --accent-soft: #fff1e7;
+  --dead: #8b94a5;
+  --ps-fill: #eceff3;
+  --ps-dot: #8b94a5;
+  --pop-shadow: 0 16px 40px -12px rgb(17 24 39 / 0.22), 0 0 0 1px var(--line);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --dur-1: 120ms;
+  --dur-2: 200ms;
+  --dur-3: 420ms;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: #0b0e14;
+    --surface: #141821;
+    --surface-2: #1b2130;
+    --surface-3: #232b3c;
+    --line: #252c3a;
+    --line-2: #384153;
+    --ink: #eef1f5;
+    --ink-2: #aab3c2;
+    --ink-3: #8a94a6;
+    --ink-4: #7d889b;
+    --accent: #fb8a3c;
+    --accent-ink: #111827;
+    --accent-soft: #33200f;
+    --dead: #6f7a8c;
+    --ps-fill: #1e2433;
+    --ps-dot: #727d8f;
+    --pop-shadow: 0 16px 40px -12px rgb(0 0 0 / 0.6), 0 0 0 1px var(--line-2);
+  }
+}
+
+:root {
+  --ramp-0: #fff4ea;
+  --ramp-ink-0: #111827; /* 16.4:1 */
+  --ramp-1: #ffe4cf;
+  --ramp-ink-1: #111827; /* 14.6:1 */
+  --ramp-2: #ffd2af;
+  --ramp-ink-2: #111827; /* 12.7:1 */
+  --ramp-3: #ffbd8c;
+  --ramp-ink-3: #111827; /* 10.9:1 */
+  --ramp-4: #ffa564;
+  --ramp-ink-4: #111827; /* 9.1:1 */
+  --ramp-5: #f68c36;
+  --ramp-ink-5: #111827; /* 7.4:1 */
+  --ramp-6: #e77400;
+  --ramp-ink-6: #111827; /* 5.8:1 */
+  --ramp-7: #d46000;
+  --ramp-ink-7: #111827; /* 4.6:1 */
+  --ramp-8: #b84d00;
+  --ramp-ink-8: #ffffff; /* 5.1:1 */
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ramp-0: #2f2016;
+    --ramp-ink-0: #eef1f5; /* 13.8:1 */
+    --ramp-1: #442916;
+    --ramp-ink-1: #eef1f5; /* 11.8:1 */
+    --ramp-2: #5c3518;
+    --ramp-ink-2: #eef1f5; /* 9.4:1 */
+    --ramp-3: #78431b;
+    --ramp-ink-3: #eef1f5; /* 7.1:1 */
+    --ramp-4: #95521d;
+    --ramp-ink-4: #eef1f5; /* 5.3:1 */
+    --ramp-5: #c56c21;
+    --ramp-ink-5: #111827; /* 4.7:1 */
+    --ramp-6: #e07e2f;
+    --ramp-ink-6: #111827; /* 6.1:1 */
+    --ramp-7: #fd923e;
+    --ramp-ink-7: #111827; /* 7.9:1 */
+    --ramp-8: #ffa857;
+    --ramp-ink-8: #111827; /* 9.3:1 */
+  }
 }
 
 @theme inline {
   --color-bg: var(--bg);
-  --color-panel: var(--panel);
-  --color-panel-raised: var(--panel-raised);
-  --color-border: var(--border);
-  --color-fg: var(--text);
-  --color-fg-muted: var(--text-muted);
-  --color-fg-faint: var(--text-faint);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-ink-4: var(--ink-4);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
   --color-dead: var(--dead);
-  --font-display: var(--font-display);
-  --font-body: var(--font-body);
+  --font-sans: var(--font-sans);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --shadow-pop: var(--pop-shadow);
 }
 
 html {
-  color-scheme: dark;
+  background: var(--bg);
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-body);
-  font-feature-settings: "tnum" 1;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.5;
+  text-rendering: optimizeLegibility;
 }
 
+/* Numbers: proportional on big standalone figures, tabular wherever they align. */
+.fig {
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  font-variant-numeric: proportional-nums;
+}
 .num {
-  font-family: var(--font-display);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
+}
+
+.eyebrow {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+
+/*
+ * Team color per element. tokens.ts writes a light and a dark value (each clearing
+ * 3:1 on its surface) and the ink that reads on it; the theme picks one here.
+ */
+.tc {
+  --team: var(--tc);
+  --team-ink: var(--tc-ink);
+}
+.tc-neutral {
+  --team: #94a0b4;
+  --team-ink: #111827;
+}
+@media (prefers-color-scheme: dark) {
+  .tc {
+    --team: var(--tc-d);
+    --team-ink: var(--tc-d-ink);
+  }
+  .tc-neutral {
+    --team: #8a97ad;
+  }
+}
+
+/*
+ * Availability fills on the team color. Each state differs in pattern as well as
+ * tone, so none depends on color alone:
+ *   active         solid
+ *   questionable   40% tint in a dashed ring
+ *   inactive       bold 135deg hatch (out for this game)
+ *   season         flat 20% tint with a thin ring (reserve list, can return)
+ *   year           thin 45deg pinstripe with a ring (reserve list, done for the year)
+ *   unknown        neutral dots (practice squad)
+ *   dead           flat neutral
+ */
+.s-active {
+  background: var(--team);
+}
+.s-questionable {
+  background: color-mix(in srgb, var(--team) 40%, var(--surface));
+  outline: 1.5px dashed var(--team);
+  outline-offset: -1.5px;
+}
+.s-inactive {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--team) 0 3px,
+    color-mix(in srgb, var(--team) 16%, var(--surface)) 3px 7px
+  );
+}
+.s-season {
+  background: color-mix(in srgb, var(--team) 20%, var(--surface));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--team) 50%, transparent);
+}
+.s-year {
+  background: repeating-linear-gradient(
+    45deg,
+    color-mix(in srgb, var(--team) 60%, transparent) 0 1.5px,
+    transparent 1.5px 6px
+  );
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--team) 65%, transparent);
+}
+.s-unknown {
+  background:
+    radial-gradient(var(--ps-dot) 1px, transparent 1.3px) 0 0 / 5px 5px,
+    var(--ps-fill);
+}
+.s-dead {
+  background: var(--dead);
+}
+
+/* Swatch: the legend's and the table's small square of a state. */
+.sw {
+  display: inline-block;
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+/* Bars grow once on load, then stay still. */
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.grow {
+  transform-origin: left center;
+  animation: grow-x var(--dur-3) var(--ease) both;
+}
+.grow-r {
+  transform-origin: right center;
+  animation: grow-x var(--dur-3) var(--ease) both;
+}
+@keyframes grow-y {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+.grow-up {
+  transform-origin: center bottom;
+  animation: grow-y var(--dur-3) var(--ease) both;
+}
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.pop-in {
+  animation: fade-up var(--dur-2) var(--ease) both;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+/* A horizontal strip that scrolls without a visible bar. */
+.strip {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.strip::-webkit-scrollbar {
+  display: none;
+}
+
+/* Table chrome shared by every table. */
+.tbl th {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.tbl td,
+.tbl th {
+  padding: 8px 12px;
+}
+.tbl tbody tr {
+  border-top: 1px solid var(--line);
+  transition: background-color var(--dur-1) var(--ease);
+}
+.tbl tbody tr:hover {
+  background: var(--surface-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
 }

@@ -39,23 +39,28 @@ publishing fake numbers.
 
 | Route | What |
 | --- | --- |
-| `/` | League overview: totals, this week's games with their biggest edge, money out by team with a week picker, most expensive players out (this week, long-term or out for the season), the 32 × 13 heatmap, offense/defense split |
-| `/team/[abbr]` | Team page: last result and this week's game, status source, cap summary and availability bar, $ / % toggle, position groups against the league median, treemap, week-by-week money out, sortable roster |
-| `/matchup/[week-away-home]` | Matchup page for every game this week and next: edge summary, both teams' availability, mirrored bars per position matchup (on the field or full investment) with league ranks, key absences |
-| `/methodology` | Sources and attribution, accounting rules, matchups, estimates, reconciliation table with known gaps |
+| `/` | League: counted cap and money out as stat tiles and one league-wide availability bar, this week's games with their biggest edge, money out by team with a week picker, most expensive players out, the 32 × 13 heatmap, offense/defense split |
+| `/matchups` | This week's slate and an early look at next week's |
+| `/team/[abbr]` | Team: team strip for stepping sideways, last result and this week's game, counted cap with a $ / % toggle, availability tiles and bar, position groups against the league median, player treemap, week-by-week money out, sortable roster |
+| `/matchup/[week-away-home]` | Matchup: strip of the week's games, both teams' availability, the two biggest edges, mirrored bars per position matchup (on the field or full investment) with league ranks, key absences |
+| `/methodology` | Sources and attribution, accounting rules, matchups, estimates, reconciliation table |
 
 ## Layout
 
 | Path | What |
 | --- | --- |
+| `src/app/globals.css` | Design tokens: surfaces and inks for the light and dark themes (dark follows the system setting), the amber intensity ramp, radii, motion, the `.tc` team-color scope and the `.s-*` availability fills |
+| `src/design/tokens.ts` | Per-team color math: `teamVars` writes a light and a dark team color (each clearing 3:1 on its surface) and the ink that reads on it; unit marks; ramp step |
 | `src/lib/types.ts` | Shapes of the snapshot JSON |
 | `src/lib/data.ts` | Snapshot loader and per-team and league helpers |
 | `src/lib/format.ts` | Money, percent, date and label formatting |
 | `src/lib/availability.ts` | Availability states (active, questionable, out this week, out long-term, out for season, practice squad, dead) and per-player helpers, usable from server pages |
 | `src/lib/matchup.ts` | Position matchup pairs, group money, league ranks and edge picks |
-| `src/design/tokens.ts` | Surfaces, the one-hue intensity ramp, unit marks, the inactive hatch, and `displayColor` (a team color that clears 3:1 on the dark panel) |
-| `src/components/Availability.tsx` | The availability bar, swatches and legend used at every level |
+| `src/components/site/` | Header with section links and the team switcher, footer, and the strip used to step between teams or games |
+| `src/components/ui/` | Page and section heads, stat tile, segmented control, chips, step buttons |
+| `src/components/Availability.tsx` | The segmented availability bar (thin in rows, tall with shares printed inside), swatches and legend |
 | `src/components/Tip.tsx` | Tooltip: follows the mouse, opens on tap, and on keyboard focus |
+| `src/components/Sort.tsx` | One sort pattern for every ranked list: column headers and legend chips |
 | `src/components/team/` | Team page pieces: money mode toggle, group breakdown, treemap, week-by-week trend, player table |
 | `src/components/league/` | League pieces: money-out board with week picker, players out, heatmap, offense share |
 | `src/components/matchup/` | The mirrored matchup chart |

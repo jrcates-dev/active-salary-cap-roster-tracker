@@ -1,4 +1,4 @@
-import { displayColor, UNITS } from "@/design/tokens";
+import { teamVars, UNITS } from "@/design/tokens";
 import type { Snapshot, Unit } from "@/lib/types";
 import { OffenseShareBoard, type UnitRow } from "./OffenseShareBoard";
 
@@ -12,7 +12,7 @@ export function OffenseShare({ s }: { s: Snapshot }) {
       ]),
     ) as Record<Unit, number>;
     const total = UNITS.reduce((acc, u) => acc + unitCap[u], 0);
-    return { team: team.team, nick: team.nick, name: team.name, color: displayColor(team), unitCap, total };
+    return { team: team.team, nick: team.nick, name: team.name, vars: teamVars(team), unitCap, total };
   });
   return <OffenseShareBoard rows={rows} />;
 }

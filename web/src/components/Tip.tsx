@@ -26,7 +26,6 @@ export function Tip({
   const ref = useRef<HTMLElement | null>(null);
   const touched = useRef(false);
 
-  // A tap outside the mark closes a tooltip opened by a tap.
   useEffect(() => {
     if (!pos) return;
     const close = (e: PointerEvent) => {
@@ -71,10 +70,10 @@ export function Tip({
         createPortal(
           <div
             role="tooltip"
-            className="pointer-events-none fixed z-50 max-w-xs rounded-md border border-border bg-panel-raised px-3 py-2 text-sm text-fg shadow-none"
+            className="pointer-events-none fixed z-50 max-w-[280px] rounded-md bg-surface px-3 py-2 text-[13px] leading-snug text-ink shadow-pop"
             style={{
-              left: Math.max(8, Math.min(pos.x + 14, window.innerWidth - 300)),
-              top: Math.min(pos.y + 16, window.innerHeight - 160),
+              left: Math.max(8, Math.min(pos.x + 14, window.innerWidth - 292)),
+              top: Math.min(pos.y + 16, window.innerHeight - 180),
             }}
           >
             {content}
@@ -85,14 +84,20 @@ export function Tip({
   );
 }
 
-export function TipRow({ label, value, swatch }: { label: string; value: string; swatch?: ReactNode }) {
+/** Tooltip heading. */
+export function TipTitle({ children }: { children: ReactNode }) {
+  return <div className="mb-1 font-semibold">{children}</div>;
+}
+
+/** One line of a tooltip: the value reads first, the label follows. */
+export function TipRow({ label, value, swatch }: { label: ReactNode; value: ReactNode; swatch?: ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-6">
-      <span className="flex items-center gap-2 text-fg-muted">
+    <div className="flex items-center justify-between gap-5 py-px">
+      <span className="flex items-center gap-2 text-ink-3">
         {swatch}
         {label}
       </span>
-      <span className="num text-base text-fg">{value}</span>
+      <span className="num font-medium text-ink">{value}</span>
     </div>
   );
 }

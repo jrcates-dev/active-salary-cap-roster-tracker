@@ -39,14 +39,17 @@ export function ariaSort(active: boolean, dir: SortDir): "ascending" | "descendi
 
 function Arrow({ active, dir }: { active: boolean; dir: SortDir }) {
   return (
-    <span
+    <svg
+      width="10"
+      height="10"
+      viewBox="0 0 10 10"
       aria-hidden
-      className={`inline-block w-[0.7em] text-[0.75em] leading-none ${
-        active ? "text-fg" : "text-fg-faint opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"
-      }`}
+      className={`shrink-0 transition-opacity duration-(--dur-1) ${
+        active ? "text-ink" : "text-ink-3 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"
+      } ${active && dir === "asc" ? "rotate-180" : ""}`}
     >
-      {active ? (dir === "desc" ? "▼" : "▲") : "▼"}
-    </span>
+      <path d="M2 3.5 5 6.5l3-3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 
@@ -63,6 +66,7 @@ export function SortHeader({
   children,
   ascLabel = "lowest first",
   descLabel = "highest first",
+  align = "left",
 }: {
   active: boolean;
   dir: SortDir;
@@ -71,6 +75,7 @@ export function SortHeader({
   children: ReactNode;
   ascLabel?: string;
   descLabel?: string;
+  align?: "left" | "right" | "center";
 }) {
   const now = active ? `, sorted ${directionWords(dir, ascLabel, descLabel)}` : "";
   return (
@@ -78,11 +83,11 @@ export function SortHeader({
       type="button"
       onClick={onClick}
       aria-label={`Sort by ${label}${now}`}
-      className={`group num inline-flex items-center gap-0.5 rounded text-base ${
-        active ? "text-fg underline underline-offset-4" : "text-fg-muted hover:text-fg"
-      }`}
+      className={`group inline-flex max-w-full items-center gap-1 rounded transition-colors duration-(--dur-1) ${
+        align === "right" ? "flex-row-reverse" : ""
+      } ${active ? "text-ink" : "hover:text-ink"}`}
     >
-      {children}
+      <span className={active ? "underline decoration-line-2 underline-offset-4" : ""}>{children}</span>
       <Arrow active={active} dir={dir} />
     </button>
   );
@@ -113,10 +118,8 @@ export function SortChip({
       onClick={onClick}
       aria-label={`Sort by ${label}${now}`}
       aria-pressed={active}
-      className={`group flex items-center gap-2 rounded-md border px-2 py-1 text-sm transition-colors ${
-        active
-          ? "border-fg-muted bg-panel-raised text-fg"
-          : "border-transparent text-fg-muted hover:border-border hover:text-fg"
+      className={`group flex h-7 items-center gap-2 rounded-md border px-2 text-[13px] whitespace-nowrap transition-colors duration-(--dur-1) ${
+        active ? "border-line-2 bg-surface-2 text-ink" : "border-transparent text-ink-2 hover:bg-surface-2 hover:text-ink"
       }`}
     >
       {swatch}

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { money, ordinal } from "@/lib/format";
 import type { GroupMoney, MatchupMode } from "@/lib/matchup";
-import { sliceStyle, Swatch, type SliceKey } from "../Availability";
-import { Tip, TipRow } from "../Tip";
+import { sliceClass, Swatch, type SliceKey } from "../Availability";
+import { Tip, TipRow, TipTitle } from "../Tip";
+import { Segmented } from "../ui/controls";
 
 export interface MatchupRow {
   key: string;
@@ -16,10 +17,16 @@ export interface MatchupRow {
   ranks: Record<MatchupMode, { off: number; def: number }>;
 }
 
+export interface MatchupSide {
+  abbr: string;
+  nick: string;
+  vars: CSSProperties;
+}
+
 export interface MatchupHalf {
   title: string;
-  offTeam: { abbr: string; nick: string; color: string };
-  defTeam: { abbr: string; nick: string; color: string };
+  offTeam: MatchupSide;
+  defTeam: MatchupSide;
   rows: MatchupRow[];
 }
 
@@ -31,59 +38,44 @@ const SLICES: { k: SliceKey; f: keyof GroupMoney; label: string }[] = [
   { k: "year", f: "year", label: "Out for season" },
 ];
 
-const MODES: { m: MatchupMode; label: string; title: string }[] = [
-  { m: "field", label: "On the field", title: "Active plus questionable money" },
-  { m: "full", label: "Full investment", title: "Every dollar in the group, healthy or not" },
-];
-
 /**
  * Mirrored bars: the offense's group runs left from the spine, the defense it faces
- * runs right, one shared scale for the whole game. The ratio badge sits on the side
- * with more money. Out, long-term and out-for-season money stay visible as hatched,
- * faint and outlined segments so a reader sees what an injury took away.
+ * runs right, one shared scale for the whole game. The ratio badge sits between
+ * them and points at the side with more money; it turns accent at 1.5x. Out and
+ * reserve money stay visible as patterned segments so a reader sees what an
+ * injury took away.
  */
 export function MatchupChart({ halves }: { halves: MatchupHalf[] }) {
   const [mode, setMode] = useState<MatchupMode>("field");
-  const scale = Math.max(
-    1,
-    ...halves.flatMap((h) => h.rows.flatMap((r) => [r.off.total, r.def.total])),
-  );
+  const scale = Math.max(1, ...halves.flatMap((h) => h.rows.flatMap((r) => [r.off.total, r.def.total])));
   const v = (m: GroupMoney) => (mode === "field" ? m.field : m.total);
   return (
     <div className="space-y-10">
-      <div className="flex flex-wrap items-center gap-3">
-        <div role="radiogroup" aria-label="Compare" className="inline-flex rounded-md border border-border bg-panel p-0.5">
-          {MODES.map((o) => (
-            <button
-              key={o.m}
-              type="button"
-              role="radio"
-              aria-checked={mode === o.m}
-              title={o.title}
-              onClick={() => setMode(o.m)}
-              className={`rounded px-3 py-1 text-sm ${mode === o.m ? "bg-panel-raised text-fg" : "text-fg-muted hover:text-fg"}`}
-            >
-              {o.label}
-            </button>
-          ))}
-        </div>
-        <p className="text-sm text-fg-muted">
-          {mode === "field"
-            ? "Comparing money expected on the field: active plus questionable."
-            : "Comparing everything each group costs, injured or not."}
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-lg font-semibold tracking-tight">Position matchups</h2>
+        <Segmented<MatchupMode>
+          label="Compare"
+          value={mode}
+          onChange={setMode}
+          options={[
+            { value: "field", label: "On the field", title: "Active plus questionable money" },
+            { value: "full", label: "Full investment", title: "Every dollar in the group, healthy or not" },
+          ]}
+        />
       </div>
       {halves.map((h) => (
-        <section key={h.title}>
-          <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-end gap-3 border-b border-border pb-2">
-            <p className="num text-right text-lg font-semibold">
-              <span className="text-sm font-normal text-fg-muted">Offense · </span>
+        <section key={h.title} aria-label={h.title}>
+          <div className="mb-4 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 border-b border-line pb-2">
+            <p className="tc flex items-center justify-end gap-2 text-right text-[15px] font-semibold" style={h.offTeam.vars}>
+              <span className="text-xs font-normal text-ink-3">Offense</span>
               {h.offTeam.nick}
+              <span aria-hidden className="h-3 w-3 rounded-[3px]" style={{ background: "var(--team)" }} />
             </p>
-            <span className="text-xs text-fg-faint">vs</span>
-            <p className="num text-lg font-semibold">
+            <span className="text-xs text-ink-3">vs</span>
+            <p className="tc flex items-center gap-2 text-[15px] font-semibold" style={h.defTeam.vars}>
+              <span aria-hidden className="h-3 w-3 rounded-[3px]" style={{ background: "var(--team)" }} />
               {h.defTeam.nick}
-              <span className="text-sm font-normal text-fg-muted"> · Defense</span>
+              <span className="text-xs font-normal text-ink-3">Defense</span>
             </p>
           </div>
           <div className="space-y-5">
@@ -94,31 +86,35 @@ export function MatchupChart({ halves }: { halves: MatchupHalf[] }) {
               const lo = Math.max(Math.min(a, b), 1);
               const ratio = hi / lo;
               const offWins = a >= b;
-              const badge = ratio >= 1.05 ? `${ratio.toFixed(1)}x` : "Even";
+              const strong = ratio >= 1.5;
+              const even = ratio < 1.05;
+              const badge = even ? "Even" : `${ratio.toFixed(1)}×`;
               return (
                 <div key={r.key}>
-                  <p className="mb-1 text-center text-xs tracking-wider text-fg-muted uppercase">{r.label}</p>
-                  <div className="grid grid-cols-[minmax(0,1fr)_3.5rem_minmax(0,1fr)] items-center gap-2">
-                    <Bar money={r.off} color={h.offTeam.color} scale={scale} dir="left" title={`${h.offTeam.nick} ${r.offLabel}`} />
+                  <p className="eyebrow mb-1.5 text-center">{r.label}</p>
+                  <div className="grid grid-cols-[minmax(0,1fr)_3.25rem_minmax(0,1fr)] items-center gap-2">
+                    <Bar money={r.off} vars={h.offTeam.vars} scale={scale} dir="left" title={`${h.offTeam.nick} ${r.offLabel}`} />
                     <span
-                      className={`num rounded px-1 py-0.5 text-center text-sm font-semibold ${
-                        ratio >= 1.5 ? "bg-[#ff7b1c] text-[#0b0d12]" : "bg-panel-raised text-fg"
+                      className={`num flex h-6 items-center justify-center gap-0.5 rounded-md text-xs font-semibold ${
+                        strong ? "bg-accent text-accent-ink" : even ? "bg-surface-2 text-ink-3" : "bg-surface-2 text-ink"
                       }`}
-                      title={ratio >= 1.05 ? `${offWins ? h.offTeam.nick : h.defTeam.nick} have ${badge} the money` : "Within 5%"}
+                      title={even ? "Within 5%" : `${offWins ? h.offTeam.nick : h.defTeam.nick} have ${badge} the money`}
                     >
-                      {ratio >= 1.05 ? (offWins ? `◀ ${badge}` : `${badge} ▶`) : badge}
+                      {!even && offWins && <Caret dir="left" />}
+                      {badge}
+                      {!even && !offWins && <Caret dir="right" />}
                     </span>
-                    <Bar money={r.def} color={h.defTeam.color} scale={scale} dir="right" title={`${h.defTeam.nick} ${r.defLabel}`} />
+                    <Bar money={r.def} vars={h.defTeam.vars} scale={scale} dir="right" title={`${h.defTeam.nick} ${r.defLabel}`} />
                   </div>
-                  <div className="mt-1 grid grid-cols-[minmax(0,1fr)_3.5rem_minmax(0,1fr)] gap-2 text-xs text-fg-muted">
-                    <p className="text-right">
-                      <span>{cap(r.offLabel)}</span>{" "}
-                      <span className="num text-base text-fg">{money(a)}</span> · {ordinal(r.ranks[mode].off)}
+                  <div className="mt-1.5 grid grid-cols-[minmax(0,1fr)_3.25rem_minmax(0,1fr)] gap-2 text-xs text-ink-3">
+                    <p className="num truncate text-right">
+                      <span className="hidden sm:inline">{cap(r.offLabel)} · </span>
+                      <span className="font-medium text-ink">{money(a)}</span> · {ordinal(r.ranks[mode].off)}
                     </p>
                     <span />
-                    <p>
-                      {ordinal(r.ranks[mode].def)} · <span className="num text-base text-fg">{money(b)}</span>{" "}
-                      <span>{cap(r.defLabel)}</span>
+                    <p className="num truncate">
+                      {ordinal(r.ranks[mode].def)} · <span className="font-medium text-ink">{money(b)}</span>
+                      <span className="hidden sm:inline"> · {cap(r.defLabel)}</span>
                     </p>
                   </div>
                 </div>
@@ -127,23 +123,27 @@ export function MatchupChart({ halves }: { halves: MatchupHalf[] }) {
           </div>
         </section>
       ))}
-      <p className="text-xs text-fg-faint">
-        Ranks are out of 32 teams for the same group and the same measure. The badge points at the side with more money;
-        orange means at least 1.5x.
-      </p>
     </div>
+  );
+}
+
+function Caret({ dir }: { dir: "left" | "right" }) {
+  return (
+    <svg width="8" height="8" viewBox="0 0 8 8" aria-hidden>
+      <path d={dir === "left" ? "M6 1 2 4l4 3z" : "M2 1l4 3-4 3z"} fill="currentColor" />
+    </svg>
   );
 }
 
 function Bar({
   money: m,
-  color,
+  vars,
   scale,
   dir,
   title,
 }: {
   money: GroupMoney;
-  color: string;
+  vars: CSSProperties;
   scale: number;
   dir: "left" | "right";
   title: string;
@@ -151,32 +151,25 @@ function Bar({
   const total = SLICES.reduce((acc, s) => acc + (m[s.f] as number), 0);
   return (
     <Tip
-      className={`flex h-6 w-full ${dir === "left" ? "justify-end" : "justify-start"}`}
+      className={`tc flex h-4 w-full ${dir === "left" ? "justify-end" : "justify-start"}`}
+      style={vars}
       content={
-        <div className="space-y-1">
-          <div className="mb-1 font-semibold">{title}</div>
+        <div>
+          <TipTitle>{title}</TipTitle>
           {SLICES.map((s) =>
-            (m[s.f] as number) > 0 ? (
-              <TipRow key={s.k} label={s.label} value={money(m[s.f] as number)} swatch={<Swatch k={s.k} color={color} />} />
-            ) : null,
+            (m[s.f] as number) > 0 ? <TipRow key={s.k} label={s.label} value={money(m[s.f] as number)} swatch={<Swatch k={s.k} />} /> : null,
           )}
         </div>
       }
     >
       <div
-        className={`flex h-full gap-[2px] ${dir === "left" ? "flex-row-reverse" : ""}`}
+        className={`flex h-full gap-[2px] ${dir === "left" ? "grow-r flex-row-reverse" : "grow"}`}
         style={{ width: `${(total / scale) * 100}%` }}
       >
         {SLICES.map((s) => {
           const val = m[s.f] as number;
           if (val <= 0) return null;
-          return (
-            <div
-              key={s.k}
-              className="h-full min-w-[2px] rounded-[3px]"
-              style={{ flexGrow: val, flexBasis: 0, ...sliceStyle(s.k, color) }}
-            />
-          );
+          return <div key={s.k} className={`${sliceClass(s.k)} h-full min-w-[2px] rounded-[3px]`} style={{ flexGrow: val, flexBasis: 0 }} />;
         })}
       </div>
     </Tip>

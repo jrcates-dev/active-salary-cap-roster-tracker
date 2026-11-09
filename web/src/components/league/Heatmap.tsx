@@ -1,29 +1,29 @@
 "use client";
 
 import Link from "next/link";
-import { Fragment, useMemo } from "react";
-import { intensityColor, intensityInk, intensityRamp, unitMark } from "@/design/tokens";
+import { Fragment, useMemo, type CSSProperties } from "react";
+import { rampStep, unitMark, UNITS } from "@/design/tokens";
 import { money, ordinal, pct } from "@/lib/format";
 import type { Group } from "@/lib/types";
 import { ariaSort, byDir, SortHeader, useSort } from "../Sort";
-import { Tip, TipRow } from "../Tip";
+import { TeamChip } from "../TeamChip";
+import { Tip, TipRow, TipTitle } from "../Tip";
 
 export interface HeatRow {
   team: string;
   nick: string;
   name: string;
-  color: string;
+  vars: CSSProperties;
   total: number;
   cells: Record<string, { cap: number; inactive: number }>;
 }
 
 /**
  * 32 teams by 13 position groups. Each cell is the group's share of the team's
- * counted cap, shaded relative to the other 31 teams in that column, so a bright
- * cell means "spends more here than most of the league".
+ * counted cap, shaded against the other 31 teams in that column, so a dark cell
+ * means "spends more here than most of the league". Click a column to rank by it.
  */
 export function Heatmap({ groups, rows }: { groups: Group[]; rows: HeatRow[] }) {
-  // Team names read A to Z first; every money column reads biggest share first.
   const [sort, toggleSort] = useSort<string>("team", (k) => (k === "team" ? "asc" : "desc"));
 
   const ranges = useMemo(() => {
@@ -48,25 +48,41 @@ export function Heatmap({ groups, rows }: { groups: Group[]; rows: HeatRow[] }) 
     return [...rows].sort((a, b) => byDir(share(a), share(b), dir) || byName(a, b));
   }, [rows, sort]);
 
+  const unitSpan = (u: string) => groups.filter((g) => g.unit === u).length;
+
   return (
     <div>
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-3 text-sm text-fg-muted">
-        <p>Share of each team&apos;s counted cap. Click a column to rank teams by it, and click again to flip the order.</p>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-[13px] text-ink-2">
+        <p>Share of team cap, shaded within each column</p>
         <div className="flex items-center gap-2" aria-label="Color scale">
-          <span>Less than the league</span>
+          <span>Less</span>
           <span className="flex gap-[2px]">
-            {intensityRamp.map((c) => (
-              <span key={c} className="h-3 w-4 rounded-[2px]" style={{ background: c }} />
+            {Array.from({ length: 9 }, (_, i) => (
+              <span key={i} className="h-2.5 w-3.5 rounded-[2px]" style={{ background: `var(--ramp-${i})` }} />
             ))}
           </span>
           <span>More</span>
         </div>
       </div>
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[760px] table-fixed border-separate border-spacing-[2px] text-sm">
+      <div className="strip -mx-4 px-4 sm:mx-0 sm:px-0">
+        <table className="w-full min-w-[820px] table-fixed border-separate border-spacing-[2px] text-[13px]">
           <thead>
             <tr>
-              <th scope="col" className="w-28 text-left font-medium" aria-sort={ariaSort(sort.key === "team", sort.dir)}>
+              <td className="w-[7.5rem]" />
+              {UNITS.map((u, i) => (
+                <Fragment key={u}>
+                  {i > 0 && <td className="w-1.5" />}
+                  <th scope="colgroup" colSpan={unitSpan(u)} className="pb-1 text-center text-[11px] font-medium tracking-[0.08em] text-ink-3 uppercase">
+                    <span aria-hidden className="mr-1.5 text-[9px]">
+                      {unitMark[u].glyph}
+                    </span>
+                    {unitMark[u].label}
+                  </th>
+                </Fragment>
+              ))}
+            </tr>
+            <tr>
+              <th scope="col" className="sticky left-0 z-10 bg-bg text-left text-xs font-medium text-ink-3" aria-sort={ariaSort(sort.key === "team", sort.dir)}>
                 <SortHeader
                   active={sort.key === "team"}
                   dir={sort.dir}
@@ -80,22 +96,9 @@ export function Heatmap({ groups, rows }: { groups: Group[]; rows: HeatRow[] }) 
               </th>
               {groups.map((g, i) => (
                 <Fragment key={g.code}>
-                  {i > 0 && groups[i - 1].unit !== g.unit && <th aria-hidden className="w-2" />}
-                  <th
-                    scope="col"
-                    title={g.label}
-                    className="font-medium"
-                    aria-sort={ariaSort(sort.key === g.code, sort.dir)}
-                  >
-                    <span aria-hidden className="block text-[10px] text-fg-faint">
-                      {unitMark[g.unit].glyph}
-                    </span>
-                    <SortHeader
-                      active={sort.key === g.code}
-                      dir={sort.dir}
-                      onClick={() => toggleSort(g.code)}
-                      label={`${g.label} share`}
-                    >
+                  {i > 0 && groups[i - 1].unit !== g.unit && <th aria-hidden className="w-1.5" />}
+                  <th scope="col" title={g.label} className="pb-1 text-center text-xs font-medium text-ink-3" aria-sort={ariaSort(sort.key === g.code, sort.dir)}>
+                    <SortHeader active={sort.key === g.code} dir={sort.dir} onClick={() => toggleSort(g.code)} label={`${g.code} share (${g.label})`} align="center">
                       {g.code}
                     </SortHeader>
                   </th>
@@ -106,39 +109,37 @@ export function Heatmap({ groups, rows }: { groups: Group[]; rows: HeatRow[] }) 
           <tbody>
             {sorted.map((r) => (
               <tr key={r.team}>
-                <th scope="row" className="pr-2 text-left font-normal">
-                  <Link href={`/team/${r.team}`} className="flex items-center gap-2 hover:underline">
-                    <span aria-hidden className="h-3 w-3 shrink-0 rounded-[3px]" style={{ background: r.color }} />
-                    <span className="num text-base font-semibold">{r.nick}</span>
-                  </Link>
+                <th scope="row" className="sticky left-0 z-10 bg-bg pr-2 text-left font-normal">
+                  <TeamChip team={r.team} nick={r.nick} vars={r.vars} size="sm" />
                 </th>
                 {groups.map((g, i) => {
                   const cell = r.cells[g.code] ?? { cap: 0, inactive: 0 };
                   const share = cell.cap / r.total;
                   const range = ranges[g.code];
                   const t = range.max > range.min ? (share - range.min) / (range.max - range.min) : 0;
+                  const step = rampStep(t);
                   const gap = i > 0 && groups[i - 1].unit !== g.unit;
                   return (
                     <Fragment key={g.code}>
-                    {gap && <td aria-hidden />}
-                    <Tip
-                      as="td"
-                      className="num h-8 rounded-[3px] text-center text-[15px]"
-                      style={{ background: intensityColor(t), color: intensityInk(t) }}
-                      content={
-                        <div className="space-y-1">
-                          <div className="font-semibold">
-                            {r.name} · {g.label}
+                      {gap && <td aria-hidden />}
+                      <Tip
+                        as="td"
+                        className="num h-8 rounded-[4px] text-center transition-[box-shadow] duration-(--dur-1) hover:shadow-[inset_0_0_0_2px_var(--ink)]"
+                        style={{ background: `var(--ramp-${step})`, color: `var(--ramp-ink-${step})` }}
+                        content={
+                          <div>
+                            <TipTitle>
+                              {r.name} · {g.label}
+                            </TipTitle>
+                            <TipRow label="Cap" value={money(cell.cap)} />
+                            <TipRow label="Share of cap" value={pct(share)} />
+                            <TipRow label="Out this week" value={money(cell.inactive)} />
+                            <TipRow label="Rank by share" value={`${ordinal(range.ranks[r.team])} of 32`} />
                           </div>
-                          <TipRow label="Cap" value={money(cell.cap)} />
-                          <TipRow label="Share of team cap" value={pct(share)} />
-                          <TipRow label="Out this week" value={money(cell.inactive)} />
-                          <TipRow label="League rank by share" value={`${ordinal(range.ranks[r.team])} of 32`} />
-                        </div>
-                      }
-                    >
-                      {(share * 100).toFixed(share < 0.1 ? 1 : 0)}
-                    </Tip>
+                        }
+                      >
+                        {(share * 100).toFixed(share < 0.1 ? 1 : 0)}
+                      </Tip>
                     </Fragment>
                   );
                 })}
@@ -147,6 +148,9 @@ export function Heatmap({ groups, rows }: { groups: Group[]; rows: HeatRow[] }) 
           </tbody>
         </table>
       </div>
+      <p className="sr-only">
+        <Link href="/methodology">How shares are computed</Link>
+      </p>
     </div>
   );
 }

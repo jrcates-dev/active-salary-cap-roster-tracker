@@ -1,14 +1,17 @@
 @import "tailwindcss";
 
 /*
- * Design tokens. Color does four jobs and nothing else:
+ * Design tokens. Color does six jobs and nothing else:
  *   surfaces and ink      neutral, one scale per theme
  *   team color            identity (set per element by the .tc class, see tokens.ts)
+ *   money status          one fixed hue per availability state (--st-*), the same on
+ *                         every page: teal active, amber questionable, red out this
+ *                         week, berry out long-term, violet out for season, neutral
+ *                         practice squad and dead money (.s-*)
  *   intensity ramp        one amber hue for "share of cap" in the league heatmap
  *   accent                one orange, only where it carries meaning (a real edge, focus)
  *   unit                  blue offense, green defense, gold special teams, only where a
  *                         chart splits money by unit (and the unit marks that label it)
- * Availability states are patterns on the team color (.s-*), so none depends on hue.
  */
 :root {
   color-scheme: light;
@@ -33,6 +36,24 @@
   --unit-off: #2a78d6;
   --unit-def: #199e70;
   --unit-st: #c98500;
+  /*
+   * Money status. Validated in bar order (adjacent pairs) on #ffffff: every pair
+   * clears ΔE 15 for normal vision and ΔE 9 under protan, deutan and tritan
+   * simulation. Amber sits under 3:1 on white, so it always carries a dashed ring,
+   * a label or a swatch beside its name. Hatch, pinstripe and dots repeat the
+   * three "not a plain fill" states so none depends on hue alone.
+   */
+  --st-active: #0a95a6;
+  --st-active-ink: #111827; /* 4.9:1 */
+  --st-questionable: #efab00;
+  --st-questionable-ink: #111827; /* 8.9:1 */
+  --st-week: #e33b3b;
+  --st-week-ink: #ffffff; /* 4.2:1 */
+  --st-long: #b32d8a;
+  --st-long-ink: #ffffff; /* 5.7:1 */
+  --st-year: #6a3ec2;
+  --st-year-ink: #ffffff; /* 6.8:1 */
+  --st-dead-ink: #111827;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --dur-1: 120ms;
   --dur-2: 200ms;
@@ -64,6 +85,18 @@
     --unit-off: #3987e5;
     --unit-def: #199e70;
     --unit-st: #c98500;
+    /* Money status stepped for #141821: all clear 3:1 there and the same pair checks. */
+    --st-active: #1ba3b3;
+    --st-active-ink: #111827; /* 5.9:1 */
+    --st-questionable: #f2b318;
+    --st-questionable-ink: #111827; /* 9.5:1 */
+    --st-week: #f4543e;
+    --st-week-ink: #111827; /* 5.2:1 */
+    --st-long: #cf47a6;
+    --st-long-ink: #111827; /* 4.3:1 */
+    --st-year: #8f6be6;
+    --st-year-ink: #111827; /* 4.6:1 */
+    --st-dead-ink: #eef1f5;
   }
 }
 
@@ -180,65 +213,93 @@ body {
   --team: var(--tc);
   --team-ink: var(--tc-ink);
 }
-.tc-neutral {
-  --team: #94a0b4;
-  --team-ink: #111827;
-}
 @media (prefers-color-scheme: dark) {
   .tc {
     --team: var(--tc-d);
     --team-ink: var(--tc-d-ink);
   }
-  .tc-neutral {
-    --team: #8a97ad;
-  }
 }
 
 /*
- * Availability fills on the team color. Each state differs in pattern as well as
- * tone, so none depends on color alone:
- *   active         solid
- *   questionable   40% tint in a dashed ring
- *   inactive       bold 135deg hatch (out for this game)
- *   season         flat 20% tint with a thin ring (reserve list, can return)
- *   year           thin 45deg pinstripe with a ring (reserve list, done for the year)
+ * Money status fills. Each state has its own hue (--st-*, above), and the three
+ * that are not a plain fill keep a texture too, so none depends on color alone:
+ *   active         solid teal
+ *   questionable   solid amber in a dashed ring
+ *   inactive       red with a darker 135deg hatch (out for this game)
+ *   season         solid berry (reserve list, can return)
+ *   year           violet with a darker 45deg pinstripe (reserve list, done for the year)
  *   unknown        neutral dots (practice squad)
  *   dead           flat neutral
+ * Each class also sets --s (its hue) and --s-ink (text that reads on it).
  */
 .s-active {
-  background: var(--team);
+  --s: var(--st-active);
+  --s-ink: var(--st-active-ink);
+  background: var(--s);
 }
 .s-questionable {
-  background: color-mix(in srgb, var(--team) 40%, var(--surface));
-  outline: 1.5px dashed var(--team);
+  --s: var(--st-questionable);
+  --s-ink: var(--st-questionable-ink);
+  background: var(--s);
+  outline: 1.5px dashed color-mix(in srgb, var(--s) 55%, #000);
   outline-offset: -1.5px;
 }
 .s-inactive {
+  --s: var(--st-week);
+  --s-ink: var(--st-week-ink);
   background: repeating-linear-gradient(
     135deg,
-    var(--team) 0 3px,
-    color-mix(in srgb, var(--team) 16%, var(--surface)) 3px 7px
+    color-mix(in srgb, var(--s) 72%, #000) 0 2px,
+    var(--s) 2px 6px
   );
 }
 .s-season {
-  background: color-mix(in srgb, var(--team) 20%, var(--surface));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--team) 50%, transparent);
+  --s: var(--st-long);
+  --s-ink: var(--st-long-ink);
+  background: var(--s);
 }
 .s-year {
+  --s: var(--st-year);
+  --s-ink: var(--st-year-ink);
   background: repeating-linear-gradient(
     45deg,
-    color-mix(in srgb, var(--team) 60%, transparent) 0 1.5px,
-    transparent 1.5px 6px
+    color-mix(in srgb, var(--s) 70%, #000) 0 1.5px,
+    var(--s) 1.5px 5px
   );
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--team) 65%, transparent);
 }
 .s-unknown {
+  --s: var(--ps-dot);
+  --s-ink: var(--ink);
   background:
     radial-gradient(var(--ps-dot) 1px, transparent 1.3px) 0 0 / 5px 5px,
     var(--ps-fill);
 }
 .s-dead {
+  --s: var(--dead);
+  --s-ink: var(--st-dead-ink);
   background: var(--dead);
+}
+
+/*
+ * A tile that leads with one money status: a band of the status hue across the
+ * top and a faint wash of it behind the figure. The figure itself stays in ink.
+ */
+.tone {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--s) 10%, var(--surface)) 0%,
+    var(--surface) 70%
+  );
+  border-color: color-mix(in srgb, var(--s) 30%, var(--line));
+}
+.tone::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  background: var(--s);
 }
 
 /* Swatch: the legend's and the table's small square of a state. */

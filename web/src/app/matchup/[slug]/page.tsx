@@ -172,7 +172,7 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
             );
           })}
         </div>
-        <div className="tc-neutral">
+        <div>
           <AvailabilityLegend keys={["active", "questionable", "inactive", "season", "year"]} short />
         </div>
       </section>

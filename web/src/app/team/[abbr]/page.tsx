@@ -11,7 +11,7 @@ import { PlayerTable } from "@/components/team/PlayerTable";
 import { TeamTrend } from "@/components/team/TeamTrend";
 import { Treemap } from "@/components/team/Treemap";
 import { SectionHead, WRAP } from "@/components/ui";
-import { teamVars, UNITS } from "@/design/tokens";
+import { STATUS_COLOR, teamVars, UNITS } from "@/design/tokens";
 import { slicesOf } from "@/lib/availability";
 import { getSnapshot, groupLeagueStats, kickoffLabel, matchupHref, teamGame, teamView } from "@/lib/data";
 import { dayLabel, money, pct } from "@/lib/format";
@@ -96,11 +96,11 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
               <MoneyToggle />
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-              <Kpi label="Out this week" k="inactive">
-                <Amount value={summary.cap_inactive_week} />
-              </Kpi>
               <Kpi label="Questionable" k="questionable">
                 <Amount value={summary.cap_questionable} />
+              </Kpi>
+              <Kpi label="Out this week" k="inactive">
+                <Amount value={summary.cap_inactive_week} />
               </Kpi>
               <Kpi label="Out long-term" k="season" note="Can return">
                 <Amount value={summary.cap_inactive_season} />
@@ -150,7 +150,7 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
 
 function Kpi({ label, k, note, children }: { label: string; k?: "inactive" | "questionable" | "season" | "year" | "dead"; note?: string; children: React.ReactNode }) {
   return (
-    <div className="card px-4 py-3">
+    <div className={`card px-4 py-3 ${k ? "tone pt-4" : ""}`} style={k ? ({ "--s": STATUS_COLOR[k] } as React.CSSProperties) : undefined}>
       <p className="flex items-center gap-2 text-[13px] text-ink-2">
         {k && <Swatch k={k} />}
         <span className="truncate">{label}</span>

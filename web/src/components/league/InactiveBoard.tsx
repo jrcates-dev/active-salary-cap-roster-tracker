@@ -103,7 +103,7 @@ export function InactiveBoard({
           )
         }
       />
-      <div className="tc-neutral mb-3 -ml-2 flex flex-wrap items-center gap-0.5" role="group" aria-label="Rank teams by">
+      <div className="mb-3 -ml-2 flex flex-wrap items-center gap-0.5" role="group" aria-label="Rank teams by">
         {SORT_KEYS.map((k) => (
           <SortChip
             key={k}

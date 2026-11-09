@@ -5,7 +5,7 @@ import { OffenseShare } from "@/components/league/OffenseShare";
 import { PlayersOut, type OutRow } from "@/components/league/PlayersOut";
 import { WeekGames } from "@/components/WeekGames";
 import { PageHead, SectionHead, Stat, WRAP } from "@/components/ui";
-import { teamVars, UNITS } from "@/design/tokens";
+import { STATUS_COLOR, teamVars, UNITS } from "@/design/tokens";
 import { cardTeams, getSnapshot, weekSlates } from "@/lib/data";
 import { money, pct } from "@/lib/format";
 import type { Absence } from "@/lib/types";
@@ -15,6 +15,7 @@ export default async function LeaguePage() {
   type Col = "cap_total" | "cap_active" | "cap_inactive_week" | "cap_inactive_season" | "cap_inactive_year" | "cap_questionable" | "cap_unknown";
   const sum = (k: Col) => s.summary.reduce((acc, t) => acc + (t[k] ?? 0), 0);
   const total = sum("cap_total");
+  const active = sum("cap_active");
   const outWeek = sum("cap_inactive_week");
   const outSeason = sum("cap_inactive_season");
   const outYear = sum("cap_inactive_year");
@@ -55,40 +56,50 @@ export default async function LeaguePage() {
         <PageHead eyebrow={`${s.season} season · Week ${s.week}`} title="League" />
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
           <div className="col-span-2 lg:col-span-1">
-            <Stat label="Counted cap" value={money(total, 2)} sub="32 rosters" />
+            <Stat
+              label="Active"
+              swatch={<Swatch k="active" />}
+              tone={STATUS_COLOR.active}
+              value={money(active, 2)}
+              sub={`${pct(active / total)} of ${money(total, 2)} counted`}
+            />
           </div>
           <Stat
-            label="Out this week"
-            swatch={<Swatch k="inactive" className="tc-neutral" />}
-            value={money(outWeek)}
-            sub={`${pct(outWeek / total)} · ${count("week")} players`}
-          />
-          <Stat
             label="Questionable"
-            swatch={<Swatch k="questionable" className="tc-neutral" />}
+            swatch={<Swatch k="questionable" />}
+            tone={STATUS_COLOR.questionable}
             value={money(questionable)}
             sub={`${pct(questionable / total)} · ${nQuestionable} players`}
           />
           <Stat
+            label="Out this week"
+            swatch={<Swatch k="inactive" />}
+            tone={STATUS_COLOR.inactive}
+            value={money(outWeek)}
+            sub={`${pct(outWeek / total)} · ${count("week")} players`}
+          />
+          <Stat
             label="Out long-term"
-            swatch={<Swatch k="season" className="tc-neutral" />}
+            swatch={<Swatch k="season" />}
+            tone={STATUS_COLOR.season}
             value={money(outSeason)}
             sub={`${pct(outSeason / total)} · ${count("season")} players`}
           />
           <Stat
             label="Out for season"
-            swatch={<Swatch k="year" className="tc-neutral" />}
+            swatch={<Swatch k="year" />}
+            tone={STATUS_COLOR.year}
             value={money(outYear)}
             sub={`${pct(outYear / total)} · ${count("year")} players`}
           />
         </div>
-        <div className="tc-neutral space-y-2.5">
+        <div className="card space-y-3 px-4 py-4">
           <AvailabilityBar
-            height={28}
+            height={32}
             labels
             title="All 32 teams"
             slices={{
-              active: sum("cap_active"),
+              active,
               questionable,
               inactive: outWeek,
               season: outSeason,

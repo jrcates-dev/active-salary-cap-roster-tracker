@@ -134,7 +134,7 @@ Four pages carry the product. Each one answers a single question and leads with 
 
 ## Design direction
 
-> **As built (2026-11-09):** the site ships on a restrained neutral base, light by default and dark when the system asks for it, with one typeface (Inter), tokens for type, spacing, radius, color and motion in `web/src/app/globals.css`, and the color jobs below kept as written: team color for identity, one amber ramp for intensity, patterns on the team color for availability, and a single orange accent only where it carries meaning. The dark broadcast look described next was the Phase 1 starting point.
+> **As built (2026-11-09):** the site ships on a restrained neutral base, light by default and dark when the system asks for it, with one typeface (Inter), tokens for type, spacing, radius, color and motion in `web/src/app/globals.css`, and the color jobs below kept as written: team color for identity, one amber ramp for intensity, a fixed money-status palette for availability (see the Availability row below), and a single orange accent only where it carries meaning. The dark broadcast look described next was the Phase 1 starting point.
 
 The look is a dark broadcast-graphics dashboard: near-black background, dense but orderly type, and color used only where it carries meaning. The reference points are NFL Next Gen Stats overlays and a Bloomberg terminal, not a generic admin template. Every page should be screenshot-worthy, because screenshots are how a stats site spreads.
 
@@ -145,7 +145,7 @@ Color does three jobs and nothing else, so a reader never has to guess what a hu
 | Job | Treatment | Where it shows |
 | --- | --- | --- |
 | Team identity | The team's primary color fills its bars and tiles; the secondary color is an accent only. Two teams on one page each keep their own color | Team page, matchup page, league grid |
-| Availability | Active money is solid team color. Inactive money is the same hue at 35% opacity with a diagonal hatch. Dead money is a flat neutral gray. Questionable is solid with a dashed outline | Gameday bars, treemap tiles, player rows |
+| Availability | One fixed hue per money status, the same on every page and team, stepped per theme (`--st-*` in globals.css): active teal, questionable amber with a dashed ring, out this week red with a darker hatch, out long-term berry, out for season violet with a darker pinstripe, practice squad neutral dots, dead money flat neutral gray. Validated in bar order for normal vision and color-vision deficiency in both themes, and kept clear of the unit hues (blue, green, gold). Team color stays for identity (chips, switcher, headers). *As built 2026-11-09; earlier versions drew these as patterns on the team color, which read as one gray-blue block on the league page.* | Gameday bars, treemap tiles, player rows, stat tiles |
 | Intensity | One sequential ramp (deep navy to hot orange) for percent of cap in the league heatmap and for league-rank badges. Never used for team identity | League heatmap, rank badges, matchup gap labels |
 
 Units get a fixed mark and, only where a chart splits money by unit, a fixed hue: offense is a blue filled circle, defense a green filled square, special teams a gold diamond. The hues are validated as a set for color-vision deficiency and contrast in both themes, and the mark shapes keep the unit readable without color. Team colors never appear inside a unit split, so the two meanings never share a chart.

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 /** Page width and gutters, the same on every page. */
 export const WRAP = "mx-auto w-full max-w-[1200px] px-4 sm:px-6";
@@ -55,23 +55,26 @@ export function SectionHead({
 
 /**
  * Stat tile: label, value, one line of context. The value uses proportional
- * figures; tabular figures are for columns.
+ * figures; tabular figures are for columns. `tone` (a money status hue from
+ * STATUS_COLOR) tops the tile with a band of that hue and a faint wash.
  */
 export function Stat({
   label,
   value,
   sub,
   swatch,
+  tone,
   size = "md",
 }: {
   label: ReactNode;
   value: ReactNode;
   sub?: ReactNode;
   swatch?: ReactNode;
+  tone?: string;
   size?: "md" | "lg";
 }) {
   return (
-    <div className="card px-4 py-3.5">
+    <div className={`card px-4 py-3.5 ${tone ? "tone pt-4" : ""}`} style={tone ? ({ "--s": tone } as CSSProperties) : undefined}>
       <p className="flex items-center gap-2 text-[13px] text-ink-2">
         {swatch}
         <span className="truncate">{label}</span>

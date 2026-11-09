@@ -196,7 +196,7 @@ function Leaf({
   const w = node.x1 - node.x0;
   const h = node.y1 - node.y0;
   const k = playerSlice(p);
-  const ink = k === "active" ? "var(--team-ink)" : "var(--ink)";
+  const ink = "var(--s-ink)";
   const status = statusText(p);
   const label = measure ? fitLabel(p, w, h, k !== "active" ? status : null, teamTotal, measure) : null;
   const control = w >= MIN_TARGET && h >= MIN_TARGET;

@@ -8,8 +8,11 @@ import { Tip, TipHint, TipRow, TipTitle } from "./Tip";
 
 export { playerSlice, SLICE_LABEL, SLICE_SHORT, slicesOf, type SliceKey, type Slices } from "@/lib/availability";
 
-/** The CSS class that paints one availability state in the enclosing team color. */
+/** The CSS class that paints one availability state in its money status hue. */
 export const sliceClass = (k: SliceKey) => `s-${k}`;
+
+/** States drawn with a texture; a share printed on them sits on a solid chip of the hue. */
+const TEXTURED = new Set<SliceKey>(["inactive", "year", "unknown"]);
 
 export function Swatch({ k, size = 12, className = "" }: { k: SliceKey; size?: number; className?: string }) {
   return <span aria-hidden className={`sw ${sliceClass(k)} ${className}`} style={{ width: size, height: size }} />;
@@ -32,7 +35,7 @@ function useWidth<T extends HTMLElement>() {
 /**
  * The segmented availability bar used at every level. Thin (8 to 12px) beside a
  * row's figures, tall (28px) with its shares printed inside when it stands alone.
- * It reads the team color from an enclosing `.tc` element. `scale` sets the full
+ * Each state wears its money status hue (globals.css, `.s-*`). `scale` sets the full
  * width in dollars so bars in a list share one axis; `marker` draws a tick.
  */
 export function AvailabilityBar({
@@ -117,8 +120,8 @@ export function AvailabilityBar({
               {labels && px >= 40 && (
                 <span className="pointer-events-none absolute inset-y-0 left-1.5 flex items-center">
                   <span
-                    className={`num rounded-[3px] text-xs font-medium ${k === "active" ? "" : "bg-surface/85 px-1"}`}
-                    style={{ color: k === "active" ? "var(--team-ink)" : "var(--ink)" }}
+                    className={`num rounded-[3px] text-xs font-semibold ${TEXTURED.has(k) ? "px-1" : ""}`}
+                    style={{ color: "var(--s-ink)", background: TEXTURED.has(k) ? "var(--s)" : undefined }}
                   >
                     {share}
                   </span>

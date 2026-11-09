@@ -4,9 +4,14 @@
  * theme's surface, and the ink that reads on that color.
  *
  * Color does five jobs and nothing else (PLAN.md, "Color system"):
- *   1. Team identity   - the team's color fills its marks. Set per element with the
- *                        `tc` class and `teamVars()`, read as `var(--team)`.
- *   2. Availability    - patterns on the team color (globals.css, `.s-*`).
+ *   1. Team identity   - the team's color marks the team: chips, switcher, headers.
+ *                        Set per element with the `tc` class and `teamVars()`, read
+ *                        as `var(--team)`.
+ *   2. Money status    - one fixed hue per availability state, the same on every
+ *                        page and every team (globals.css, `--st-*` and `.s-*`):
+ *                        teal active, amber questionable, red out this week, berry
+ *                        out long-term, violet out for season, neutral practice
+ *                        squad and dead money. Textures repeat the hue's meaning.
  *   3. Intensity       - one amber ramp for share of cap (globals.css, `--ramp-N`).
  *   4. Accent          - one orange, only where it carries meaning.
  *   5. Unit            - blue offense, green defense, gold special teams, only on
@@ -14,6 +19,7 @@
  *                        (offense ●, defense ■, special teams ◆) that label them.
  */
 import type { CSSProperties } from "react";
+import type { SliceKey } from "@/lib/availability";
 import type { Unit } from "@/lib/types";
 
 /** The chart surfaces each theme draws on; team colors must clear 3:1 on them. */
@@ -32,6 +38,17 @@ export const UNIT_COLOR: Record<Unit, string> = {
   offense: "var(--unit-off)",
   defense: "var(--unit-def)",
   special_teams: "var(--unit-st)",
+};
+
+/** Money status hues (globals.css, `--st-*`), stepped per theme. */
+export const STATUS_COLOR: Record<SliceKey, string> = {
+  active: "var(--st-active)",
+  questionable: "var(--st-questionable)",
+  inactive: "var(--st-week)",
+  season: "var(--st-long)",
+  year: "var(--st-year)",
+  unknown: "var(--ps-dot)",
+  dead: "var(--dead)",
 };
 
 /** Units in display order. */

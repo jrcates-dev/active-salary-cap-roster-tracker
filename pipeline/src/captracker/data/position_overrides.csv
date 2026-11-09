@@ -1,0 +1,4 @@
+gsis_id,player,group,reason
+# Hand-maintained. One row per player whose feed label puts them in the wrong group.
+# Example: a 4-3 outside linebacker the roster feed lists as OLB (which defaults to EDGE).
+# gsis_id,Player Name,LB,plays off-ball in a 4-3 front

@@ -28,13 +28,16 @@ jobs:
       CAPTRACKER_SEASON: ${{ inputs.season || '2026' }}
     steps:
       - uses: actions/checkout@v4
+      # setup-uv creates and activates a venv (VIRTUAL_ENV, on PATH) when
+      # python-version is set, so install into it and call the tools bare.
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.12"
-      - run: uv venv && uv pip install -e .
+          cache-dependency-glob: pipeline/pyproject.toml
+      - run: uv pip install -e .
 
       - name: Fetch nflverse sources
-        run: .venv/bin/captracker fetch
+        run: captracker fetch
 
       - name: Build snapshot and reconcile
         id: build
@@ -46,7 +49,7 @@ jobs:
           if [ -n "${{ inputs.week }}" ]; then WEEK_ARG="--week ${{ inputs.week }}"; fi
           DRIFT=""
           if [ "${{ inputs.allow_drift || 'true' }}" = "true" ]; then DRIFT="--allow-drift"; fi
-          .venv/bin/captracker $WEEK_ARG build $DRIFT | tee build.log
+          captracker $WEEK_ARG build $DRIFT | tee build.log
 
       - name: Upload snapshot
         uses: actions/upload-artifact@v4
@@ -61,4 +64,4 @@ jobs:
         if: ${{ secrets.DATABASE_URL != '' }}
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: .venv/bin/captracker load
+        run: captracker load

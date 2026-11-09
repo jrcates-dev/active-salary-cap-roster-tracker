@@ -46,9 +46,10 @@ export function GroupBreakdown({
               </h3>
               <span className="num text-right text-lg text-fg">
                 {fmt(total?.cap_total ?? 0)}
-                {total && total.cap_inactive_week + total.cap_inactive_season > 0 && (
+                {total && total.cap_inactive_week + total.cap_inactive_season + (total.cap_inactive_year ?? 0) > 0 && (
                   <span className="ml-3 text-sm text-fg-muted">
                     {fmt(total.cap_inactive_week)} out this week · {fmt(total.cap_inactive_season)} long-term
+                    {(total.cap_inactive_year ?? 0) > 0 && <> · {fmt(total.cap_inactive_year ?? 0)} for season</>}
                   </span>
                 )}
               </span>
@@ -82,7 +83,7 @@ export function GroupBreakdown({
                       slices={
                         r
                           ? slicesOf(r)
-                          : { active: 0, questionable: 0, inactive: 0, season: 0, unknown: 0 }
+                          : { active: 0, questionable: 0, inactive: 0, season: 0, year: 0, unknown: 0 }
                       }
                       marker={l.median}
                       markerLabel={`League median for ${l.group.code}: ${money(l.median)}`}
@@ -94,6 +95,9 @@ export function GroupBreakdown({
                       )}
                       {r && r.cap_inactive_season > 0 && (
                         <div className="text-xs text-fg-faint">{fmt(r.cap_inactive_season)} long-term</div>
+                      )}
+                      {r && (r.cap_inactive_year ?? 0) > 0 && (
+                        <div className="text-xs text-fg-faint">{fmt(r.cap_inactive_year ?? 0)} for season</div>
                       )}
                     </div>
                     <div

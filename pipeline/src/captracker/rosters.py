@@ -8,8 +8,20 @@ Gameday flag rules (from the accounting rules in PLAN.md):
                the team's game is final (he dressed; INA marks the ones who did not)
   unknown      anything else (practice squad, cut, retired) - not counted toward a unit
 Each inactive row carries a reason so the UI can say why, and an absence type:
-  season       reserve lists (IR, PUP, NFI, suspension, other reserve) - out for weeks
   week         this game only: ruled Out, Doubtful, or on the gameday inactive list
+  season       a reserve list (IR, PUP, NFI, suspension, other reserve): out for weeks,
+               but able to come back this season
+  year         a reserve list, and done for the season (see `season_outlook`)
+
+Telling `season` from `year` is the hard part: no free feed says an injury ends a
+season. Two roster codes do, and a hand-kept table covers the rest
+(`data/season_outlook_<season>.csv`):
+  - override row    the table says out for the season, or coming back   -> as listed
+  - R48 / R49       designated for return, practice window open        -> season
+  - window closed   back on IR or PUP after a return window without
+                    being activated; league rules keep him out the year -> year
+  - anything else   no signal; counted as able to come back             -> season
+`outlook_basis` names which rule decided, and `outlook_note` carries the table's note.
 
 The weekly roster file carries a week's rows from before kickoff (everyone ACT) and
 adds the gameday inactives (INA) after the game. When the schedule has moved on to a
@@ -23,6 +35,7 @@ from __future__ import annotations
 import polars as pl
 
 from . import sources
+from .config import PACKAGE_DATA
 from .teams import LEGACY_ABBR
 
 INACTIVE_ROSTER = {
@@ -41,6 +54,15 @@ REPORT_INACTIVE = {"Out": "out", "Doubtful": "doubtful"}
 
 # Reserve lists: the player is out for weeks, not just this game.
 SEASON_LONG_ROSTER = {"RES", "PUP", "NFI", "SUS", "RSN", "RSR"}
+
+# Detail codes (`status_description_abbr`) for a reserve player whose 21-day return
+# window is open: Reserve/Injured or Reserve/PUP, designated for return.
+DESIGNATED_FOR_RETURN = {"R48", "R49"}
+# Reserve/Injured, Reserve/PUP, Reserve/NFI. A player who goes back to one of these from
+# a return window, without being activated, must stay there for the rest of the season.
+RETURN_WINDOW_LISTS = {"R01", "R04", "R05"}
+
+OUTLOOKS = {"out_for_season": "year", "returning": "season"}
 
 
 def team_games(games: pl.DataFrame, season: int) -> pl.DataFrame:
@@ -118,12 +140,14 @@ def player_week_status(
     season: int,
     games: pl.DataFrame | None = None,
     through_week: int | None = None,
+    outlook: pl.DataFrame | None = None,
 ) -> pl.DataFrame:
     """Combine weekly rosters and the injury report for every week in the season.
 
     With `games`, a player on the active roster of a team whose game is final counts as
     active whatever his report said: the roster file's INA status is the official list
     of who sat. With `through_week`, rosters are projected forward to that week.
+    `outlook` is the hand-kept out-for-season table (`load_season_outlook`).
     """
     r = (
         rosters.filter((pl.col("season") == season) & (pl.col("game_type") == "REG"))
@@ -189,14 +213,112 @@ def player_week_status(
         .alias("gameday_flag"),
         pl.coalesce(roster_reason, report_reason).alias("inactive_reason"),
     )
-    return out.with_columns(
+    out = out.with_columns(
         pl.when(pl.col("gameday_flag") != "inactive")
         .then(pl.lit(None, dtype=pl.String))
         .when(pl.col("roster_status").is_in(list(SEASON_LONG_ROSTER)))
         .then(pl.lit("season"))
         .otherwise(pl.lit("week"))
         .alias("absence")
-    ).sort(["week", "team", "player_name"])
+    )
+    return season_outlook(out, outlook).sort(["week", "team", "player_name"])
+
+
+def _return_window_closed() -> pl.Expr:
+    """True on a reserve row whose last different detail code was a return window.
+
+    R48, R48, R01 means the window ran out (or the team shut him down) without an
+    activation; R48, A01, R01 is a new injury after he came back, and stays open.
+    """
+    detail = pl.col("roster_status_detail")
+    changed = detail.ne_missing(detail.shift(1).over("gsis_id", order_by="week"))
+    # The code a player held before his current run of identical codes.
+    prev_run = (
+        pl.when(changed)
+        .then(detail.shift(1).over("gsis_id", order_by="week"))
+        .otherwise(None)
+        .forward_fill()
+        .over("gsis_id", order_by="week")
+    )
+    return detail.is_in(list(RETURN_WINDOW_LISTS)) & prev_run.is_in(list(DESIGNATED_FOR_RETURN))
+
+
+def season_outlook(status: pl.DataFrame, outlook: pl.DataFrame | None = None) -> pl.DataFrame:
+    """Split reserve-list absences into `season` (can come back) and `year` (done).
+
+    `outlook` is the hand-kept table (gsis_id, outlook, from_week, note); a row applies
+    from `from_week` on (every week when blank). See the module docstring for the rules.
+    """
+    detail = pl.col("roster_status_detail")
+    df = status.with_columns(_return_window_closed().fill_null(False).alias("_closed"))
+    if outlook is not None and outlook.height:
+        o = outlook.select(
+            "gsis_id",
+            pl.col("outlook").alias("_outlook"),
+            pl.col("from_week").cast(pl.Int32).fill_null(0).alias("_from"),
+            pl.col("note").alias("_note"),
+        )
+        # Several rows for one player: the latest one in effect wins.
+        df = (
+            df.join(o, on="gsis_id", how="left")
+            .with_columns((pl.col("week") >= pl.col("_from")).fill_null(False).alias("_eff"))
+            .with_columns(
+                pl.when(pl.col("_eff")).then(pl.col(c)).otherwise(None).alias(c)
+                for c in ("_outlook", "_note", "_from")
+            )
+            .sort("_eff", "_from", nulls_last=False)
+            .unique(subset=["season", "week", "gsis_id"], keep="last")
+            .drop("_eff", "_from")
+        )
+    else:
+        df = df.with_columns(
+            pl.lit(None, dtype=pl.String).alias("_outlook"),
+            pl.lit(None, dtype=pl.String).alias("_note"),
+        )
+    reserve = pl.col("absence").is_in(["season", "year"]).fill_null(False)
+    override = pl.col("_outlook").replace_strict(OUTLOOKS, default=None, return_dtype=pl.String)
+    return df.with_columns(
+        pl.when(~reserve)
+        .then(pl.col("absence"))
+        .when(override.is_not_null())
+        .then(override)
+        .when(detail.is_in(list(DESIGNATED_FOR_RETURN)))
+        .then(pl.lit("season"))
+        .when(pl.col("_closed"))
+        .then(pl.lit("year"))
+        .otherwise(pl.lit("season"))
+        .alias("absence"),
+        pl.when(~reserve)
+        .then(pl.lit(None, dtype=pl.String))
+        .when(override.is_not_null())
+        .then(pl.lit("table"))
+        .when(detail.is_in(list(DESIGNATED_FOR_RETURN)))
+        .then(pl.lit("designated_for_return"))
+        .when(pl.col("_closed"))
+        .then(pl.lit("return_window_closed"))
+        .otherwise(pl.lit(None, dtype=pl.String))
+        .alias("outlook_basis"),
+        pl.when(reserve & override.is_not_null())
+        .then(pl.col("_note"))
+        .otherwise(pl.lit(None, dtype=pl.String))
+        .alias("outlook_note"),
+    ).drop("_closed", "_outlook", "_note")
+
+
+def load_season_outlook(season: int) -> pl.DataFrame | None:
+    """The hand-kept out-for-season / coming-back table, or None when there is none."""
+    path = PACKAGE_DATA / f"season_outlook_{season}.csv"
+    if not path.exists():
+        return None
+    df = pl.read_csv(
+        path,
+        comment_prefix="#",
+        schema_overrides={"gsis_id": pl.String, "from_week": pl.Int32, "note": pl.String},
+    )
+    bad = set(df["outlook"].to_list()) - set(OUTLOOKS)
+    if bad:
+        raise ValueError(f"unknown outlook {sorted(bad)} in {path.name}")
+    return df
 
 
 def load_player_week_status(season: int, through_week: int | None = None) -> pl.DataFrame:
@@ -206,6 +328,7 @@ def load_player_week_status(season: int, through_week: int | None = None) -> pl.
         season,
         games=sources.read("games"),
         through_week=through_week,
+        outlook=load_season_outlook(season),
     )
 
 

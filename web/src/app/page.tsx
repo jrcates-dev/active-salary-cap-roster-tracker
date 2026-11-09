@@ -7,19 +7,24 @@ import { PlayersOut, type OutRow } from "@/components/league/PlayersOut";
 import { displayColor } from "@/design/tokens";
 import { getSnapshot, weekGames } from "@/lib/data";
 import { money, pct } from "@/lib/format";
+import type { Absence } from "@/lib/types";
 
 export default async function LeaguePage() {
   const s = await getSnapshot();
-  const sum = (k: "cap_total" | "cap_inactive_week" | "cap_inactive_season" | "cap_questionable") =>
+  const sum = (
+    k: "cap_total" | "cap_inactive_week" | "cap_inactive_season" | "cap_inactive_year" | "cap_questionable",
+  ) =>
     s.summary.reduce((acc, t) => acc + (t[k] ?? 0), 0);
   const total = sum("cap_total");
   const outWeek = sum("cap_inactive_week");
   const outSeason = sum("cap_inactive_season");
+  const outYear = sum("cap_inactive_year");
   const questionable = sum("cap_questionable");
-  const isOut = (kind: "week" | "season") => (p: (typeof s.players)[number]) =>
+  const isOut = (kind: Absence) => (p: (typeof s.players)[number]) =>
     p.flag === "inactive" && (p.absence ?? "week") === kind;
   const nWeek = s.players.filter(isOut("week")).length;
   const nSeason = s.players.filter(isOut("season")).length;
+  const nYear = s.players.filter(isOut("year")).length;
   const teamsById = Object.fromEntries(s.teams.map((t) => [t.team, t]));
   const games = weekGames(s);
   const finals = games.filter((g) => g.away_score !== null && g.home_score !== null).length;
@@ -38,7 +43,7 @@ export default async function LeaguePage() {
     return { team: t.team, nick: team.nick, name: team.name, color: displayColor(team), total: t.cap_total, cells };
   });
 
-  const outRows = (kind: "week" | "season"): OutRow[] =>
+  const outRows = (kind: Absence): OutRow[] =>
     s.players
       .filter(isOut(kind))
       .sort((a, b) => b.cap - a.cap)
@@ -60,8 +65,8 @@ export default async function LeaguePage() {
             Where the money is, and whether it&apos;s playing
           </h1>
         </div>
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <Hero label="Cap counted across 32 rosters" value={money(total, 2)} />
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+          <Hero label="Cap counted across 32 rosters" value={money(total, 2)} wide />
           <Hero
             label={`Out this week · ${nWeek} players`}
             value={money(outWeek)}
@@ -74,9 +79,14 @@ export default async function LeaguePage() {
             sub={questionable > 0 ? `${pct(questionable / total)} of cap` : "Every reported player is decided"}
           />
           <Hero
-            label={`Out long-term (IR, PUP) · ${nSeason} players`}
+            label={`Out long-term, can return · ${nSeason} players`}
             value={money(outSeason)}
-            sub={`${pct(outSeason / total)} of cap`}
+            sub={`${pct(outSeason / total)} of cap · IR, PUP, NFI`}
+          />
+          <Hero
+            label={`Out for season · ${nYear} players`}
+            value={money(outYear)}
+            sub={`${pct(outYear / total)} of cap · done for the year`}
           />
         </div>
       </section>
@@ -99,13 +109,16 @@ export default async function LeaguePage() {
         <div>
           <SectionTitle
             title="Money out, team by team"
-            note="Ranked by money out for this week's game. Click any entry below to rank by that money instead, and click it again to flip the order. Long-term reserve lists are the faint band."
+            note="Ranked by money out for this week's game. Click any entry below to rank by that money instead, and click it again to flip the order. Reserve lists are the faint band; the outlined band is money out for the season."
           />
           <InactiveBoard teams={boardTeams} history={history} week={s.week} />
         </div>
         <div>
-          <SectionTitle title="Most expensive players out" note={`Ruled out, doubtful or gameday inactive, and reserve lists, week ${s.week}.`} />
-          <PlayersOut week={s.week} thisWeek={outRows("week")} longTerm={outRows("season")} />
+          <SectionTitle
+            title="Most expensive players out"
+            note={`Ruled out, doubtful or gameday inactive; on a reserve list and able to come back; or done for the season. Week ${s.week}.`}
+          />
+          <PlayersOut week={s.week} thisWeek={outRows("week")} longTerm={outRows("season")} forSeason={outRows("year")} />
         </div>
       </section>
 
@@ -137,9 +150,24 @@ function unitIndex(u: string) {
   return u === "offense" ? 0 : u === "defense" ? 1 : 2;
 }
 
-function Hero({ label, value, sub, accent }: { label: string; value: string; sub?: string; accent?: boolean }) {
+function Hero({
+  label,
+  value,
+  sub,
+  accent,
+  wide,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  accent?: boolean;
+  /** Spans both columns on phones, so the five cards pair up below it. */
+  wide?: boolean;
+}) {
   return (
-    <div className={`rounded-lg border bg-panel px-5 py-4 ${accent ? "border-[#ff7b1c]/50" : "border-border"}`}>
+    <div
+      className={`rounded-lg border bg-panel px-5 py-4 ${accent ? "border-[#ff7b1c]/50" : "border-border"} ${wide ? "col-span-2 lg:col-span-1" : ""}`}
+    >
       <p className="text-sm text-fg-muted">{label}</p>
       <p className="num mt-1 text-4xl leading-none font-bold sm:text-5xl">{value}</p>
       {sub && <p className="mt-1 text-sm text-fg-muted">{sub}</p>}

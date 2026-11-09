@@ -50,7 +50,14 @@ def _shared_frames(season: int, week: int | None) -> dict:
     injuries = sources.read("injuries", season)
     cy = contracts.load_contract_years(season)
     cy = crosswalk.fill_gsis_by_name(cy, roster_raw)
-    status = rosters.player_week_status(roster_raw, injuries, season, games=games, through_week=wk)
+    status = rosters.player_week_status(
+        roster_raw,
+        injuries,
+        season,
+        games=games,
+        through_week=wk,
+        outlook=rosters.load_season_outlook(season),
+    )
     return {
         "season": season,
         "week": wk,
@@ -170,6 +177,7 @@ def _history(f: dict) -> list[dict]:
             "cap_questionable",
             "cap_inactive_week",
             "cap_inactive_season",
+            "cap_inactive_year",
             "cap_unknown",
         )
         .sort(["week", "team", "unit"])

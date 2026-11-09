@@ -85,15 +85,18 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
             </div>
             <MoneyToggle />
           </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             <Kpi label="Out this week" swatch={<Swatch k="inactive" color={color} />}>
               <Amount value={summary.cap_inactive_week} />
             </Kpi>
             <Kpi label="Questionable" swatch={<Swatch k="questionable" color={color} />}>
               <Amount value={summary.cap_questionable} />
             </Kpi>
-            <Kpi label="Out long-term" swatch={<Swatch k="season" color={color} />}>
+            <Kpi label="Out long-term" swatch={<Swatch k="season" color={color} />} note="Can return this season">
               <Amount value={summary.cap_inactive_season} />
+            </Kpi>
+            <Kpi label="Out for season" swatch={<Swatch k="year" color={color} />} note="Done for the year">
+              <Amount value={summary.cap_inactive_year ?? 0} />
             </Kpi>
             <Kpi label="Dead money" swatch={<Swatch k="dead" color={color} />} note={asOf}>
               {summary.dead_money === null ? "–" : money(summary.dead_money)}
@@ -108,7 +111,10 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
             title={team.name}
             slices={{ ...slicesOf(summary), dead: summary.dead_money ?? 0 }}
           />
-          <AvailabilityLegend color={color} keys={["active", "questionable", "inactive", "season", "unknown", "dead"]} />
+          <AvailabilityLegend
+            color={color}
+            keys={["active", "questionable", "inactive", "season", "year", "unknown", "dead"]}
+          />
         </section>
 
         <section className="grid gap-10 lg:grid-cols-2">
@@ -129,7 +135,7 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
           <section className="max-w-3xl">
             <SectionTitle
               title="Money out, week by week"
-              note="Long-term reserve money at the bottom, that week's absences on top. Past weeks use today's cap numbers."
+              note="Money out for the season at the bottom, other reserve-list money above it, that week's absences on top. Past weeks use today's cap numbers."
             />
             <TeamTrend color={color} rows={trend} week={s.week} />
           </section>

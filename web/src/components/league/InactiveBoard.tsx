@@ -3,12 +3,12 @@
 import { useMemo, useState } from "react";
 import { money } from "@/lib/format";
 import type { HistoryRow } from "@/lib/types";
-import { AvailabilityBar, SLICE_LABEL, slicesOf, Swatch, type SliceKey } from "../Availability";
+import { AvailabilityBar, SLICE_SHORT, slicesOf, Swatch, type SliceKey } from "../Availability";
 import { byDir, SortChip, useSort } from "../Sort";
 import { TeamChip } from "../TeamChip";
 
 /** The legend entries, each of which ranks the board by its money when clicked. */
-const SORT_KEYS: SliceKey[] = ["active", "questionable", "inactive", "season", "unknown"];
+const SORT_KEYS: SliceKey[] = ["active", "questionable", "inactive", "season", "year", "unknown"];
 const LEGEND_COLOR = "#c9ced8";
 
 const COLUMN: Record<string, keyof HistoryRow> = {
@@ -16,6 +16,7 @@ const COLUMN: Record<string, keyof HistoryRow> = {
   questionable: "cap_questionable",
   inactive: "cap_inactive_week",
   season: "cap_inactive_season",
+  year: "cap_inactive_year",
   unknown: "cap_unknown",
 };
 
@@ -24,8 +25,12 @@ const SHORT: Record<string, string> = {
   active: "active",
   questionable: "questionable",
   season: "long-term",
+  year: "out for season",
   unknown: "practice squad",
 };
+
+/** Every reserve-list dollar: can come back plus done for the season. */
+const reserve = (r: HistoryRow) => r.cap_inactive_season + (r.cap_inactive_year ?? 0);
 
 export interface BoardTeam {
   team: string;
@@ -65,7 +70,7 @@ export function InactiveBoard({
       (a, b) =>
         byDir(value(a), value(b), sort.dir) ||
         byDir(a.cap_inactive_week, b.cap_inactive_week, "desc") ||
-        byDir(a.cap_inactive_season, b.cap_inactive_season, "desc") ||
+        byDir(reserve(a), reserve(b), "desc") ||
         byTeam[a.team].nick.localeCompare(byTeam[b.team].nick),
     );
   const scale = Math.max(1, ...rows.map((r) => r.cap_total));
@@ -84,7 +89,7 @@ export function InactiveBoard({
               toggleSort(k);
               setPicked(true);
             }}
-            label={SLICE_LABEL[k]}
+            label={SLICE_SHORT[k]}
             swatch={<Swatch k={k} color={LEGEND_COLOR} />}
             ascLabel="least money first"
             descLabel="most money first"
@@ -157,7 +162,7 @@ export function InactiveBoard({
                 {money(value(r))}
                 <span className="block text-xs text-fg-muted sm:ml-2 sm:inline">
                   {sort.key === "inactive"
-                    ? `+${money(r.cap_inactive_season)} long-term`
+                    ? `+${money(reserve(r))} reserve`
                     : SHORT[sort.key]}
                 </span>
               </span>

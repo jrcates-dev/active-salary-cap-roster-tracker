@@ -1,5 +1,5 @@
 """Week handling: final games resolve Questionable, projection to the coming week,
-this-week vs season-long absences, the schedule-driven week, and health checks."""
+this-week vs season-long vs out-for-season absences, the schedule-driven week, and health checks."""
 
 from datetime import date
 
@@ -90,7 +90,28 @@ def test_rollup_splits_inactive_money(contracts_df, teams_map, players_df, roste
     team = roll.filter(pl.col("level") == "team").row(0, named=True)
     assert team["cap_inactive_week"] == 20_000_000  # WR1, gameday inactive
     assert team["cap_inactive_season"] == 10_000_000  # WR2, injured reserve
-    assert team["cap_inactive"] == team["cap_inactive_week"] + team["cap_inactive_season"]
+    assert team["cap_inactive_year"] == 0
+    assert team["cap_inactive"] == (
+        team["cap_inactive_week"] + team["cap_inactive_season"] + team["cap_inactive_year"]
+    )
+
+
+def test_rollup_counts_out_for_season_money_apart(
+    contracts_df, teams_map, players_df, rosters_df, injuries_df
+):
+    from captracker import contracts, crosswalk
+
+    cy = contracts.with_player_key(contracts.contract_years(contracts_df, 2026, teams_map))
+    grouped = rollup.assign_groups(cy, crosswalk.build_crosswalk(players_df, cy))
+    table = pl.DataFrame(
+        {"gsis_id": ["00-WR2"], "outlook": ["out_for_season"], "from_week": [None], "note": ["x"]},
+        schema_overrides={"from_week": pl.Int32, "note": pl.String},
+    )
+    status = rosters.player_week_status(rosters_df, injuries_df, 2026, outlook=table)
+    roll = rollup.rollup(rollup.player_week_cap(grouped, status, 9))
+    team = roll.filter(pl.col("level") == "team").row(0, named=True)
+    assert team["cap_inactive_season"] == 0
+    assert team["cap_inactive_year"] == 10_000_000  # WR2, done for the year
 
 
 def test_current_week_follows_the_schedule():
@@ -150,3 +171,83 @@ def test_health_checks():
     assert ("error", "BAL outside the reconciliation gate") in titles
     assert ("warning", "OverTheCap reference is getting old") in titles
     assert ("warning", "Team totals moved more than 1% since the last run") in titles
+
+
+def _reserve_history(codes_by_player: dict[str, list[str]]) -> pl.DataFrame:
+    """Status rows for a few players, one detail code per week from week 1."""
+    rows = []
+    for gid, codes in codes_by_player.items():
+        for week, code in enumerate(codes, start=1):
+            rows.append(
+                {
+                    "season": 2026,
+                    "week": week,
+                    "gsis_id": gid,
+                    "roster_status_detail": code,
+                    "absence": None if code == "A01" else "season",
+                }
+            )
+    return pl.DataFrame(rows, schema_overrides={"week": pl.Int32, "absence": pl.String})
+
+
+def _outlook_at(df: pl.DataFrame, week: int) -> dict[str, tuple]:
+    return {
+        r["gsis_id"]: (r["absence"], r["outlook_basis"])
+        for r in df.filter(pl.col("week") == week).iter_rows(named=True)
+    }
+
+
+def test_out_for_season_from_roster_codes():
+    status = _reserve_history(
+        {
+            "window_closed": ["A01", "R01", "R01", "R48", "R48", "R01"],
+            "window_open": ["A01", "R01", "R01", "R48", "R48", "R48"],
+            "back_then_hurt": ["R01", "R48", "A01", "A01", "R01", "R01"],
+            "plain_ir": ["A01", "A01", "R01", "R01", "R01", "R01"],
+            "pup": ["R04", "R04", "R04", "R04", "R04", "R04"],
+            "healthy": ["A01"] * 6,
+        }
+    )
+    wk6 = _outlook_at(rosters.season_outlook(status), 6)
+    assert wk6["window_closed"] == ("year", "return_window_closed")
+    assert wk6["window_open"] == ("season", "designated_for_return")
+    # Activated in between, so the later IR stint is a new one with no signal.
+    assert wk6["back_then_hurt"] == ("season", None)
+    assert wk6["plain_ir"] == ("season", None)
+    assert wk6["pup"] == ("season", None)
+    assert wk6["healthy"] == (None, None)
+
+
+def test_out_for_season_table_wins_from_its_week():
+    status = _reserve_history(
+        {
+            "torn_acl": ["A01", "A01", "R01", "R01", "R01", "R01"],
+            "comeback": ["A01", "R48", "R48", "R01", "R01", "R01"],
+            "healthy": ["A01"] * 6,
+        }
+    )
+    table = pl.DataFrame(
+        {
+            "gsis_id": ["torn_acl", "comeback", "healthy"],
+            "outlook": ["out_for_season", "returning", "out_for_season"],
+            "from_week": [5, None, None],
+            "note": ["Torn ACL", "Expected back in December", "stale row"],
+        },
+        schema_overrides={"from_week": pl.Int32},
+    )
+    out = rosters.season_outlook(status, table)
+    wk4, wk6 = _outlook_at(out, 4), _outlook_at(out, 6)
+    assert wk4["torn_acl"] == ("season", None)  # before the row applies
+    assert wk6["torn_acl"] == ("year", "table")
+    assert wk6["comeback"] == ("season", "table")  # beats the closed return window
+    assert wk6["healthy"] == (None, None)  # a table row never benches an active player
+    note = out.filter((pl.col("week") == 6) & (pl.col("gsis_id") == "torn_acl"))["outlook_note"]
+    assert note.to_list() == ["Torn ACL"]
+    assert out.height == status.height
+
+
+def test_season_outlook_table_loads():
+    table = rosters.load_season_outlook(2026)
+    assert table is not None and table.height > 0
+    assert table["gsis_id"].is_unique().all()
+    assert set(table["outlook"]) <= set(rosters.OUTLOOKS)

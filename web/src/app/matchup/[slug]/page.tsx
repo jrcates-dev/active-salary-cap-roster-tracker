@@ -134,16 +134,17 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
                 <span className="num text-lg">{money(sum.cap_total)}</span>
               </div>
               <AvailabilityBar color={color} height={22} title={t.name} slices={slicesOf(sum)} />
-              <dl className="mt-3 grid grid-cols-3 gap-2 text-sm">
+              <dl className="mt-3 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
                 <Stat label="On the field" value={money(sum.cap_active + sum.cap_questionable)} />
                 <Stat label="Out this week" value={money(sum.cap_inactive_week)} />
                 <Stat label="Out long-term" value={money(sum.cap_inactive_season)} />
+                <Stat label="Out for season" value={money(sum.cap_inactive_year ?? 0)} />
               </dl>
             </div>
           );
         })}
       </section>
-      <AvailabilityLegend color="#c9ced8" keys={["active", "questionable", "inactive", "season"]} />
+      <AvailabilityLegend color="#c9ced8" keys={["active", "questionable", "inactive", "season", "year"]} />
 
       <MatchupChart halves={halves} />
 
@@ -201,7 +202,7 @@ function KeyAbsences({ s, abbr }: { s: Snapshot; abbr: string }) {
   const rows = s.players
     .filter((p) => p.team === abbr && (p.flag === "inactive" || p.flag === "questionable"))
     .sort((a, b) => {
-      const rank = (x: typeof a) => (playerSlice(x) === "season" ? 1 : 0);
+      const rank = (x: typeof a) => ({ season: 1, year: 2 })[playerSlice(x) as string] ?? 0;
       return rank(a) - rank(b) || b.cap - a.cap;
     })
     .slice(0, 8);

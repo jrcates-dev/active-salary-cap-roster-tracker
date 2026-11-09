@@ -6,7 +6,7 @@ import { money, pct } from "@/lib/format";
 import { SLICE_LABEL, SLICE_ORDER, type SliceKey, type Slices } from "@/lib/availability";
 import { Tip, TipRow } from "./Tip";
 
-export { playerSlice, SLICE_LABEL, slicesOf, type SliceKey, type Slices } from "@/lib/availability";
+export { playerSlice, SLICE_LABEL, SLICE_SHORT, slicesOf, type SliceKey, type Slices } from "@/lib/availability";
 
 /**
  * Fill style for one availability state in a team's color. Each state differs in
@@ -15,6 +15,8 @@ export { playerSlice, SLICE_LABEL, slicesOf, type SliceKey, type Slices } from "
  *   questionable  team color at 55% inside a dashed light outline
  *   inactive      bold diagonal hatch in the team color
  *   season        faint flat team color (present on the books, gone for weeks)
+ *   year          empty box in a thin team-color outline with faint level pinstripes
+ *                 (on the books, gone for the season)
  *   unknown       neutral dotted gray (practice squad)
  *   dead          flat neutral gray
  */
@@ -32,6 +34,11 @@ export function sliceStyle(key: SliceKey, color: string): CSSProperties {
       return { background: hatch(color) };
     case "season":
       return { background: `${color}33`, boxShadow: `inset 0 0 0 1px ${color}59` };
+    case "year":
+      return {
+        background: `repeating-linear-gradient(0deg, ${color}38 0 1px, transparent 1px 4px)`,
+        boxShadow: `inset 0 0 0 1px ${color}8c`,
+      };
     case "unknown":
       return {
         background: `radial-gradient(${practiceSquad.dot} 1px, transparent 1.4px) 0 0 / 5px 5px, ${practiceSquad.fill}`,
@@ -125,7 +132,7 @@ export function AvailabilityBar({
 
 export function AvailabilityLegend({
   color,
-  keys = ["active", "questionable", "inactive", "season", "unknown"],
+  keys = ["active", "questionable", "inactive", "season", "year", "unknown"],
   extra,
 }: {
   color: string;

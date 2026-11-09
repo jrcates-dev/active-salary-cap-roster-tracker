@@ -39,7 +39,7 @@ publishing fake numbers.
 
 | Route | What |
 | --- | --- |
-| `/` | League overview: totals, this week's games with their biggest edge, money out by team with a week picker, most expensive players out (this week or long-term), the 32 × 13 heatmap, offense/defense split |
+| `/` | League overview: totals, this week's games with their biggest edge, money out by team with a week picker, most expensive players out (this week, long-term or out for the season), the 32 × 13 heatmap, offense/defense split |
 | `/team/[abbr]` | Team page: last result and this week's game, status source, cap summary and availability bar, $ / % toggle, position groups against the league median, treemap, week-by-week money out, sortable roster |
 | `/matchup/[week-away-home]` | Matchup page for every game this week and next: edge summary, both teams' availability, mirrored bars per position matchup (on the field or full investment) with league ranks, key absences |
 | `/methodology` | Sources and attribution, accounting rules, matchups, estimates, reconciliation table with known gaps |
@@ -51,7 +51,7 @@ publishing fake numbers.
 | `src/lib/types.ts` | Shapes of the snapshot JSON |
 | `src/lib/data.ts` | Snapshot loader and per-team and league helpers |
 | `src/lib/format.ts` | Money, percent, date and label formatting |
-| `src/lib/availability.ts` | Availability states (active, questionable, out this week, out long-term, practice squad, dead) and per-player helpers, usable from server pages |
+| `src/lib/availability.ts` | Availability states (active, questionable, out this week, out long-term, out for season, practice squad, dead) and per-player helpers, usable from server pages |
 | `src/lib/matchup.ts` | Position matchup pairs, group money, league ranks and edge picks |
 | `src/design/tokens.ts` | Surfaces, the one-hue intensity ramp, unit marks, the inactive hatch, and `displayColor` (a team color that clears 3:1 on the dark panel) |
 | `src/components/Availability.tsx` | The availability bar, swatches and legend used at every level |

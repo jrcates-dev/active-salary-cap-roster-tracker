@@ -1,0 +1,153 @@
+gsis_id,player,team,outlook,from_week,note,source,checked
+# Hand-maintained: who on a reserve list is done for the season, and who is coming back.
+# No free feed says an injury ends a season, so this table does. outlook is out_for_season or
+# returning. from_week (optional) is the first week the row applies; blank means every week.
+# A row only matters while the player is on a reserve list. Remove rows that turn out wrong.
+00-0041468,Chase Bisontis,ARI,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0038640,Jalen Brooks,ARI,out_for_season,8,Wrist,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0037141,Joey Blount,ARI,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0041555,Kaleb Proctor,ARI,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0033307,Kendrick Bourne,ARI,out_for_season,9,Leg,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0038540,Paris Johnson Jr.,ARI,out_for_season,5,Biceps,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0039921,Trey Benson,ARI,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040751,Will Johnson,ARI,out_for_season,3,Neck,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040577,Jalon Walker,ATL,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0036984,Trey Sermon,ATL,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0036215,Danny Pinter,BAL,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0034798,Durham Smythe,BAL,out_for_season,5,Achilles,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040988,Jahquez Robinson,BAL,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0037327,Skylar Thompson,BAL,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0038505,Tavius Robinson,BAL,out_for_season,7,Pec,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0035993,Tyler Huntley,BAL,out_for_season,9,Toe,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040174,Cam Jackson,CAR,out_for_season,6,Shoulder,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0041047,Chris Brazzell II,CAR,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040746,Nic Scourton,CAR,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0033284,Taylor Moton,CAR,out_for_season,8,"Fractured fibula, ankle surgery",https://abc11.com/post/panthers-rt-taylor-moton-undergo-season-ending-ankle-surgery/19982725/,2026-11-09
+00-0037329,Brittain Brown,CHI,out_for_season,1,Concussion,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0036290,Cole Kmet,CHI,out_for_season,8,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0037395,Dallis Flowers,CHI,out_for_season,1,Leg,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0034320,Kentavius Street,CHI,out_for_season,9,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0037544,Nephi Sewell,CHI,out_for_season,1,Leg,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040167,Ruben Hyppolite II,CHI,out_for_season,1,Shoulder,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0036634,Tony Fields II,CHI,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0039814,Erick All,CIN,out_for_season,8,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0034613,Tanner Hudson,CIN,out_for_season,7,Pec,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0037251,Alex Wright,CLE,out_for_season,1,Achilles,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0038105,Damarri Mathis,CLE,out_for_season,1,Leg,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0039878,Edefuan Ulofoshio,CLE,out_for_season,1,Biceps,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0039764,Elijah Chatman,CLE,out_for_season,1,Quad,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0037832,Kalia Davis,CLE,out_for_season,1,Quad,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040933,Kelvin Gilliam,DAL,out_for_season,1,Triceps,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0036295,Matt Hennessy,DAL,out_for_season,1,Neck,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0038735,Princeton Fant,DAL,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0039565,Levelle Bailey,DEN,out_for_season,1,Leg,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0037303,Matt Henningsen,DEN,out_for_season,1,Achilles,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0035686,Michael Deiter,DEN,out_for_season,1,Quad,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0034377,Avonte Maddox,DET,out_for_season,3,Foot,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0037281,Damone Clark,DET,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0039018,Jack Campbell,DET,out_for_season,9,Neck,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0041442,Jimmy Rolder,DET,out_for_season,9,Hamstring,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0041446,Kendrick Law,DET,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0036926,Payton Turner,DET,out_for_season,1,Back,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0035544,Tom Kennedy,DET,out_for_season,7,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0039850,Edgerrin Cooper,GB,out_for_season,5,Achilles,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0033109,Javon Hargrave,GB,out_for_season,6,Achilles,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0039146,Jayden Reed,GB,out_for_season,4,Neck,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0039936,Thomas Yassmin,GB,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0037817,Zach Bako-Bewele,GB,out_for_season,4,"Torn patellar tendon (knee), Sep 20 vs Jets",https://fox11online.com/sports/packers-and-nfl/bako-bewele-out-for-the-season,2026-11-09
+00-0038724,Ali Gaye,HOU,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0039009,Dylan Horton,HOU,out_for_season,1,Achilles,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040211,Graham Mertz,HOU,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040130,Jayden Higgins,HOU,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040138,Jaylin Noel,HOU,out_for_season,9,Toe,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040413,K.C. Ossai,HOU,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0032265,Mario Edwards,HOU,out_for_season,4,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0039427,Solomon Byrd,HOU,out_for_season,1,Ankle,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0035045,D.J. Montgomery,IND,out_for_season,1,Groin,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0038934,Anton Harrison,JAX,out_for_season,6,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0036262,DaVon Hamilton,JAX,out_for_season,9,Quad,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0033038,Eric Murray,JAX,out_for_season,9,Elbow,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0041208,Garrett DiGiorgio,JAX,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040395,Jared Bartlett,JAX,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0041127,Parker Hughes,JAX,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040328,Ethan Downs,KC,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040953,Jeff Caldwell,KC,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040120,Jimmy Holiday,KC,out_for_season,1,Quad,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040955,John Michael Gyllenborg,KC,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0037266,Matt Waletzko,KC,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0038104,Tyquan Thornton,KC,out_for_season,6,Ankle,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0038905,Blake Grupe,LA,out_for_season,7,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0041587,Daniel Rickert,LA,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0041429,Eddie Walls III,LA,out_for_season,1,Leg,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0037195,Jaylen Watson,LA,out_for_season,9,Shoulder,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0041414,Matthew Caldwell,LA,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0034234,Poona Ford,LA,out_for_season,7,Biceps,https://www.ajc.com/news/2026/10/rams-wr-davante-adams-out-6-10-weeks-with-hamstring-injury-dt-poona-ford-out-for-season/,2026-11-09
+00-0036376,Tyler Biadasz,LAC,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0039836,Brennan Jackson,LV,out_for_season,1,Foot,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0039676,Chigozie Anusiem,LV,out_for_season,1,Leg,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0039244,Chris Collier,LV,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0041003,Justin Pickett,LV,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0041553,Keyron Crawford,LV,out_for_season,1,Ankle,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0037078,Cole Turner,MIA,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0039040,De'Von Achane,MIA,out_for_season,4,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0041136,Rene Konga,MIA,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040661,Donovan Jackson,MIN,out_for_season,5,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0033872,Jamal Adams,MIN,out_for_season,1,Quad,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040492,Tyler Batty,MIN,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0038720,Julian Hill,NE,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0036198,Mike Onwenu,NE,out_for_season,3,Ankle,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0041323,Myles Montgomery,NE,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0038995,Bryan Bresee,NO,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0036619,Dillon Radunz,NO,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040244,Moliki Matavao,NO,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0038781,Rejzohn Wright,NO,out_for_season,1,Hip,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0037276,Ty Chandler,NO,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0034419,Braxton Berrios,NYG,out_for_season,5,Ankle,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0035713,Brian Burns,NYG,out_for_season,4,Torn ACL (right knee),https://www.nfl.com/news/giants-brian-burns-torn-acl-win-titans,2026-11-09
+00-0037837,Calvin Austin III,NYG,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0035645,Gunner Olszewski,NYG,out_for_season,1,Achilles,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0038401,Jarrick Bernard-Converse,NYG,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040691,Jaxson Dart,NYG,out_for_season,3,Knee surgery,https://abc7ny.com/post/sources-jaxson-dart-have-season-ending-knee-surgery/19861584/,2026-11-09
+00-0039620,Rico Payton,NYG,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0032667,Roy Robertson-Harris,NYG,out_for_season,1,Achilles,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0041142,Thaddeus Dixon,NYG,out_for_season,1,Achilles,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0034673,Tremaine Edmunds,NYG,out_for_season,7,Shoulder,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0039284,Braiden McGregor,NYJ,out_for_season,5,Pec,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0041239,Chip Trayanum,NYJ,out_for_season,1,Neck,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0037431,Kingsley Jonathan,NYJ,out_for_season,1,Thigh,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0036885,Tre Brown,NYJ,out_for_season,1,Finger,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0039267,Andre' Sam,PHI,out_for_season,1,Foot,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0036389,Jalen Hurts,PHI,out_for_season,6,Blood clots in his lungs,https://abc7news.com/19955107/,2026-11-09
+00-0039236,Johnny Wilson,PHI,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0039626,Cole Burgess,PIT,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0039883,Daequan Hardy,PIT,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0039389,Logan Lee,PIT,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0041463,Bud Clark,SEA,out_for_season,1,Ankle,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040739,Elijah Arroyo,SEA,out_for_season,7,Shoulder,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0038752,Jake Bobo,SEA,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040652,Mason Richman,SEA,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040649,Robbie Ouzts,SEA,out_for_season,1,Neck,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040721,Alfred Collins,SF,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0038865,Andrew Farmer II,SF,out_for_season,1,Back,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0036638,Darrick Forrest,SF,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0037112,Jake Tonges,SF,out_for_season,2,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0041360,Mikail Kamara,SF,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0037831,Nick Zakelj,SF,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0039916,Ricky Pearsall,SF,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0039877,Mohamed Kamara,TB,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040901,Jaren Kanak,TEN,out_for_season,1,Pec,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0039436,Jaylen Harrell,TEN,out_for_season,1,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0038703,Kendell Brooks,TEN,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0036511,Milo Eifler,TEN,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0033902,Tanoh Kpassagnon,TEN,out_for_season,1,Undisclosed injury,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0034333,Daron Payne,WAS,out_for_season,9,Foot (Jones fracture),https://clutchpoints.com/nfl/washington-commanders/commanders-news-daron-payne-rest-season-jones-fracture,2026-11-09
+00-0036260,Javon Kinlaw,WAS,out_for_season,9,Knee,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0040164,Jaylin Lane,WAS,out_for_season,5,Ankle,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0033955,Jeremy McNichols,WAS,out_for_season,9,Foot,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0037819,Leo Chenal,WAS,out_for_season,4,Neck,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0035659,Terry McLaurin,WAS,out_for_season,8,Torn patellar tendon (left knee),https://www.tsn.ca/nfl/article/commanders-confirm-mclaurin-knee-set-to-miss-rest-of-season/,2026-11-09
+00-0036932,Micah Parsons,GB,returning,,"Knee; designated to return, practicing",https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0031381,Davante Adams,LA,returning,,"Hamstring, expected out 6 to 10 weeks",https://www.cbssports.com/nfl/news/rams-davante-adams-to-miss-6-10-weeks-ruptured-hamstring/,2026-11-07
+00-0034790,Derwin James,LAC,returning,,Hamstring; eligible to return Week 12,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0037009,Rashawn Slater,LAC,returning,,Ankle; eligible to return Week 10,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07
+00-0036944,Jaycee Horn,CAR,returning,,Quad; eligible to return Week 9,https://www.sharpfootballanalysis.com/analysis/nfl-injury-report-ir-tracker/,2026-11-07

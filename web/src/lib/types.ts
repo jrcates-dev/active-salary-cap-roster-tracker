@@ -2,8 +2,14 @@
 
 export type Unit = "offense" | "defense" | "special_teams";
 export type Flag = "active" | "inactive" | "questionable" | "unknown";
-/** Why an inactive player is out: this game only, or a reserve list (IR, PUP, NFI, suspension). */
-export type Absence = "week" | "season";
+/**
+ * Why an inactive player is out: this game only (`week`), a reserve list he can come
+ * back from this season (`season`: IR, PUP, NFI, suspension), or a reserve list he is
+ * done for the year on (`year`).
+ */
+export type Absence = "week" | "season" | "year";
+/** What decided `season` vs `year`: the hand-kept table, or a roster code. */
+export type OutlookBasis = "table" | "designated_for_return" | "return_window_closed";
 /** Where a team's statuses for the week come from. */
 export type StatusSource = "final" | "injury_report" | "no_report" | "bye";
 export type CapSource = "contract" | "derived_rookie_scale" | "estimate_minimum";
@@ -39,6 +45,8 @@ export interface TeamSummary {
   cap_unknown: number;
   cap_inactive_week: number;
   cap_inactive_season: number;
+  /** Reserve-list money done for the year. Older snapshots lack it. */
+  cap_inactive_year?: number;
   players_estimated: number;
   cap_estimated: number;
   players_rookie_derived: number;
@@ -67,6 +75,8 @@ export interface RollupRow {
   cap_unknown: number;
   cap_inactive_week: number;
   cap_inactive_season: number;
+  /** Reserve-list money done for the year. Older snapshots lack it. */
+  cap_inactive_year?: number;
 }
 
 export interface Player {
@@ -82,6 +92,9 @@ export interface Player {
   flag: Flag;
   reason: string | null;
   absence: Absence | null;
+  outlook_basis?: OutlookBasis | null;
+  /** The injury note from the out-for-season table, when it decided. */
+  outlook_note?: string | null;
   roster_status: string | null;
   report_status: string | null;
   injury: string | null;
@@ -125,6 +138,8 @@ export interface HistoryRow {
   cap_questionable: number;
   cap_inactive_week: number;
   cap_inactive_season: number;
+  /** Reserve-list money done for the year. Older snapshots lack it. */
+  cap_inactive_year?: number;
   cap_unknown: number;
 }
 

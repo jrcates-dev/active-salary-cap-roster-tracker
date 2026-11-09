@@ -34,6 +34,7 @@ def team_summary(
         "cap_unknown",
         "cap_inactive_week",
         "cap_inactive_season",
+        "cap_inactive_year",
     )
     counted = pl.col("counts_against_cap")
     is_est = pl.col("cap_source") == "estimate_minimum"

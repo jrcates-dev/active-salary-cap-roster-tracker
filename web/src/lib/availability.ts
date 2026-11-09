@@ -39,6 +39,7 @@ export const SLICE_ORDER: SliceKey[] = ["active", "questionable", "inactive", "s
 export const SLICE_SHORT: Record<SliceKey, string> = {
   ...SLICE_LABEL,
   season: "Out long-term",
+  unknown: "Practice squad",
 };
 
 /** One line on how the site decides a reserve-list player is done for the season. */

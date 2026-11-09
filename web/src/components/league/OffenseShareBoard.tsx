@@ -74,7 +74,7 @@ export function OffenseShareBoard({ rows }: { rows: UnitRow[] }) {
       </div>
       <div
         aria-hidden
-        className="mb-1.5 grid grid-cols-[1.25rem_5.25rem_1fr_2.75rem] items-end gap-x-3 text-[11px] font-medium tracking-[0.06em] text-ink-3 uppercase sm:grid-cols-[1.5rem_7.5rem_1fr_3rem]"
+        className="mb-1.5 grid grid-cols-[1.25rem_5.25rem_minmax(0,1fr)_2.75rem] items-end gap-x-3 text-[11px] font-medium tracking-[0.06em] text-ink-3 uppercase sm:grid-cols-[1.5rem_7.5rem_minmax(0,1fr)_3rem]"
       >
         <span />
         <span />
@@ -90,7 +90,7 @@ export function OffenseShareBoard({ rows }: { rows: UnitRow[] }) {
       </div>
       <ol className="space-y-[7px]">
         {sorted.map((r, i) => (
-          <li key={r.team} className="grid grid-cols-[1.25rem_5.25rem_1fr_2.75rem] items-center gap-x-3 sm:grid-cols-[1.5rem_7.5rem_1fr_3rem]">
+          <li key={r.team} className="grid grid-cols-[1.25rem_5.25rem_minmax(0,1fr)_2.75rem] items-center gap-x-3 sm:grid-cols-[1.5rem_7.5rem_minmax(0,1fr)_3rem]">
             <span className="num text-right text-xs text-ink-3">{i + 1}</span>
             <TeamChip team={r.team} nick={r.nick} vars={r.vars} size="sm" />
             <div className="relative h-2.5">

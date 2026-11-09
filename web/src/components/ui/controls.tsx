@@ -107,26 +107,78 @@ export function StepButton({
   );
 }
 
-/** Styled native select, for lists too long for a segmented control. */
+const CHEVRON = (
+  <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 text-ink-3">
+    <path d="M3 4.5 6 7.5l3-3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+/**
+ * Styled native select, for lists too long for a segmented control. The browser's
+ * own arrow is swapped for the site's chevron so it matches in every browser.
+ */
 export function Select({
   value,
   onChange,
   label,
   children,
+  className = "",
 }: {
   value: string | number;
   onChange: (v: string) => void;
   label: string;
   children: ReactNode;
+  className?: string;
 }) {
   return (
-    <select
-      aria-label={label}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="h-7 rounded-md border border-line bg-surface px-2 text-[13px] text-ink transition-colors duration-(--dur-1) hover:border-line-2"
-    >
-      {children}
-    </select>
+    <span className={`relative inline-flex shrink-0 ${className}`}>
+      <select
+        aria-label={label}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-7 w-full cursor-pointer appearance-none rounded-md border border-line bg-surface py-0 pr-7 pl-2.5 text-[13px] text-ink transition-colors duration-(--dur-1) hover:border-line-2"
+      >
+        {children}
+      </select>
+      {CHEVRON}
+    </span>
+  );
+}
+
+/** Search box with a magnifier, the same height as the chips and selects beside it. */
+export function SearchInput({
+  value,
+  onChange,
+  label,
+  placeholder = "Search",
+  className = "",
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  label: string;
+  placeholder?: string;
+  className?: string;
+}) {
+  return (
+    <span className={`relative inline-flex min-w-0 ${className}`}>
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 14 14"
+        aria-hidden
+        className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-ink-3"
+      >
+        <circle cx="6" cy="6" r="4.25" fill="none" stroke="currentColor" strokeWidth="1.5" />
+        <path d="m9.25 9.25 3 3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+      <input
+        type="search"
+        placeholder={placeholder}
+        aria-label={label}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-7 w-full min-w-0 rounded-md border border-line bg-surface pr-2 pl-8 text-[13px] text-ink placeholder:text-ink-4 transition-colors duration-(--dur-1) hover:border-line-2 focus:border-line-2 focus:outline-none"
+      />
+    </span>
   );
 }

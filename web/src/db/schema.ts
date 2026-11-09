@@ -24,6 +24,10 @@ export type Unit = (typeof UNITS)[number];
 export const GAMEDAY_FLAGS = ["active", "inactive", "questionable", "unknown"] as const;
 export type GamedayFlag = (typeof GAMEDAY_FLAGS)[number];
 
+/** Where a cap number came from: the contracts file, the rookie scale, or a minimum-salary estimate. */
+export const CAP_SOURCES = ["contract", "derived_rookie_scale", "estimate_minimum"] as const;
+export type CapSource = (typeof CAP_SOURCES)[number];
+
 export const teams = pgTable("teams", {
   team: text("team").primaryKey(), // nflverse abbreviation, e.g. "NE"
   name: text("name").notNull(),
@@ -74,7 +78,7 @@ export const contractYears = pgTable(
     season: integer("season").notNull(),
     team: text("team").notNull(),
     gsisId: text("gsis_id"),
-    otcId: integer("otc_id").notNull(),
+    otcId: integer("otc_id"),
     playerName: text("player_name").notNull(),
     contractPosition: text("contract_position"),
     contractTeamLabel: text("contract_team_label"),
@@ -96,8 +100,11 @@ export const contractYears = pgTable(
     cashPaid: bigint("cash_paid", { mode: "number" }).notNull(),
     capNumber: bigint("cap_number", { mode: "number" }).notNull(),
     capPct: doublePrecision("cap_pct"),
+    capSource: text("cap_source").$type<CapSource>().notNull(),
+    /** gsis_id when known, else "otc-<otc_id>". */
+    playerKey: text("player_key").notNull(),
   },
-  (t) => [primaryKey({ columns: [t.season, t.team, t.otcId] })],
+  (t) => [primaryKey({ columns: [t.season, t.team, t.playerKey] })],
 );
 
 /** One row per player per week: roster status + injury report + the derived gameday flag. */
@@ -131,7 +138,7 @@ export const playerWeekCap = pgTable(
     week: integer("week").notNull(),
     team: text("team").notNull(),
     gsisId: text("gsis_id"),
-    otcId: integer("otc_id").notNull(),
+    otcId: integer("otc_id"),
     playerName: text("player_name").notNull(),
     contractPosition: text("contract_position"),
     contractTeamLabel: text("contract_team_label"),
@@ -153,21 +160,31 @@ export const playerWeekCap = pgTable(
     cashPaid: bigint("cash_paid", { mode: "number" }).notNull(),
     capNumber: bigint("cap_number", { mode: "number" }).notNull(),
     capPct: doublePrecision("cap_pct"),
+    capSource: text("cap_source").$type<CapSource>().notNull(),
+    playerKey: text("player_key").notNull(),
     playersPosition: text("players_position"),
     name: text("name"),
-    espnId: integer("espn_id"),
+    espnId: text("espn_id"),
     headshot: text("headshot"),
+    playersStatus: text("players_status"),
+    latestTeam: text("latest_team"),
     positionGroup: text("position_group"),
     unit: text("unit").$type<Unit>(),
     rosterTeam: text("roster_team"),
+    /** The roster week the status came from: the target week, or the last week before a bye. */
+    statusWeek: integer("status_week"),
     rosterStatus: text("roster_status"),
     reportStatus: text("report_status"),
     practiceStatus: text("practice_status"),
     injury: text("injury"),
-    gamedayFlag: text("gameday_flag").$type<GamedayFlag>().notNull(),
+    gamedayFlag: text("gameday_flag").$type<GamedayFlag | "off_roster">().notNull(),
     inactiveReason: text("inactive_reason"),
+    /** False for players released, retired or traded away; they drop out of every total. */
+    countsAgainstCap: boolean("counts_against_cap").notNull(),
+    /** The contract's cap number before the practice squad cap is applied. */
+    contractCapNumber: bigint("contract_cap_number", { mode: "number" }).notNull(),
   },
-  (t) => [primaryKey({ columns: [t.season, t.week, t.team, t.otcId] })],
+  (t) => [primaryKey({ columns: [t.season, t.week, t.team, t.playerKey] })],
 );
 
 /**
@@ -196,6 +213,35 @@ export const rollup = pgTable(
       columns: [t.season, t.week, t.team, t.level, t.unit, t.positionGroup],
     }),
   ],
+);
+
+/** One row per team per week: counted cap by availability, estimates, and the published dead money. */
+export const teamSummary = pgTable(
+  "team_summary",
+  {
+    season: integer("season").notNull(),
+    week: integer("week").notNull(),
+    team: text("team").notNull(),
+    capTotal: bigint("cap_total", { mode: "number" }).notNull(),
+    players: integer("players").notNull(),
+    capActive: bigint("cap_active", { mode: "number" }).notNull(),
+    capInactive: bigint("cap_inactive", { mode: "number" }).notNull(),
+    capQuestionable: bigint("cap_questionable", { mode: "number" }).notNull(),
+    capUnknown: bigint("cap_unknown", { mode: "number" }).notNull(),
+    playersEstimated: integer("players_estimated").notNull(),
+    capEstimated: bigint("cap_estimated", { mode: "number" }).notNull(),
+    playersRookieDerived: integer("players_rookie_derived").notNull(),
+    capRookieDerived: bigint("cap_rookie_derived", { mode: "number" }).notNull(),
+    capOffRoster: bigint("cap_off_roster", { mode: "number" }).notNull(),
+    statusWeek: integer("status_week").notNull(),
+    onBye: boolean("on_bye").notNull(),
+    deadMoney: bigint("dead_money", { mode: "number" }),
+    capSpace: bigint("cap_space", { mode: "number" }),
+    refActiveCap: bigint("ref_active_cap", { mode: "number" }),
+    referenceAsOf: text("reference_as_of"),
+    adjustedCap: bigint("adjusted_cap", { mode: "number" }),
+  },
+  (t) => [primaryKey({ columns: [t.season, t.week, t.team] })],
 );
 
 /** Published team-level figures (hand-entered from OverTheCap) used by the reconciliation gate. */

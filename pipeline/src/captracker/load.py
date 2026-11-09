@@ -20,6 +20,7 @@ TABLE_KEYS: dict[str, list[str]] = {
     "player_week_status": ["season", "week"],
     "player_week_cap": ["season", "week"],
     "rollup": ["season", "week"],
+    "team_summary": ["season", "week"],
 }
 
 

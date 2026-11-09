@@ -2,36 +2,16 @@
  * Design tokens for the salary cap tracker.
  *
  * Color does three jobs and nothing else (PLAN.md, "Color system"):
- *   1. Team identity   - the team's primary color fills its bars and tiles.
- *   2. Availability    - active is solid team color; inactive is the same hue at 35%
- *                        opacity with a diagonal hatch; questionable is solid with a
- *                        dashed outline; dead money is a flat neutral gray.
- *   3. Intensity       - one sequential ramp (deep navy to hot orange) for percent of
- *                        cap in the league heatmap and rank badges. Never for teams.
+ *   1. Team identity   - the team's color fills its bars and tiles.
+ *   2. Availability    - active is solid team color; questionable is the team color
+ *                        with a dashed outline; inactive is a diagonal hatch of the
+ *                        team color; practice squad / other is a faint tint; dead
+ *                        money is a flat neutral gray.
+ *   3. Intensity       - one sequential ramp for percent of cap in the league
+ *                        heatmap. Never used for team identity.
  * Units get a fixed neutral mark, not a color: offense ●, defense ■, special teams ◆.
  */
-import teamsJson from "./teams.json";
-
-export type Unit = "offense" | "defense" | "special_teams";
-export type GamedayFlag = "active" | "inactive" | "questionable" | "unknown";
-
-export interface TeamTokens {
-  team: string;
-  name: string;
-  nick: string;
-  conference: string;
-  division: string;
-  color_primary: string;
-  color_secondary: string | null;
-  color_3: string | null;
-  color_4: string | null;
-  logo_url: string | null;
-}
-
-export const TEAMS: readonly TeamTokens[] = teamsJson as TeamTokens[];
-export const TEAM_BY_ABBR: Record<string, TeamTokens> = Object.fromEntries(
-  TEAMS.map((t) => [t.team, t]),
-);
+import type { Unit } from "@/lib/types";
 
 /** Surface and text colors for the dark broadcast-graphics look. */
 export const surface = {
@@ -41,33 +21,27 @@ export const surface = {
   border: "#262b38",
   text: "#f3f4f6",
   textMuted: "#9aa3b5",
-  textFaint: "#5f6778",
+  textFaint: "#6b7385",
 } as const;
 
-/** Availability treatments. Opacity and hatch are applied on top of the team color. */
-export const availability: Record<
-  GamedayFlag,
-  { opacity: number; hatch: boolean; dashed: boolean; label: string }
-> = {
-  active: { opacity: 1, hatch: false, dashed: false, label: "Active" },
-  questionable: { opacity: 1, hatch: false, dashed: true, label: "Questionable" },
-  inactive: { opacity: 0.35, hatch: true, dashed: false, label: "Inactive" },
-  unknown: { opacity: 0.2, hatch: false, dashed: true, label: "Not on roster" },
-};
-
 /** Dead money is never a team color. */
-export const deadMoney = "#6b7280";
+export const deadMoney = "#5b6170";
 
-/** Sequential ramp for percent-of-cap intensity, deep navy to hot orange. */
+/**
+ * Sequential ramp for percent-of-cap intensity (league heatmap).
+ * One hue (orange), dark to bright: on the near-black surface the low end recedes
+ * toward the background and the high end glows. Never used for team identity.
+ */
 export const intensityRamp = [
-  "#0f1f3d",
-  "#1d3a6e",
-  "#2a5596",
-  "#4a73a8",
-  "#8a7f8f",
-  "#c48a5f",
-  "#e9803a",
-  "#ff6a1a",
+  "#1f1712",
+  "#33200f",
+  "#4b2a11",
+  "#653513",
+  "#824114",
+  "#a04e15",
+  "#c05c16",
+  "#e06b18",
+  "#ff7b1c",
 ] as const;
 
 /** Pick a ramp color for a value in [0, 1]. */
@@ -77,6 +51,11 @@ export function intensityColor(t: number): string {
   return intensityRamp[idx];
 }
 
+/** Ink to put on a ramp cell so the number stays readable. */
+export function intensityInk(t: number): string {
+  return t >= 0.66 ? "#0b0d12" : "#f3f4f6";
+}
+
 /** Unit marks: shapes, not colors, so they coexist with team colors. */
 export const unitMark: Record<Unit, { glyph: string; label: string }> = {
   offense: { glyph: "●", label: "Offense" },
@@ -84,52 +63,41 @@ export const unitMark: Record<Unit, { glyph: string; label: string }> = {
   special_teams: { glyph: "◆", label: "Special teams" },
 };
 
-/** Position groups in display order, grouped by unit. */
-export const positionGroups: readonly { code: string; label: string; unit: Unit }[] = [
-  { code: "QB", label: "Quarterback", unit: "offense" },
-  { code: "RB", label: "Running back", unit: "offense" },
-  { code: "WR", label: "Wide receiver", unit: "offense" },
-  { code: "TE", label: "Tight end", unit: "offense" },
-  { code: "OL", label: "Offensive line", unit: "offense" },
-  { code: "IDL", label: "Interior defensive line", unit: "defense" },
-  { code: "EDGE", label: "Edge rusher", unit: "defense" },
-  { code: "LB", label: "Off-ball linebacker", unit: "defense" },
-  { code: "CB", label: "Cornerback", unit: "defense" },
-  { code: "S", label: "Safety", unit: "defense" },
-  { code: "K", label: "Kicker", unit: "special_teams" },
-  { code: "P", label: "Punter", unit: "special_teams" },
-  { code: "LS", label: "Long snapper", unit: "special_teams" },
-];
-
-/** Type scale: condensed grotesque for numbers and headers, plain sans for body. */
-export const type = {
-  display: "var(--font-display)",
-  body: "var(--font-body)",
-  heroNumber: "48px",
-  tabular: "tabular-nums",
-} as const;
-
-/** Layout: 12-column grid, 24px gutters, 1px borders, no shadows. */
-export const layout = {
-  columns: 12,
-  gutter: 24,
-  radius: 6,
-} as const;
-
-/** $48.2M, never $48,200,000. Values under $1M show as $850K. */
-export function formatMoney(dollars: number): string {
-  const abs = Math.abs(dollars);
-  const sign = dollars < 0 ? "-" : "";
-  if (abs >= 1_000_000) return `${sign}$${(abs / 1_000_000).toFixed(1)}M`;
-  if (abs >= 1_000) return `${sign}$${Math.round(abs / 1_000)}K`;
-  return `${sign}$${abs}`;
-}
-
-/** Relative luminance check so text on a team color falls back to white or black. */
-export function textOn(hex: string): "#ffffff" | "#0b0d12" {
+function luminance(hex: string): number {
   const c = hex.replace("#", "");
   const [r, g, b] = [0, 2, 4].map((i) => parseInt(c.slice(i, i + 2), 16) / 255);
   const lin = (v: number) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
-  const L = 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
-  return L > 0.35 ? "#0b0d12" : "#ffffff";
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+}
+
+export function contrast(a: string, b: string): number {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+/** Text on a team color falls back to white or near-black, whichever reads. */
+export function textOn(hex: string): "#ffffff" | "#0b0d12" {
+  return contrast(hex, "#ffffff") >= contrast(hex, "#0b0d12") ? "#ffffff" : "#0b0d12";
+}
+
+/**
+ * The team color to draw marks with on the dark panel. Several primaries (Raiders,
+ * Steelers, Texans, Bears, Patriots navy) nearly vanish on near-black, so take the
+ * first of the team's colors that clears 3:1 against the panel.
+ */
+export function displayColor(t: {
+  color_primary: string;
+  color_secondary: string | null;
+  color_3: string | null;
+  color_4: string | null;
+}): string {
+  const options = [t.color_primary, t.color_secondary, t.color_3, t.color_4].filter(
+    (c): c is string => !!c,
+  );
+  return options.find((c) => contrast(c, surface.panel) >= 3) ?? surface.textMuted;
+}
+
+/** CSS background for the inactive hatch in a given color. */
+export function hatch(color: string): string {
+  return `repeating-linear-gradient(135deg, ${color}66 0 2px, ${color}1f 2px 6px)`;
 }

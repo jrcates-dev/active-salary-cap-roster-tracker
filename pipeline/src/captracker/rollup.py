@@ -11,7 +11,15 @@ FLAGS = ("active", "inactive", "questionable", "unknown")
 
 def assign_groups(contract_years: pl.DataFrame, crosswalk: pl.DataFrame) -> pl.DataFrame:
     """Attach a position group and unit to every contract year row."""
-    cw = crosswalk.select("gsis_id", "players_position", "name", "espn_id", "headshot")
+    cw = crosswalk.select(
+        "gsis_id",
+        "players_position",
+        "name",
+        "espn_id",
+        "headshot",
+        "players_status",
+        "latest_team",
+    ).unique(subset=["gsis_id"], keep="first")
     df = contract_years.join(cw, on="gsis_id", how="left")
     groups = [
         assign_group(g, cp, pp)
@@ -29,32 +37,84 @@ def assign_groups(contract_years: pl.DataFrame, crosswalk: pl.DataFrame) -> pl.D
     )
 
 
+# Roster statuses whose salary counts against the cap (suspended players are unpaid).
+CAP_COUNTING_STATUS = ("ACT", "INA", "RES", "PUP", "NFI", "DEV")
+
+# A practice squad player's cap charge is his practice squad pay, not the NFL
+# contract he may also hold (a drafted rookie stashed on the practice squad, for
+# example). 2026 practice squad minimum: $13,750 a week for 18 weeks.
+PRACTICE_SQUAD_CAP = 247_500
+
+
+def team_status_weeks(status: pl.DataFrame, week: int) -> pl.DataFrame:
+    """For each team, the latest roster week at or before `week`.
+
+    A team on its bye has no roster rows that week, so its status comes from the
+    week before.
+    """
+    return (
+        status.filter(pl.col("week") <= week)
+        .group_by("team")
+        .agg(pl.col("week").max().alias("status_week"))
+    )
+
+
 def player_week_cap(
     grouped_contracts: pl.DataFrame,
     status: pl.DataFrame,
     week: int,
 ) -> pl.DataFrame:
-    """The fact table for one week: each contract row tagged with that week's status.
+    """The fact table for one week: each cap row tagged with that week's status.
 
-    Cap dollars stay with the team that carries the contract. A player with a contract
-    but no roster row that week (cut, retired, practice squad on a different file) is
-    flagged `unknown`; the money still counts toward the team's total, just not toward
-    active or inactive.
+    A row counts against its team's cap (`counts_against_cap`) when the player is on
+    that team's roster in a cap-counting status, or when he is on no weekly roster at
+    all but the players file still lists him with the team (reserve/left squad, a
+    holdout; his flag is `unknown`). Rows for players who were released or retired, or who are on
+    another team's roster, stay in the table for transparency but are left out of
+    every total; that money is the team's dead money or another team's cap.
+    Practice squad players count at practice squad pay.
     """
-    wk = status.filter(pl.col("week") == week).select(
-        "gsis_id",
-        pl.col("team").alias("roster_team"),
-        "roster_status",
-        "report_status",
-        "practice_status",
-        "injury",
-        "gameday_flag",
-        "inactive_reason",
+    weeks = team_status_weeks(status, week)
+    latest = (
+        status.join(weeks, on="team")
+        .filter(pl.col("week") == pl.col("status_week"))
+        .select(
+            "gsis_id",
+            pl.col("team").alias("roster_team"),
+            "status_week",
+            "roster_status",
+            "report_status",
+            "practice_status",
+            "injury",
+            "gameday_flag",
+            "inactive_reason",
+        )
+        .unique(subset=["gsis_id"], keep="last")
     )
-    df = grouped_contracts.join(wk, on="gsis_id", how="left")
+    df = grouped_contracts.join(latest, on="gsis_id", how="left")
+    on_own_roster = (pl.col("roster_team") == pl.col("team")) & pl.col("roster_status").is_in(
+        list(CAP_COUNTING_STATUS)
+    )
+    # On no weekly roster: count it only if the players file still lists him with
+    # this team and not as cut or retired (e.g. reserve/left squad).
+    in_limbo = (
+        pl.col("roster_team").is_null()
+        & (pl.col("latest_team").fill_null(pl.col("team")) == pl.col("team"))
+        & ~pl.col("players_status").fill_null("").is_in(["CUT", "RET"])
+    )
+    counts = on_own_roster | in_limbo
     return df.with_columns(
         pl.lit(week).cast(pl.Int32).alias("week"),
-        pl.col("gameday_flag").fill_null("unknown"),
+        counts.fill_null(False).alias("counts_against_cap"),
+        pl.col("cap_number").alias("contract_cap_number"),
+        pl.when(pl.col("roster_status") == "DEV")
+        .then(pl.min_horizontal("cap_number", pl.lit(PRACTICE_SQUAD_CAP)))
+        .otherwise(pl.col("cap_number"))
+        .alias("cap_number"),
+        pl.when(counts.fill_null(False))
+        .then(pl.col("gameday_flag").fill_null("unknown"))
+        .otherwise(pl.lit("off_roster"))
+        .alias("gameday_flag"),
     )
 
 
@@ -73,6 +133,7 @@ def rollup(fact: pl.DataFrame) -> pl.DataFrame:
     level `unit` and `position_group` are "all"; at the unit level `position_group` is
     "all" (never null, so the row key stays usable as a primary key).
     """
+    fact = fact.filter(pl.col("counts_against_cap"))
     base_aggs = [
         pl.col("cap_number").sum().alias("cap_total"),
         pl.len().alias("players"),

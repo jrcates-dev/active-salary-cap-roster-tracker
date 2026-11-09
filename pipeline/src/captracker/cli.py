@@ -10,8 +10,19 @@ from pathlib import Path
 
 import polars as pl
 
-from . import contracts, crosswalk, reconcile, rollup, rosters, snapshot, sources, teams
-from .config import DEFAULT_SEASON, OUT_DIR
+from . import (
+    contracts,
+    crosswalk,
+    estimates,
+    reconcile,
+    rollup,
+    rosters,
+    snapshot,
+    sources,
+    summary,
+    teams,
+)
+from .config import DEFAULT_SEASON, OUT_DIR, WEB_DATA
 
 log = logging.getLogger("captracker")
 
@@ -32,14 +43,24 @@ def cmd_check_contracts(args: argparse.Namespace) -> int:
 
 def _build_frames(season: int, week: int | None) -> dict:
     team_df = teams.load_teams()
+    roster_raw = sources.read("rosters_weekly", season)
     cy = contracts.load_contract_years(season)
-    cw = crosswalk.load_crosswalk(cy)
-    status = rosters.load_player_week_status(season)
+    cy = crosswalk.fill_gsis_by_name(cy, roster_raw)
+    status = rosters.player_week_status(roster_raw, sources.read("injuries", season), season)
     wk = week or rosters.latest_week(status)
+    est = estimates.estimate_missing(cy, roster_raw, season, wk)
+    cy = contracts.with_player_key(pl.concat([cy, est]))
+    cw = crosswalk.load_crosswalk(cy)
     grouped = rollup.assign_groups(cy, cw)
     fact = rollup.player_week_cap(grouped, status, wk)
     roll = rollup.rollup(fact)
+    try:
+        ref = reconcile.load_reference(season)
+    except FileNotFoundError:
+        ref = None
     return {
+        "reference": ref,
+        "team_summary": summary.team_summary(roll, fact, ref, rollup.team_status_weeks(status, wk)),
         "season": season,
         "week": wk,
         "teams": team_df,
@@ -59,13 +80,12 @@ def _team_totals(roll: pl.DataFrame) -> pl.DataFrame:
 def cmd_build(args: argparse.Namespace) -> int:
     f = _build_frames(args.season, args.week)
     report = None
-    try:
-        ref = reconcile.load_reference(args.season)
-        rep = reconcile.reconcile(_team_totals(f["rollup"]), ref, args.season)
+    if f["reference"] is not None:
+        rep = reconcile.reconcile(_team_totals(f["rollup"]), f["reference"], args.season)
         report = rep.to_dict()
         print(reconcile.format_report(rep))
-    except FileNotFoundError as exc:
-        log.warning("%s; skipping reconciliation", exc)
+    else:
+        log.warning("no OTC reference for %s; skipping reconciliation", args.season)
     out = snapshot.write_snapshot(
         f["season"],
         f["week"],
@@ -76,6 +96,7 @@ def cmd_build(args: argparse.Namespace) -> int:
         player_week_status=f["status"],
         fact=f["fact"],
         rollup=f["rollup"],
+        team_summary=f["team_summary"],
         reconcile_report=report,
     )
     print(f"snapshot written to {out}")
@@ -85,10 +106,39 @@ def cmd_build(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_export(args: argparse.Namespace) -> int:
+    from . import export
+
+    f = _build_frames(args.season, args.week)
+    report = None
+    if f["reference"] is not None:
+        report = reconcile.reconcile(
+            _team_totals(f["rollup"]), f["reference"], args.season
+        ).to_dict()
+    data = export.build_export(
+        season=f["season"],
+        week=f["week"],
+        teams=f["teams"],
+        team_summary=f["team_summary"],
+        rollup=f["rollup"],
+        fact=f["fact"],
+        games=sources.read("games"),
+        reconcile_report=report,
+    )
+    out = Path(args.out)
+    if args.fixture:
+        data = export.build_fixture(data)
+    export.write_export(data, out)
+    print(f"wrote {out} ({out.stat().st_size / 1024:.0f} KB, {len(data['players'])} players)")
+    return 0
+
+
 def cmd_reconcile(args: argparse.Namespace) -> int:
     f = _build_frames(args.season, args.week)
-    ref = reconcile.load_reference(args.season)
-    rep = reconcile.reconcile(_team_totals(f["rollup"]), ref, args.season)
+    if f["reference"] is None:
+        print(f"no OTC reference file for {args.season}", file=sys.stderr)
+        return 1
+    rep = reconcile.reconcile(_team_totals(f["rollup"]), f["reference"], args.season)
     print(reconcile.format_report(rep))
     return 0 if rep.passed else 2
 
@@ -127,6 +177,13 @@ def main(argv: list[str] | None = None) -> int:
 
     p = sub.add_parser("reconcile", help="compare team totals with the OTC reference")
     p.set_defaults(func=cmd_reconcile)
+
+    p = sub.add_parser("export", help="write the JSON snapshot the web app reads")
+    p.add_argument("--out", default=str(WEB_DATA / "snapshot.json"))
+    p.add_argument(
+        "--fixture", action="store_true", help="replace player data with synthetic values"
+    )
+    p.set_defaults(func=cmd_export)
 
     p = sub.add_parser("load", help="load a snapshot into Postgres")
     p.set_defaults(func=cmd_load)

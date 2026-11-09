@@ -42,3 +42,6 @@ next-env.d.ts
 
 # keep the example env
 !.env.example
+
+# real data snapshot (per-player contract data stays out of the public repo)
+/data/snapshot.json

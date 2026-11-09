@@ -1,5 +1,5 @@
 {
-  "id": "e2fb5296-6ae0-4f5d-a07d-3fe391ee1081",
+  "id": "d4186a32-0d8a-49ba-93a7-9dd4500fcdbe",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -30,7 +30,7 @@
           "name": "otc_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "player_name": {
           "name": "player_name",
@@ -157,17 +157,29 @@
           "type": "double precision",
           "primaryKey": false,
           "notNull": false
+        },
+        "cap_source": {
+          "name": "cap_source",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "player_key": {
+          "name": "player_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {
-        "contract_years_season_team_otc_id_pk": {
-          "name": "contract_years_season_team_otc_id_pk",
+        "contract_years_season_team_player_key_pk": {
+          "name": "contract_years_season_team_player_key_pk",
           "columns": [
             "season",
             "team",
-            "otc_id"
+            "player_key"
           ]
         }
       },
@@ -208,7 +220,7 @@
           "name": "otc_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "player_name": {
           "name": "player_name",
@@ -336,6 +348,18 @@
           "primaryKey": false,
           "notNull": false
         },
+        "cap_source": {
+          "name": "cap_source",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "player_key": {
+          "name": "player_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
         "players_position": {
           "name": "players_position",
           "type": "text",
@@ -350,12 +374,24 @@
         },
         "espn_id": {
           "name": "espn_id",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
         "headshot": {
           "name": "headshot",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "players_status": {
+          "name": "players_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "latest_team": {
+          "name": "latest_team",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -375,6 +411,12 @@
         "roster_team": {
           "name": "roster_team",
           "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status_week": {
+          "name": "status_week",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
@@ -413,18 +455,30 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "counts_against_cap": {
+          "name": "counts_against_cap",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "contract_cap_number": {
+          "name": "contract_cap_number",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {
-        "player_week_cap_season_week_team_otc_id_pk": {
-          "name": "player_week_cap_season_week_team_otc_id_pk",
+        "player_week_cap_season_week_team_player_key_pk": {
+          "name": "player_week_cap_season_week_team_player_key_pk",
           "columns": [
             "season",
             "week",
             "team",
-            "otc_id"
+            "player_key"
           ]
         }
       },
@@ -945,6 +999,154 @@
           "name": "team_cap_reference_season_team_pk",
           "columns": [
             "season",
+            "team"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.team_summary": {
+      "name": "team_summary",
+      "schema": "",
+      "columns": {
+        "season": {
+          "name": "season",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "week": {
+          "name": "week",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "team": {
+          "name": "team",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cap_total": {
+          "name": "cap_total",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "players": {
+          "name": "players",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cap_active": {
+          "name": "cap_active",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cap_inactive": {
+          "name": "cap_inactive",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cap_questionable": {
+          "name": "cap_questionable",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cap_unknown": {
+          "name": "cap_unknown",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "players_estimated": {
+          "name": "players_estimated",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cap_estimated": {
+          "name": "cap_estimated",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "players_rookie_derived": {
+          "name": "players_rookie_derived",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cap_rookie_derived": {
+          "name": "cap_rookie_derived",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cap_off_roster": {
+          "name": "cap_off_roster",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status_week": {
+          "name": "status_week",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "on_bye": {
+          "name": "on_bye",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dead_money": {
+          "name": "dead_money",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cap_space": {
+          "name": "cap_space",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ref_active_cap": {
+          "name": "ref_active_cap",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "reference_as_of": {
+          "name": "reference_as_of",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "adjusted_cap": {
+          "name": "adjusted_cap",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "team_summary_season_week_team_pk": {
+          "name": "team_summary_season_week_team_pk",
+          "columns": [
+            "season",
+            "week",
             "team"
           ]
         }

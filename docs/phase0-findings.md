@@ -1,5 +1,10 @@
 # Phase 0 findings: the day-one data check
 
+> **Update, same day (follow-up work):** 30 of 32 teams now reconcile within 1%. The
+> first diagnosis in section 2 below was incomplete; see
+> [section 6](#6-update-closing-the-gap) for what actually closed the gap, the two teams
+> still outside the line, and the verified `INA` status.
+
 Date: 2026-11-09. Season: 2026, data through week 9. Source files: the nflverse
 `historical_contracts`, `players`, `roster_weekly_2026`, `injuries_2026` releases, the
 nflverse `games.csv` and `teams_colors_logos.csv`, plus OverTheCap's public team totals
@@ -149,12 +154,61 @@ surface.
   are flagged `unknown` and excluded from active and inactive, but counted in team
   totals, which matches how OTC's active cap treats them.
 
+## 6. Update: closing the gap
+
+The section 2 diagnosis (minimum-salary players missing from the file) explained only
+part of the gap. The bigger piece was the **2026 draft class**: the contracts file
+ships this year's rookie deals with an empty `season_history`, so 457 rostered rookies
+had no 2026 cap number at all. Four changes closed it:
+
+1. **Rookie scale derivation** (`contracts.derive_first_year`). For active deals signed
+   this season with no cap line: rounds 1 to 3 count 8/11 of APY (the rookie signing
+   bonus prorates over four years while salary rises, so year one sits below APY);
+   later rounds count APY less $210K, floored at the $885K rookie minimum. Rows carry
+   `cap_source = "derived_rookie_scale"`. 457 players, $512.7M league wide. A player
+   promoted from the practice squad can carry two active deals signed this season; only
+   the richest counts.
+2. **Minimum-salary estimates** (`estimates.py`) for rostered players with no contract
+   row at all: the minimum for their years of experience, prorated from the first week
+   they appear. `cap_source = "estimate_minimum"`. 41 players, $8.9M.
+3. **Practice squad pay.** `DEV` players count at most $247,500 a season (prorated),
+   not their full contract figure, matching how OverTheCap counts them.
+4. **Roster rules.** Released, retired and traded players drop out of their old team's
+   total; teams on a bye keep their last week's statuses instead of falling out of the
+   week.
+
+Result against the same reference (OTC active cap spending, as of 2026-11-09):
+
+| Team | This site | OTC active | Diff % |
+| --- | ---: | ---: | ---: |
+| BAL | 293,435,135 | 286,601,993 | +2.4% |
+| IND | 213,544,019 | 217,562,940 | -1.8% |
+| LV | 246,951,487 | 244,864,152 | +0.9% |
+| ARI | 214,971,650 | 213,428,393 | +0.7% |
+| LA | 300,463,065 | 298,630,147 | +0.6% |
+| SF | 260,882,851 | 259,377,542 | +0.6% |
+| The other 26 teams | | | under 0.6% either way |
+
+**Still open:** Baltimore and Indianapolis. Both are off by more than a single minimum
+contract, so the likely cause is a restructure or release the free contracts file has
+not caught up with yet. They are listed on the methodology page. The daily ingest keeps
+running with `--allow-drift`, so the snapshot still publishes while those two are
+outside the line.
+
+**Dead money** and cap space come from the hand-entered reference table and are stored
+per team in the new `team_summary` table, shown as their own gray slice.
+
+**`INA` verified.** The roster file's `INA` status matched the Chiefs' published week 7
+inactives list. It is the official gameday inactive list, but it is only written after
+the game. The injury report stays the pre-kickoff signal, and the site labels `INA`
+players "Gameday inactive".
+
 ## What this changes in the plan
 
 - Risk "nflverse contracts file lacks per-year cap numbers": closed.
-- Phase 0 gate ("all 32 teams within 1%"): not met yet; the cause is known and the fix
-  (estimated minimum rows for missing rostered players) is Phase 1 work.
-- Phase 2 gameday layer: evaluate the roster `INA` status before building the ESPN
-  adapter.
+- Phase 0 gate ("all 32 teams within 1%"): 30 of 32. Baltimore and Indianapolis stay
+  open and are disclosed on the methodology page.
+- Phase 2 gameday layer: the roster `INA` status is the official inactive list, so the
+  ESPN adapter is only needed for a pre-kickoff signal beyond the injury report.
 - Dead money: team-level only, from the hand-entered reference table, refreshed by hand
   when the check drifts.

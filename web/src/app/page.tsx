@@ -1,96 +1,145 @@
-import { AvailabilityBar } from "@/components/AvailabilityBar";
-import { TEAMS, formatMoney, positionGroups, unitMark } from "@/design/tokens";
+import Link from "next/link";
+import { AvailabilityLegend, Swatch } from "@/components/Availability";
+import { Heatmap, type HeatRow } from "@/components/league/Heatmap";
+import { InactiveBoard } from "@/components/league/InactiveBoard";
+import { OffenseShare } from "@/components/league/OffenseShare";
+import { displayColor } from "@/design/tokens";
+import { getSnapshot } from "@/lib/data";
+import { money, pct, reasonLabel } from "@/lib/format";
 
-/**
- * Phase 0 placeholder: shows the design tokens (team colors, availability
- * treatments, unit marks) on real-looking numbers so the look can be judged
- * before the database and the team pages exist. Phase 1 replaces this with the
- * league overview.
- */
-const SAMPLE = {
-  NE: { active: 150_655_061, questionable: 60_088_529, inactive: 70_870_559, dead: 47_081_813 },
-  GB: { active: 162_708_322, questionable: 7_166_668, inactive: 78_610_744, dead: 48_932_823 },
-  MIA: { active: 60_000_000, questionable: 5_000_000, inactive: 25_584_564, dead: 190_078_227 },
-};
+export default async function LeaguePage() {
+  const s = await getSnapshot();
+  const sum = (k: "cap_total" | "cap_inactive" | "cap_questionable") =>
+    s.summary.reduce((acc, t) => acc + t[k], 0);
+  const total = sum("cap_total");
+  const inactive = sum("cap_inactive");
+  const questionable = sum("cap_questionable");
+  const playersOut = s.players.filter((p) => p.flag === "inactive").length;
+  const teamsById = Object.fromEntries(s.teams.map((t) => [t.team, t]));
 
-export default function Home() {
+  const groupsOrdered = [...s.groups].sort(
+    (a, b) => unitIndex(a.unit) - unitIndex(b.unit) || a.order - b.order,
+  );
+  const heatRows: HeatRow[] = s.summary.map((t) => {
+    const team = teamsById[t.team];
+    const cells: HeatRow["cells"] = {};
+    for (const r of s.rollup) {
+      if (r.team === t.team && r.level === "group") {
+        cells[r.position_group] = { cap: r.cap_total, inactive: r.cap_inactive };
+      }
+    }
+    return { team: t.team, nick: team.nick, name: team.name, color: displayColor(team), total: t.cap_total, cells };
+  });
+
+  const biggestOut = s.players
+    .filter((p) => p.flag === "inactive")
+    .sort((a, b) => b.cap - a.cap)
+    .slice(0, 10);
+
   return (
-    <main className="mx-auto max-w-6xl px-6 py-12">
-      <header className="mb-10">
-        <p className="text-sm uppercase tracking-[0.2em] text-fg-muted">Phase 0 scaffold</p>
-        <h1 className="num mt-2 text-5xl font-semibold">NFL Salary Cap Tracker</h1>
-        <p className="mt-3 max-w-2xl text-fg-muted">
-          Where each team&apos;s cap goes, by unit and position group, and how much of it is on
-          the field this week. Numbers below are from the week 9 snapshot the pipeline built;
-          the dead money column is the published team figure.
-        </p>
-      </header>
-
-      <section className="mb-12">
-        <h2 className="num mb-4 text-2xl font-semibold">Availability bars</h2>
-        <div className="grid gap-4 rounded-md border border-border bg-panel p-6">
-          {Object.entries(SAMPLE).map(([abbr, slices]) => {
-            const t = TEAMS.find((x) => x.team === abbr)!;
-            const total = slices.active + slices.questionable + slices.inactive + slices.dead;
-            return (
-              <div key={abbr} className="grid grid-cols-[120px_1fr_140px] items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <span className="inline-block h-4 w-4 rounded-sm" style={{ background: t.color_primary }} />
-                  <span className="num text-xl font-semibold">{t.nick}</span>
-                </div>
-                <AvailabilityBar team={abbr} color={t.color_primary} slices={slices} />
-                <div className="num text-right text-lg">
-                  <span className="text-fg-muted">{formatMoney(slices.inactive)} inactive</span>
-                  <span className="block text-sm text-fg-faint">of {formatMoney(total)}</span>
-                </div>
-              </div>
-            );
-          })}
-          <p className="mt-2 text-sm text-fg-faint">
-            Solid = active · dashed outline = questionable · hatched = inactive · gray = dead money
+    <main className="mx-auto max-w-7xl space-y-14 px-4 py-8 sm:px-6">
+      <section className="space-y-6">
+        <div>
+          <p className="text-sm tracking-wider text-fg-muted uppercase">
+            {s.season} season · Week {s.week}
           </p>
+          <h1 className="num mt-1 text-4xl leading-tight font-bold sm:text-5xl">
+            Where the money is, and whether it&apos;s playing
+          </h1>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <Hero label="Cap counted across 32 rosters" value={money(total, 2)} />
+          <Hero
+            label={`Inactive this week · ${playersOut} players`}
+            value={money(inactive)}
+            sub={`${pct(inactive / total)} of all counted cap`}
+            accent
+          />
+          <Hero label="Questionable or doubtful" value={money(questionable)} sub={`${pct(questionable / total)} of cap`} />
         </div>
       </section>
 
-      <section className="mb-12">
-        <h2 className="num mb-4 text-2xl font-semibold">Position groups and unit marks</h2>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-          {(["offense", "defense", "special_teams"] as const).map((unit) => (
-            <div key={unit} className="rounded-md border border-border bg-panel p-4">
-              <div className="mb-3 flex items-center gap-2 text-fg-muted">
-                <span aria-hidden>{unitMark[unit].glyph}</span>
-                <span className="text-sm uppercase tracking-wider">{unitMark[unit].label}</span>
-              </div>
-              <ul className="space-y-1">
-                {positionGroups
-                  .filter((g) => g.unit === unit)
-                  .map((g) => (
-                    <li key={g.code} className="flex justify-between text-sm">
-                      <span className="num text-base font-semibold">{g.code}</span>
-                      <span className="text-fg-muted">{g.label}</span>
-                    </li>
-                  ))}
-              </ul>
-            </div>
-          ))}
+      <section className="grid gap-12 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+        <div>
+          <SectionTitle
+            title="Inactive money, team by team"
+            note="Each bar is a team's counted cap on one shared scale, split by this week's availability."
+          />
+          <div className="mb-4">
+            <AvailabilityLegend color="#c9ced8" />
+          </div>
+          <InactiveBoard s={s} />
+        </div>
+        <div>
+          <SectionTitle title="Most expensive players out" note={`Gameday inactive, reserve lists or ruled out, week ${s.week}.`} />
+          <ol className="divide-y divide-border rounded-lg border border-border bg-panel">
+            {biggestOut.map((p) => {
+              const team = teamsById[p.team];
+              const color = displayColor(team);
+              return (
+                <li key={p.key} className="flex items-center gap-3 px-4 py-2.5">
+                  <Swatch k="inactive" color={color} size={14} />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium">{p.name}</p>
+                    <p className="text-xs text-fg-muted">
+                      <Link href={`/team/${p.team}`} className="hover:underline">
+                        {team.nick}
+                      </Link>{" "}
+                      · {p.group} · {reasonLabel(p.reason) ?? "Inactive"}
+                      {p.injury ? ` · ${p.injury}` : ""}
+                    </p>
+                  </div>
+                  <span className="num text-xl">{money(p.cap)}</span>
+                </li>
+              );
+            })}
+          </ol>
         </div>
       </section>
 
       <section>
-        <h2 className="num mb-4 text-2xl font-semibold">Team colors</h2>
-        <div className="grid grid-cols-4 gap-2 sm:grid-cols-8">
-          {TEAMS.map((t) => (
-            <div
-              key={t.team}
-              className="num flex h-14 items-end rounded-sm p-2 text-sm font-semibold"
-              style={{ background: t.color_primary, color: "#fff" }}
-              title={t.name}
-            >
-              {t.team}
-            </div>
-          ))}
-        </div>
+        <SectionTitle
+          title="How every team splits its cap"
+          note="Shaded within each column against the rest of the league. Hover any cell for dollars and rank."
+        />
+        <Heatmap groups={groupsOrdered} rows={heatRows} />
       </section>
+
+      <section className="max-w-3xl">
+        <SectionTitle title="Offense or defense?" note="Share of counted cap by unit, most offense-heavy first." />
+        <OffenseShare s={s} />
+      </section>
+
+      <p className="text-sm text-fg-faint">
+        Pick a team above, or click any team name, for its full breakdown. How the numbers are built is on the{" "}
+        <Link href="/methodology" className="text-fg-muted underline underline-offset-4 hover:text-fg">
+          methodology page
+        </Link>
+        .
+      </p>
     </main>
+  );
+}
+
+function unitIndex(u: string) {
+  return u === "offense" ? 0 : u === "defense" ? 1 : 2;
+}
+
+function Hero({ label, value, sub, accent }: { label: string; value: string; sub?: string; accent?: boolean }) {
+  return (
+    <div className={`rounded-lg border bg-panel px-5 py-4 ${accent ? "border-[#ff7b1c]/50" : "border-border"}`}>
+      <p className="text-sm text-fg-muted">{label}</p>
+      <p className="num mt-1 text-5xl leading-none font-bold">{value}</p>
+      {sub && <p className="mt-1 text-sm text-fg-muted">{sub}</p>}
+    </div>
+  );
+}
+
+function SectionTitle({ title, note }: { title: string; note?: string }) {
+  return (
+    <div className="mb-4">
+      <h2 className="num text-2xl font-semibold sm:text-3xl">{title}</h2>
+      {note && <p className="text-sm text-fg-muted">{note}</p>}
+    </div>
   );
 }

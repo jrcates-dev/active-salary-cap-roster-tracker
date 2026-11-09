@@ -2,7 +2,7 @@ CREATE TABLE "contract_years" (
 	"season" integer NOT NULL,
 	"team" text NOT NULL,
 	"gsis_id" text,
-	"otc_id" integer NOT NULL,
+	"otc_id" integer,
 	"player_name" text NOT NULL,
 	"contract_position" text,
 	"contract_team_label" text,
@@ -24,7 +24,9 @@ CREATE TABLE "contract_years" (
 	"cash_paid" bigint NOT NULL,
 	"cap_number" bigint NOT NULL,
 	"cap_pct" double precision,
-	CONSTRAINT "contract_years_season_team_otc_id_pk" PRIMARY KEY("season","team","otc_id")
+	"cap_source" text NOT NULL,
+	"player_key" text NOT NULL,
+	CONSTRAINT "contract_years_season_team_player_key_pk" PRIMARY KEY("season","team","player_key")
 );
 --> statement-breakpoint
 CREATE TABLE "player_week_cap" (
@@ -32,7 +34,7 @@ CREATE TABLE "player_week_cap" (
 	"week" integer NOT NULL,
 	"team" text NOT NULL,
 	"gsis_id" text,
-	"otc_id" integer NOT NULL,
+	"otc_id" integer,
 	"player_name" text NOT NULL,
 	"contract_position" text,
 	"contract_team_label" text,
@@ -54,20 +56,27 @@ CREATE TABLE "player_week_cap" (
 	"cash_paid" bigint NOT NULL,
 	"cap_number" bigint NOT NULL,
 	"cap_pct" double precision,
+	"cap_source" text NOT NULL,
+	"player_key" text NOT NULL,
 	"players_position" text,
 	"name" text,
-	"espn_id" integer,
+	"espn_id" text,
 	"headshot" text,
+	"players_status" text,
+	"latest_team" text,
 	"position_group" text,
 	"unit" text,
 	"roster_team" text,
+	"status_week" integer,
 	"roster_status" text,
 	"report_status" text,
 	"practice_status" text,
 	"injury" text,
 	"gameday_flag" text NOT NULL,
 	"inactive_reason" text,
-	CONSTRAINT "player_week_cap_season_week_team_otc_id_pk" PRIMARY KEY("season","week","team","otc_id")
+	"counts_against_cap" boolean NOT NULL,
+	"contract_cap_number" bigint NOT NULL,
+	CONSTRAINT "player_week_cap_season_week_team_player_key_pk" PRIMARY KEY("season","week","team","player_key")
 );
 --> statement-breakpoint
 CREATE TABLE "player_week_status" (
@@ -156,6 +165,31 @@ CREATE TABLE "team_cap_reference" (
 	"source" text,
 	"as_of" date,
 	CONSTRAINT "team_cap_reference_season_team_pk" PRIMARY KEY("season","team")
+);
+--> statement-breakpoint
+CREATE TABLE "team_summary" (
+	"season" integer NOT NULL,
+	"week" integer NOT NULL,
+	"team" text NOT NULL,
+	"cap_total" bigint NOT NULL,
+	"players" integer NOT NULL,
+	"cap_active" bigint NOT NULL,
+	"cap_inactive" bigint NOT NULL,
+	"cap_questionable" bigint NOT NULL,
+	"cap_unknown" bigint NOT NULL,
+	"players_estimated" integer NOT NULL,
+	"cap_estimated" bigint NOT NULL,
+	"players_rookie_derived" integer NOT NULL,
+	"cap_rookie_derived" bigint NOT NULL,
+	"cap_off_roster" bigint NOT NULL,
+	"status_week" integer NOT NULL,
+	"on_bye" boolean NOT NULL,
+	"dead_money" bigint,
+	"cap_space" bigint,
+	"ref_active_cap" bigint,
+	"reference_as_of" text,
+	"adjusted_cap" bigint,
+	CONSTRAINT "team_summary_season_week_team_pk" PRIMARY KEY("season","week","team")
 );
 --> statement-breakpoint
 CREATE TABLE "teams" (

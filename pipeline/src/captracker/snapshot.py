@@ -28,6 +28,7 @@ def write_snapshot(
     player_week_status: pl.DataFrame,
     fact: pl.DataFrame,
     rollup: pl.DataFrame,
+    team_summary: pl.DataFrame,
     reconcile_report: dict | None,
 ) -> Path:
     d = snapshot_dir(season, week)
@@ -39,6 +40,7 @@ def write_snapshot(
         "player_week_status": player_week_status,
         "player_week_cap": fact,
         "rollup": rollup,
+        "team_summary": team_summary,
     }
     for name, df in tables.items():
         df.write_parquet(d / f"{name}.parquet")

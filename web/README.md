@@ -1,22 +1,45 @@
 # web
 
-Next.js (App Router) + TypeScript + Tailwind site for the salary cap tracker. Reads from
-Postgres through Drizzle; never calls an outside API at request time.
+Next.js (App Router) + TypeScript + Tailwind site for the salary cap tracker. Every page
+is prerendered from one JSON snapshot; the site never calls an outside API at request
+time.
 
 ```bash
 pnpm install
-cp .env.example .env.local   # set DATABASE_URL (Neon)
 pnpm dev
 ```
 
+## Data
+
+| File | What |
+| --- | --- |
+| `data/snapshot.json` | The real week snapshot, written by `captracker export` in `pipeline/`. Gitignored, because the repo is public and the file holds per-player contract data |
+| `data/fixture.json` | Synthetic data with the same shape (real team names and colors, fake players and dollars). Committed, used by CI and fresh clones |
+
+`src/lib/data.ts` reads `snapshot.json` and falls back to `fixture.json`. When the
+fixture is in use, a banner under the nav says so.
+
+## Pages
+
+| Route | What |
+| --- | --- |
+| `/` | League overview: totals, inactive money by team, most expensive players out, the 32 × 13 heatmap, offense/defense split |
+| `/team/[abbr]` | Team page: cap summary and availability bar, $ / % toggle, position groups against the league median, treemap of every player, sortable roster |
+| `/methodology` | Sources and attribution, accounting rules, estimates, reconciliation table |
+
+## Layout
+
 | Path | What |
 | --- | --- |
-| `src/db/schema.ts` | Drizzle schema. The contract between `pipeline/` and the site |
-| `src/db/index.ts` | Lazily-created database client |
-| `src/design/tokens.ts` | Design tokens: team colors, availability treatments, intensity ramp, unit marks, money formatting |
-| `src/design/teams.json` | The 32 teams with colors, generated from the nflverse teams file |
-| `src/components/AvailabilityBar.tsx` | Active / questionable / inactive / dead stacked bar used at every level |
-| `src/components/HatchDefs.tsx` | SVG hatch pattern for inactive money |
-| `drizzle.config.ts` | `pnpm drizzle-kit generate` writes migrations to `drizzle/` |
+| `src/lib/types.ts` | Shapes of the snapshot JSON |
+| `src/lib/data.ts` | Snapshot loader and per-team and league helpers |
+| `src/lib/format.ts` | Money, percent and label formatting |
+| `src/design/tokens.ts` | Surfaces, the one-hue intensity ramp, unit marks, the inactive hatch, and `displayColor` (a team color that clears 3:1 on the dark panel) |
+| `src/components/Availability.tsx` | The active / questionable / inactive / practice squad / dead money bar and legend used at every level |
+| `src/components/Tip.tsx` | Pointer-following hover tooltip |
+| `src/components/team/` | Team page pieces: money mode toggle, group breakdown, treemap, player table |
+| `src/components/league/` | League pieces: inactive board, heatmap, offense share |
+| `src/db/schema.ts` | Drizzle schema, matching the pipeline's parquet tables, for the optional Postgres load |
 
-Scripts: `pnpm dev`, `pnpm build`, `pnpm lint`, `pnpm typecheck`, `pnpm db:generate`, `pnpm db:migrate`.
+Scripts: `pnpm dev`, `pnpm build`, `pnpm lint`, `pnpm typecheck`, `pnpm db:generate`,
+`pnpm db:migrate`.

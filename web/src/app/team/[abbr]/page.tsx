@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { AvailabilityBar, AvailabilityLegend, Swatch } from "@/components/Availability";
+import { ChartLink } from "@/components/ChartLink";
 import { Logo } from "@/components/Logo";
 import { Strip } from "@/components/site/Strip";
 import { TeamChip } from "@/components/TeamChip";
@@ -15,6 +16,7 @@ import { STATUS_COLOR, teamVars, UNITS } from "@/design/tokens";
 import { slicesOf } from "@/lib/availability";
 import { getSnapshot, groupLeagueStats, kickoffLabel, matchupHref, teamGame, teamView } from "@/lib/data";
 import { dayLabel, money, pct } from "@/lib/format";
+import { rosterHref, statusHrefs, type RosterStatus } from "@/lib/rosterLink";
 import type { Snapshot, StatusSource } from "@/lib/types";
 
 /** Every team is prerendered; a static export has no server to render any other. */
@@ -96,16 +98,16 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
               <MoneyToggle />
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-              <Kpi label="Questionable" k="questionable">
+              <Kpi label="Questionable" k="questionable" team={team.team}>
                 <Amount value={summary.cap_questionable} />
               </Kpi>
-              <Kpi label="Out this week" k="inactive">
+              <Kpi label="Out this week" k="inactive" team={team.team}>
                 <Amount value={summary.cap_inactive_week} />
               </Kpi>
-              <Kpi label="Out long-term" k="season" note="Can return">
+              <Kpi label="Out long-term" k="season" note="Can return" team={team.team}>
                 <Amount value={summary.cap_inactive_season} />
               </Kpi>
-              <Kpi label="Out for season" k="year">
+              <Kpi label="Out for season" k="year" team={team.team}>
                 <Amount value={summary.cap_inactive_year ?? 0} />
               </Kpi>
               <Kpi label="Dead money" k="dead" note={asOf}>
@@ -116,19 +118,26 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
               </Kpi>
             </div>
             <div className="space-y-2.5">
-              <AvailabilityBar height={28} labels title={team.name} slices={{ ...slicesOf(summary), dead: summary.dead_money ?? 0 }} />
+              <AvailabilityBar
+                height={28}
+                labels
+                title={team.name}
+                subject={team.name}
+                slices={{ ...slicesOf(summary), dead: summary.dead_money ?? 0 }}
+                hrefs={statusHrefs(team.team)}
+              />
               <AvailabilityLegend keys={["active", "questionable", "inactive", "season", "year", "unknown", "dead"]} short />
             </div>
           </section>
 
           <section>
             <SectionHead title="Position groups" aside={<span>Tick · league median. Rank of 32 by spend</span>} />
-            <GroupBreakdown lines={lines} unitRows={unitRows} />
+            <GroupBreakdown team={{ team: team.team, name: team.name }} lines={lines} unitRows={unitRows} />
           </section>
 
           <section>
             <SectionHead title="Players" aside={<span>Sized by cap number</span>} />
-            <Treemap groups={s.groups} players={players} teamTotal={base} />
+            <Treemap team={team.team} groups={s.groups} players={players} teamTotal={base} />
           </section>
 
           {trend.length > 1 && (
@@ -148,16 +157,47 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
   );
 }
 
-function Kpi({ label, k, note, children }: { label: string; k?: "inactive" | "questionable" | "season" | "year" | "dead"; note?: string; children: React.ReactNode }) {
-  return (
-    <div className={`card px-4 py-3 ${k ? "tone pt-4" : ""}`} style={k ? ({ "--s": STATUS_COLOR[k] } as React.CSSProperties) : undefined}>
+function Kpi({
+  label,
+  k,
+  note,
+  team,
+  children,
+}: {
+  label: string;
+  k?: "inactive" | "questionable" | "season" | "year" | "dead";
+  note?: string;
+  /** With a status `k`, the card links to those players in the roster below. */
+  team?: string;
+  children: React.ReactNode;
+}) {
+  const body = (
+    <>
       <p className="flex items-center gap-2 text-[13px] text-ink-2">
         {k && <Swatch k={k} />}
         <span className="truncate">{label}</span>
       </p>
       <p className="fig mt-1.5 text-[24px] leading-none sm:text-[26px]">{children}</p>
       {note && <p className="mt-1.5 text-xs text-ink-3">{note}</p>}
-    </div>
+    </>
+  );
+  const tone = k ? ({ "--s": STATUS_COLOR[k] } as React.CSSProperties) : undefined;
+  const toned = k ? "tone pt-4" : "";
+  if (!team || !k || k === "dead")
+    return (
+      <div className={`card px-4 py-3 ${toned}`} style={tone}>
+        {body}
+      </div>
+    );
+  return (
+    <ChartLink
+      href={rosterHref(team, { status: k as RosterStatus })}
+      tapPreview={false}
+      style={tone}
+      className={`card block px-4 py-3 transition-shadow duration-(--dur-1) hover:shadow-[0_0_0_1px_var(--s)] ${toned}`}
+    >
+      {body}
+    </ChartLink>
   );
 }
 

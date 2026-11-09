@@ -71,6 +71,8 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
       label: p.label,
       offLabel: p.offLabel,
       defLabel: p.defLabel,
+      offGroups: p.off,
+      defGroups: p.def,
       off: groupMoney(s, offAbbr, p.off),
       def: groupMoney(s, defAbbr, p.def),
       ranks: {

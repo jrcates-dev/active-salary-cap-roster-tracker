@@ -3,10 +3,13 @@
 import { useMemo, useState, type CSSProperties } from "react";
 import { UNIT_COLOR, unitMark, UNITS } from "@/design/tokens";
 import { money, pct } from "@/lib/format";
+import { rosterHref } from "@/lib/rosterLink";
 import type { Unit } from "@/lib/types";
+import { SEGMENT_LINK } from "../Availability";
+import { ChartLink } from "../ChartLink";
 import { byDir, SortChip, useSort } from "../Sort";
 import { TeamChip } from "../TeamChip";
-import { Tip, TipRow, TipTitle } from "../Tip";
+import { Tip, TipHint, TipRow, TipTitle } from "../Tip";
 
 export interface UnitRow {
   team: string;
@@ -22,7 +25,8 @@ export interface UnitRow {
  * reader picks another unit. Clicking a unit ranks teams by that unit's share;
  * clicking it again flips the order. The ranked unit always sits at the left edge
  * of every bar, so its segments line up and compare directly; once the reader has
- * picked one, the other units fade back.
+ * picked one, the other units fade back. Each segment links to that team's roster
+ * filtered to the unit; the legend above only sorts.
  */
 export function OffenseShareBoard({ rows }: { rows: UnitRow[] }) {
   const [sort, toggleSort] = useSort<Unit>("offense");
@@ -98,7 +102,7 @@ export function OffenseShareBoard({ rows }: { rows: UnitRow[] }) {
                 {order.map((u) => (
                   <Tip
                     key={u}
-                    className="h-full rounded-[3px] transition-opacity duration-(--dur-2)"
+                    className="relative h-full rounded-[3px] transition-opacity duration-(--dur-2)"
                     style={{
                       flexGrow: r.unitCap[u],
                       flexBasis: 0,
@@ -116,9 +120,16 @@ export function OffenseShareBoard({ rows }: { rows: UnitRow[] }) {
                             value={`${money(r.unitCap[v])} · ${pct(share(r, v))}`}
                           />
                         ))}
+                        <TipHint>see the {unitMark[u].label.toLowerCase()} players</TipHint>
                       </div>
                     }
-                  />
+                  >
+                    <ChartLink
+                      href={rosterHref(r.team, { unit: u })}
+                      label={`${r.name} ${unitMark[u].label}, ${money(r.unitCap[u])}, ${pct(share(r, u))} of cap: show these players`}
+                      className={SEGMENT_LINK}
+                    />
+                  </Tip>
                 ))}
               </div>
               <span

@@ -4,10 +4,12 @@ import Link from "next/link";
 import { Fragment, useMemo, type CSSProperties } from "react";
 import { rampStep, UNIT_COLOR, unitMark, UNITS } from "@/design/tokens";
 import { money, ordinal, pct } from "@/lib/format";
+import { rosterHref } from "@/lib/rosterLink";
 import type { Group } from "@/lib/types";
+import { ChartLink } from "../ChartLink";
 import { ariaSort, byDir, SortHeader, useSort } from "../Sort";
 import { TeamChip } from "../TeamChip";
-import { Tip, TipRow, TipTitle } from "../Tip";
+import { Tip, TipHint, TipRow, TipTitle } from "../Tip";
 
 export interface HeatRow {
   team: string;
@@ -21,7 +23,8 @@ export interface HeatRow {
 /**
  * 32 teams by 13 position groups. Each cell is the group's share of the team's
  * counted cap, shaded against the other 31 teams in that column, so a dark cell
- * means "spends more here than most of the league". Click a column to rank by it.
+ * means "spends more here than most of the league". Click a column to rank by it;
+ * click a cell to see that team's players in the group.
  */
 export function Heatmap({ groups, rows }: { groups: Group[]; rows: HeatRow[] }) {
   const [sort, toggleSort] = useSort<string>("team", (k) => (k === "team" ? "asc" : "desc"));
@@ -124,7 +127,7 @@ export function Heatmap({ groups, rows }: { groups: Group[]; rows: HeatRow[] }) 
                       {gap && <td aria-hidden />}
                       <Tip
                         as="td"
-                        className="num h-8 rounded-[4px] text-center transition-[box-shadow] duration-(--dur-1) hover:shadow-[inset_0_0_0_2px_var(--ink)]"
+                        className="num relative h-8 rounded-[4px] text-center transition-[box-shadow] duration-(--dur-1) hover:shadow-[inset_0_0_0_2px_var(--ink)] has-focus-visible:shadow-[inset_0_0_0_2px_var(--ink)]"
                         style={{ background: `var(--ramp-${step})`, color: `var(--ramp-ink-${step})` }}
                         content={
                           <div>
@@ -135,10 +138,17 @@ export function Heatmap({ groups, rows }: { groups: Group[]; rows: HeatRow[] }) 
                             <TipRow label="Share of cap" value={pct(share)} />
                             <TipRow label="Out this week" value={money(cell.inactive)} />
                             <TipRow label="Rank by share" value={`${ordinal(range.ranks[r.team])} of 32`} />
+                            <TipHint />
                           </div>
                         }
                       >
-                        {(share * 100).toFixed(share < 0.1 ? 1 : 0)}
+                        <ChartLink
+                          href={rosterHref(r.team, { groups: [g.code] })}
+                          label={`${r.name} ${g.label}, ${pct(share)} of cap: show these players`}
+                          className="absolute inset-0 flex items-center justify-center rounded-[4px] focus-visible:outline-none"
+                        >
+                          {(share * 100).toFixed(share < 0.1 ? 1 : 0)}
+                        </ChartLink>
                       </Tip>
                     </Fragment>
                   );

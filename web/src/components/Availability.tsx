@@ -1,43 +1,41 @@
 "use client";
 
 import type { CSSProperties, ReactNode } from "react";
-import { deadMoney, hatch } from "@/design/tokens";
+import { deadMoney, hatch, practiceSquad } from "@/design/tokens";
 import { money, pct } from "@/lib/format";
+import { SLICE_LABEL, SLICE_ORDER, type SliceKey, type Slices } from "@/lib/availability";
 import { Tip, TipRow } from "./Tip";
 
-export type SliceKey = "active" | "questionable" | "inactive" | "unknown" | "dead";
+export { playerSlice, SLICE_LABEL, slicesOf, type SliceKey, type Slices } from "@/lib/availability";
 
-export interface Slices {
-  active: number;
-  questionable: number;
-  inactive: number;
-  unknown?: number;
-  dead?: number;
-}
-
-export const SLICE_LABEL: Record<SliceKey, string> = {
-  active: "Active",
-  questionable: "Questionable",
-  inactive: "Inactive",
-  unknown: "Practice squad / other",
-  dead: "Dead money",
-};
-
-/** Fill style for one availability state in a team's color. */
+/**
+ * Fill style for one availability state in a team's color. Each state differs in
+ * pattern as well as tone, so none depends on color alone:
+ *   active        solid team color
+ *   questionable  team color at 55% inside a dashed light outline
+ *   inactive      bold diagonal hatch in the team color
+ *   season        faint flat team color (present on the books, gone for weeks)
+ *   unknown       neutral dotted gray (practice squad)
+ *   dead          flat neutral gray
+ */
 export function sliceStyle(key: SliceKey, color: string): CSSProperties {
   switch (key) {
     case "active":
       return { background: color };
     case "questionable":
       return {
-        background: `${color}73`,
-        outline: `1.5px dashed ${color}`,
+        background: `${color}8c`,
+        outline: "1.5px dashed rgba(243, 244, 246, 0.85)",
         outlineOffset: "-1.5px",
       };
     case "inactive":
       return { background: hatch(color) };
+    case "season":
+      return { background: `${color}33`, boxShadow: `inset 0 0 0 1px ${color}59` };
     case "unknown":
-      return { background: `${color}2e` };
+      return {
+        background: `radial-gradient(${practiceSquad.dot} 1px, transparent 1.4px) 0 0 / 5px 5px, ${practiceSquad.fill}`,
+      };
     case "dead":
       return { background: deadMoney };
   }
@@ -75,7 +73,7 @@ export function AvailabilityBar({
   marker?: number;
   markerLabel?: string;
 }) {
-  const order: SliceKey[] = ["active", "questionable", "inactive", "unknown", "dead"];
+  const order = SLICE_ORDER;
   const total = order.reduce((acc, k) => acc + (slices[k] ?? 0), 0);
   const full = Math.max(scale ?? total, total, 1);
   return (
@@ -118,7 +116,7 @@ export function AvailabilityBar({
 
 export function AvailabilityLegend({
   color,
-  keys = ["active", "questionable", "inactive", "unknown"],
+  keys = ["active", "questionable", "inactive", "season", "unknown"],
   extra,
 }: {
   color: string;

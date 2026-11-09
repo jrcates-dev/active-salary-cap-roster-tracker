@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { stampLabel } from "@/lib/format";
 import type { Snapshot } from "@/lib/types";
 import { TeamPicker } from "./TeamPicker";
 
@@ -16,6 +17,9 @@ export function Nav({ snapshot }: { snapshot: Snapshot }) {
           <Link href="/" className="hover:text-fg">
             League
           </Link>
+          <Link href="/#games" className="hover:text-fg">
+            Matchups
+          </Link>
           <Link href="/methodology" className="hover:text-fg">
             Methodology
           </Link>
@@ -27,6 +31,7 @@ export function Nav({ snapshot }: { snapshot: Snapshot }) {
           <TeamPicker teams={teams} />
         </div>
       </div>
+      <Freshness snapshot={snapshot} />
       {snapshot.fixture && (
         <div className="border-t border-border bg-panel px-4 py-2 text-center text-sm text-fg-muted">
           Showing synthetic fixture data. Run <code className="text-fg">captracker export</code>{" "}
@@ -34,5 +39,25 @@ export function Nav({ snapshot }: { snapshot: Snapshot }) {
         </div>
       )}
     </header>
+  );
+}
+
+/** Every page says how fresh its numbers are: build time and the newest source weeks. */
+function Freshness({ snapshot: s }: { snapshot: Snapshot }) {
+  if (s.fixture) return null;
+  const f = s.freshness;
+  const injury =
+    f?.injury_week == null
+      ? "no injury report yet"
+      : f.injury_week >= s.week
+        ? `injury report for week ${f.injury_week}`
+        : `week ${s.week} injury report not out yet`;
+  return (
+    <div className="border-t border-border/60">
+      <p className="mx-auto max-w-7xl px-4 py-1.5 text-xs text-fg-faint sm:px-6">
+        Updated {stampLabel(s.generated_at)} · {injury}
+        {f?.reference_as_of ? ` · dead money and cap space as of ${f.reference_as_of}` : ""}
+      </p>
+    </div>
   );
 }

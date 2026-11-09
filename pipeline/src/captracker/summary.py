@@ -10,8 +10,13 @@ def team_summary(
     fact: pl.DataFrame,
     reference: pl.DataFrame | None,
     status_weeks: pl.DataFrame,
+    team_week: pl.DataFrame | None = None,
 ) -> pl.DataFrame:
     """One row per team with active/inactive money, estimates, and dead money.
+
+    `team_week` (from `cli.team_week_info`) says whether each team plays this week,
+    whether that game is final, and whether an injury report is out; it drives the
+    bye flag and the status source the site shows.
 
     Dead money and cap space are not in the contracts file. They come from the
     hand-entered reference table (OverTheCap's public team page), and the adjusted
@@ -27,6 +32,8 @@ def team_summary(
         "cap_inactive",
         "cap_questionable",
         "cap_unknown",
+        "cap_inactive_week",
+        "cap_inactive_season",
     )
     counted = pl.col("counts_against_cap")
     is_est = pl.col("cap_source") == "estimate_minimum"
@@ -46,11 +53,29 @@ def team_summary(
         .alias("cap_rookie_derived"),
         pl.when(~counted).then(pl.col("cap_number")).otherwise(0).sum().alias("cap_off_roster"),
     )
-    out = (
-        team.join(est, on="team", how="left")
-        .join(status_weeks, on="team", how="left")
-        .with_columns((pl.col("status_week") < pl.col("week")).alias("on_bye"))
-    )
+    out = team.join(est, on="team", how="left").join(status_weeks, on="team", how="left")
+    if team_week is None:
+        out = out.with_columns(
+            (pl.col("status_week") < pl.col("week")).alias("on_bye"),
+            pl.lit(None, dtype=pl.String).alias("status_source"),
+        )
+    else:
+        tw = team_week.select("team", "has_game", "game_final", "has_report", "projected")
+        out = (
+            out.join(tw, on="team", how="left")
+            .with_columns(
+                (~pl.col("has_game").fill_null(False)).alias("on_bye"),
+                pl.when(~pl.col("has_game").fill_null(False))
+                .then(pl.lit("bye"))
+                .when(pl.col("game_final").fill_null(False))
+                .then(pl.lit("final"))
+                .when(pl.col("has_report").fill_null(False))
+                .then(pl.lit("injury_report"))
+                .otherwise(pl.lit("no_report"))
+                .alias("status_source"),
+            )
+            .drop("has_game", "game_final", "has_report", "projected")
+        )
     if reference is None:
         return out.with_columns(
             pl.lit(None, dtype=pl.Int64).alias(c)

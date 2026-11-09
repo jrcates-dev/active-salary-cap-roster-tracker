@@ -45,3 +45,27 @@ export const UNIT_LABEL: Record<string, string> = {
   defense: "Defense",
   special_teams: "Special teams",
 };
+
+/** "Mon Nov 9, 07:30 UTC" from an ISO timestamp; fixed to UTC so the build is stable. */
+export function stampLabel(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  const day = d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" });
+  const time = d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" });
+  return `${day}, ${time} UTC`;
+}
+
+/** "Nov 9" from "2026-11-09". */
+export function dayLabel(isoDate: string): string {
+  const d = new Date(`${isoDate}T12:00:00Z`);
+  if (Number.isNaN(d.getTime())) return isoDate;
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+}
+
+/** Where a team's statuses for the week come from, in words. */
+export const SOURCE_LABEL: Record<string, string> = {
+  final: "Game final: official gameday inactives",
+  injury_report: "Pre-game: latest injury report",
+  no_report: "Pre-game: injury report not out yet, reserve lists only",
+  bye: "Bye week",
+};

@@ -74,6 +74,8 @@ def player_week_cap(
     every total; that money is the team's dead money or another team's cap.
     Practice squad players count at practice squad pay.
     """
+    if "absence" not in status.columns:
+        status = status.with_columns(pl.lit(None, dtype=pl.String).alias("absence"))
     weeks = team_status_weeks(status, week)
     latest = (
         status.join(weeks, on="team")
@@ -88,6 +90,7 @@ def player_week_cap(
             "injury",
             "gameday_flag",
             "inactive_reason",
+            "absence",
         )
         .unique(subset=["gsis_id"], keep="last")
     )
@@ -115,6 +118,10 @@ def player_week_cap(
         .then(pl.col("gameday_flag").fill_null("unknown"))
         .otherwise(pl.lit("off_roster"))
         .alias("gameday_flag"),
+        pl.when(counts.fill_null(False))
+        .then(pl.col("absence"))
+        .otherwise(pl.lit(None, dtype=pl.String))
+        .alias("absence"),
     )
 
 
@@ -124,6 +131,21 @@ def _flag_sum(flag: str) -> pl.Expr:
         .sum()
         .alias(f"cap_{flag}")
     )
+
+
+def _absence_sum(kind: str) -> pl.Expr:
+    return (
+        (
+            pl.when((pl.col("gameday_flag") == "inactive") & (pl.col("absence") == kind))
+            .then(pl.col("cap_number"))
+            .otherwise(0)
+        )
+        .sum()
+        .alias(f"cap_inactive_{kind}")
+    )
+
+
+ABSENCE_COLUMNS = ["cap_inactive_week", "cap_inactive_season"]
 
 
 def rollup(fact: pl.DataFrame) -> pl.DataFrame:
@@ -138,6 +160,8 @@ def rollup(fact: pl.DataFrame) -> pl.DataFrame:
         pl.col("cap_number").sum().alias("cap_total"),
         pl.len().alias("players"),
         *[_flag_sum(f) for f in FLAGS],
+        _absence_sum("week"),
+        _absence_sum("season"),
     ]
     by_group = (
         fact.filter(pl.col("position_group").is_not_null())
@@ -170,6 +194,7 @@ def rollup(fact: pl.DataFrame) -> pl.DataFrame:
         "cap_total",
         "players",
         *[f"cap_{f}" for f in FLAGS],
+        *ABSENCE_COLUMNS,
     ]
     out = pl.concat([by_team.select(cols), by_unit.select(cols), by_group.select(cols)])
     order = {g.code: (g.unit, g.order) for g in POSITION_GROUPS}

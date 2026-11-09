@@ -4,9 +4,10 @@
  * Color does three jobs and nothing else (PLAN.md, "Color system"):
  *   1. Team identity   - the team's color fills its bars and tiles.
  *   2. Availability    - active is solid team color; questionable is the team color
- *                        with a dashed outline; inactive is a diagonal hatch of the
- *                        team color; practice squad / other is a faint tint; dead
- *                        money is a flat neutral gray.
+ *                        inside a dashed light outline; out this week is a bold
+ *                        diagonal hatch of the team color; out long-term (IR) is a
+ *                        faint flat tint; practice squad is a dotted neutral; dead
+ *                        money is a flat neutral gray (see Availability.tsx).
  *   3. Intensity       - one sequential ramp for percent of cap in the league
  *                        heatmap. Never used for team identity.
  * Units get a fixed neutral mark, not a color: offense ●, defense ■, special teams ◆.
@@ -26,6 +27,9 @@ export const surface = {
 
 /** Dead money is never a team color. */
 export const deadMoney = "#5b6170";
+
+/** Practice squad money: a dotted neutral, so it never reads as team money or dead money. */
+export const practiceSquad = { fill: "#1d212b", dot: "#6b7385" } as const;
 
 /**
  * Sequential ramp for percent-of-cap intensity (league heatmap).
@@ -80,10 +84,36 @@ export function textOn(hex: string): "#ffffff" | "#0b0d12" {
   return contrast(hex, "#ffffff") >= contrast(hex, "#0b0d12") ? "#ffffff" : "#0b0d12";
 }
 
+function rgb(hex: string): [number, number, number] {
+  const c = hex.replace("#", "");
+  return [0, 2, 4].map((i) => parseInt(c.slice(i, i + 2), 16)) as [number, number, number];
+}
+
+/** HSL saturation in [0, 1]: silver, white and black score near 0. */
+function saturation(hex: string): number {
+  const [r, g, b] = rgb(hex).map((v) => v / 255);
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  if (max === min) return 0;
+  return (max - min) / (1 - Math.abs(2 * l - 1));
+}
+
+/** Mix a color toward white by `t` in [0, 1]. */
+function lighten(hex: string, t: number): string {
+  return `#${rgb(hex)
+    .map((v) => Math.round(v + (255 - v) * t).toString(16).padStart(2, "0"))
+    .join("")}`;
+}
+
+const MIN_CONTRAST = 3;
+
 /**
- * The team color to draw marks with on the dark panel. Several primaries (Raiders,
- * Steelers, Texans, Bears, Patriots navy) nearly vanish on near-black, so take the
- * first of the team's colors that clears 3:1 against the panel.
+ * The team color to draw marks with on the dark panel. Several primaries (Eagles
+ * green, Giants and Colts blue, Cowboys and Texans navy) nearly vanish on
+ * near-black. Prefer the first real hue that clears 3:1; if none does, lighten the
+ * team's main hue until it does, rather than falling back to a silver or gray
+ * secondary that reads as "no team". Only teams with no hue at all (Raiders) get gray.
  */
 export function displayColor(t: {
   color_primary: string;
@@ -92,12 +122,21 @@ export function displayColor(t: {
   color_4: string | null;
 }): string {
   const options = [t.color_primary, t.color_secondary, t.color_3, t.color_4].filter(
-    (c): c is string => !!c,
+    (c): c is string => !!c && /^#[0-9a-f]{6}$/i.test(c),
   );
-  return options.find((c) => contrast(c, surface.panel) >= 3) ?? surface.textMuted;
+  const hued = options.filter((c) => saturation(c) >= 0.25);
+  const ok = hued.find((c) => contrast(c, surface.panel) >= MIN_CONTRAST);
+  if (ok) return ok;
+  if (hued.length > 0) {
+    for (let step = 1; step <= 20; step++) {
+      const c = lighten(hued[0], step * 0.05);
+      if (contrast(c, surface.panel) >= MIN_CONTRAST) return c;
+    }
+  }
+  return options.find((c) => contrast(c, surface.panel) >= MIN_CONTRAST) ?? surface.textMuted;
 }
 
-/** CSS background for the inactive hatch in a given color. */
+/** CSS background for the out-this-week hatch in a given color. */
 export function hatch(color: string): string {
-  return `repeating-linear-gradient(135deg, ${color}66 0 2px, ${color}1f 2px 6px)`;
+  return `repeating-linear-gradient(135deg, ${color}d9 0 2px, ${color}24 2px 6px)`;
 }

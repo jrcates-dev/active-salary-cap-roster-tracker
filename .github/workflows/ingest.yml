@@ -44,14 +44,13 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       public: ${{ steps.visibility.outputs.public }}
+      health: ${{ steps.health.outputs.status }}
     defaults:
       run:
         working-directory: pipeline
     env:
       CAPTRACKER_SEASON: ${{ inputs.season || '2026' }}
       WEEK_INPUT: ${{ inputs.week }}
-      # The secrets context is not allowed in a step's `if`, so expose a flag instead.
-      HAS_DATABASE: ${{ secrets.DATABASE_URL != '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -77,9 +76,11 @@ jobs:
         run: captracker fetch
 
       - name: Build snapshot and reconcile
-        # 30 of 32 teams reconcile within 1%; Baltimore and Indianapolis are still
-        # open (docs/phase0-findings.md, section 6), so the gate reports but does
-        # not block by default. Flip the default to false once all 32 pass.
+        # All 32 teams pass: 30 within 1%, Baltimore and Indianapolis within their
+        # disclosed allowances (data/reference/known_gaps_<season>.csv). The gate still
+        # reports without blocking by default, because a trade after the hand-entered
+        # reference date would otherwise stop the daily deploy; a failure surfaces in
+        # the health check below and fails the run after the site is published.
         run: |
           WEEK_ARG=""
           if [ -n "$WEEK_INPUT" ]; then WEEK_ARG="--week $WEEK_INPUT"; fi
@@ -87,11 +88,25 @@ jobs:
           if [ "${{ inputs.allow_drift || 'true' }}" = "true" ]; then DRIFT="--allow-drift"; fi
           captracker $WEEK_ARG build $DRIFT | tee build.log
 
+      # The last published build carries its team totals; compare against them to
+      # catch a team that jumps more than 1% overnight.
+      - name: Fetch the last published team totals
+        run: |
+          url="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/data/totals.json"
+          curl -fsSL "$url" -o previous_totals.json || echo "No published totals yet."
+
       - name: Export the site snapshot
         run: |
           WEEK_ARG=""
           if [ -n "$WEEK_INPUT" ]; then WEEK_ARG="--week $WEEK_INPUT"; fi
-          captracker $WEEK_ARG export
+          PREV=""
+          if [ -s previous_totals.json ]; then PREV="--previous-totals previous_totals.json"; fi
+          captracker $WEEK_ARG export $PREV
+
+      # Annotations and a summary on the run; the verdict fails the run after deploy.
+      - name: Health check
+        id: health
+        run: captracker health
 
       - name: Upload pipeline snapshot
         uses: actions/upload-artifact@v4
@@ -119,6 +134,9 @@ jobs:
         env:
           # A project site is served from /<repo-name>.
           PAGES_BASE_PATH: /${{ github.event.repository.name }}
+          # Never publish the synthetic fixture: fail the build if the real snapshot
+          # is missing or unreadable.
+          REQUIRE_SNAPSHOT: "1"
         run: |
           pnpm install --frozen-lockfile
           pnpm build
@@ -147,11 +165,11 @@ jobs:
           git pull --rebase origin "$branch"
           git push origin "HEAD:$branch"
 
-      - name: Load into Postgres
-        if: env.HAS_DATABASE == 'true'
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: captracker load
+      - name: Fail the run if a health check failed
+        if: steps.visibility.outputs.public != 'true' && steps.health.outputs.status == 'fail'
+        run: |
+          echo "A data health check failed; see the annotations above." >&2
+          exit 1
 
   deploy:
     needs: ingest
@@ -163,3 +181,9 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+      # The site is already live; failing here emails the repo owner.
+      - name: Fail the run if a health check failed
+        if: needs.ingest.outputs.health == 'fail'
+        run: |
+          echo "A data health check failed; see the ingest job's annotations." >&2
+          exit 1

@@ -1,8 +1,8 @@
 """Export a compact JSON snapshot for the web app.
 
-The site reads one file per build: `web/data/snapshot.json`. Because the repository
-is public and the plan keeps per-player contract data off public surfaces until a
-data license is in place, the real snapshot is gitignored; CI builds against a
+The site reads one file per build: `web/data/snapshot.json`. The real snapshot is
+gitignored so it never enters the repository's history; the daily job builds it and
+bakes it into the published static site. CI and fresh clones build against a
 synthetic fixture (`web/data/fixture.json`) that `export --fixture` generates.
 """
 
@@ -28,6 +28,8 @@ ROLLUP_FIELDS = [
     "cap_inactive",
     "cap_questionable",
     "cap_unknown",
+    "cap_inactive_week",
+    "cap_inactive_season",
 ]
 
 
@@ -36,7 +38,11 @@ def _records(df: pl.DataFrame) -> list[dict]:
 
 
 def _games(games: pl.DataFrame, season: int, week: int) -> list[dict]:
-    g = games.filter((pl.col("season") == season) & pl.col("week").is_in([week, week + 1]))
+    g = games.filter(
+        (pl.col("season") == season)
+        & (pl.col("game_type") == "REG")
+        & pl.col("week").is_in([week - 1, week, week + 1])
+    )
     return _records(
         g.select(
             "game_id",
@@ -61,6 +67,8 @@ def build_export(
     fact: pl.DataFrame,
     games: pl.DataFrame,
     reconcile_report: dict | None,
+    freshness: dict | None = None,
+    history: list[dict] | None = None,
 ) -> dict:
     players = (
         fact.filter(pl.col("counts_against_cap"))
@@ -82,6 +90,7 @@ def build_export(
             pl.col("cap_source").alias("source"),
             pl.col("gameday_flag").alias("flag"),
             pl.col("inactive_reason").alias("reason"),
+            "absence",
             "roster_status",
             "report_status",
             "injury",
@@ -106,6 +115,8 @@ def build_export(
         "players": _records(players),
         "games": _games(games, season, week),
         "reconcile": reconcile_report,
+        "freshness": freshness,
+        "history": history or [],
     }
 
 
@@ -124,6 +135,7 @@ def build_fixture(real: dict, seed: int = 7) -> dict:
     rng = random.Random(seed)
     flags = ["active"] * 14 + ["inactive"] * 3 + ["questionable"] * 2 + ["unknown"]
     reasons = {"inactive": ["injured_reserve", "out", "inactive_list"]}
+    absence_of = {"injured_reserve": "season", "out": "week", "inactive_list": "week"}
     weights = {
         "QB": 3, "RB": 4, "WR": 6, "TE": 3, "OL": 9, "IDL": 6, "EDGE": 5,
         "LB": 5, "CB": 6, "S": 4, "K": 1, "P": 1, "LS": 1,
@@ -137,6 +149,7 @@ def build_fixture(real: dict, seed: int = 7) -> dict:
                 cap = int(rng.lognormvariate(14.2 if i else 15.6, 0.9))
                 cap = max(247_500, min(cap, 55_000_000)) // 500 * 500
                 flag = rng.choice(flags)
+                reason = rng.choice(reasons.get(flag, [None]))
                 players.append(
                     {
                         "team": abbr,
@@ -149,7 +162,8 @@ def build_fixture(real: dict, seed: int = 7) -> dict:
                         "contract_cap": cap,
                         "source": "contract",
                         "flag": flag,
-                        "reason": rng.choice(reasons.get(flag, [None])),
+                        "reason": reason,
+                        "absence": absence_of.get(reason) if reason else None,
                         "roster_status": "ACT",
                         "report_status": None,
                         "injury": None,
@@ -163,7 +177,20 @@ def build_fixture(real: dict, seed: int = 7) -> dict:
         pl.when(pl.col("flag") == f).then(pl.col("cap")).otherwise(0).sum().alias(f"cap_{f}")
         for f in ("active", "inactive", "questionable", "unknown")
     ]
-    aggs = [pl.col("cap").sum().alias("cap_total"), pl.len().alias("players"), *flag_cols]
+    absence_cols = [
+        pl.when((pl.col("flag") == "inactive") & (pl.col("absence") == a))
+        .then(pl.col("cap"))
+        .otherwise(0)
+        .sum()
+        .alias(f"cap_inactive_{a}")
+        for a in ("week", "season")
+    ]
+    aggs = [
+        pl.col("cap").sum().alias("cap_total"),
+        pl.len().alias("players"),
+        *flag_cols,
+        *absence_cols,
+    ]
     by_group = pdf.group_by("team", "unit", "group").agg(aggs).rename({"group": "position_group"})
     by_unit = (
         pdf.group_by("team", "unit").agg(aggs).with_columns(pl.lit("all").alias("position_group"))
@@ -183,7 +210,7 @@ def build_fixture(real: dict, seed: int = 7) -> dict:
     ).select(ROLLUP_FIELDS)
     summary = by_team.select(
         "team", "cap_total", "players", "cap_active", "cap_inactive", "cap_questionable",
-        "cap_unknown",
+        "cap_unknown", "cap_inactive_week", "cap_inactive_season",
     ).with_columns(
         pl.lit(0).alias("players_estimated"),
         pl.lit(0).alias("cap_estimated"),
@@ -192,6 +219,7 @@ def build_fixture(real: dict, seed: int = 7) -> dict:
         pl.lit(0).alias("cap_off_roster"),
         pl.lit(real["week"]).alias("status_week"),
         pl.lit(False).alias("on_bye"),
+        pl.lit("injury_report").alias("status_source"),
         pl.lit(20_000_000).alias("dead_money"),
         pl.lit(10_000_000).alias("cap_space"),
         pl.lit(None, dtype=pl.Int64).alias("ref_active_cap"),
@@ -199,6 +227,25 @@ def build_fixture(real: dict, seed: int = 7) -> dict:
     ).with_columns(
         (pl.col("cap_total") + pl.col("dead_money") + pl.col("cap_space")).alias("adjusted_cap")
     )  # fmt: skip
+    # A synthetic season-long trend: each team's inactive share drifts week to week.
+    history = []
+    for t in _records(summary.sort("team")):
+        for w in range(1, real["week"] + 1):
+            season_out = int(t["cap_total"] * (0.04 + 0.01 * w + rng.random() * 0.02))
+            week_out = int(t["cap_total"] * rng.random() * 0.06)
+            history.append(
+                {
+                    "week": w,
+                    "team": t["team"],
+                    "unit": "all",
+                    "cap_total": t["cap_total"],
+                    "cap_active": t["cap_total"] - season_out - week_out - t["cap_unknown"],
+                    "cap_questionable": 0,
+                    "cap_inactive_week": week_out,
+                    "cap_inactive_season": season_out,
+                    "cap_unknown": t["cap_unknown"],
+                }
+            )
     return {
         **real,
         "generated_at": "fixture",
@@ -207,4 +254,5 @@ def build_fixture(real: dict, seed: int = 7) -> dict:
         "rollup": _records(rollup),
         "players": players,
         "reconcile": None,
+        "history": history,
     }

@@ -2,6 +2,10 @@
 
 export type Unit = "offense" | "defense" | "special_teams";
 export type Flag = "active" | "inactive" | "questionable" | "unknown";
+/** Why an inactive player is out: this game only, or a reserve list (IR, PUP, NFI, suspension). */
+export type Absence = "week" | "season";
+/** Where a team's statuses for the week come from. */
+export type StatusSource = "final" | "injury_report" | "no_report" | "bye";
 export type CapSource = "contract" | "derived_rookie_scale" | "estimate_minimum";
 
 export interface Group {
@@ -33,6 +37,8 @@ export interface TeamSummary {
   cap_inactive: number;
   cap_questionable: number;
   cap_unknown: number;
+  cap_inactive_week: number;
+  cap_inactive_season: number;
   players_estimated: number;
   cap_estimated: number;
   players_rookie_derived: number;
@@ -40,6 +46,7 @@ export interface TeamSummary {
   cap_off_roster: number;
   status_week: number;
   on_bye: boolean;
+  status_source: StatusSource | null;
   dead_money: number | null;
   cap_space: number | null;
   ref_active_cap: number | null;
@@ -58,6 +65,8 @@ export interface RollupRow {
   cap_inactive: number;
   cap_questionable: number;
   cap_unknown: number;
+  cap_inactive_week: number;
+  cap_inactive_season: number;
 }
 
 export interface Player {
@@ -72,6 +81,7 @@ export interface Player {
   source: CapSource;
   flag: Flag;
   reason: string | null;
+  absence: Absence | null;
   roster_status: string | null;
   report_status: string | null;
   injury: string | null;
@@ -101,6 +111,28 @@ export interface ReconcileTeam {
   nflverse_players: number;
   otc_players: number;
   ok: boolean;
+  allowance?: number;
+  note?: string;
+}
+
+/** Team (unit "all") and unit totals for one week of the season. */
+export interface HistoryRow {
+  week: number;
+  team: string;
+  unit: Unit | "all";
+  cap_total: number;
+  cap_active: number;
+  cap_questionable: number;
+  cap_inactive_week: number;
+  cap_inactive_season: number;
+  cap_unknown: number;
+}
+
+export interface Freshness {
+  schedule_week: number;
+  roster_week: number | null;
+  injury_week: number | null;
+  reference_as_of: string | null;
 }
 
 export interface Snapshot {
@@ -114,6 +146,8 @@ export interface Snapshot {
   rollup: RollupRow[];
   players: Player[];
   games: Game[];
+  freshness: Freshness | null;
+  history: HistoryRow[];
   reconcile: {
     season: number;
     tolerance: number;

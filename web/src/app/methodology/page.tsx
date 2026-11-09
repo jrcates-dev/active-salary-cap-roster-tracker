@@ -32,7 +32,10 @@ export default async function MethodologyPage() {
           </li>
           <li>
             Team dead money, cap space and the reconciliation targets are read by hand from OverTheCap&apos;s
-            public team cap page once a week. This site never scrapes OverTheCap or Spotrac.
+            public team cap page
+            {s.freshness?.reference_as_of ? ` (last read ${s.freshness.reference_as_of})` : ""} and refreshed at
+            least monthly; the daily job warns when they are more than 30 days old. This site never scrapes
+            OverTheCap or Spotrac.
           </li>
           <li>Team colors and logos come from the nflverse team table.</li>
         </ul>
@@ -51,25 +54,53 @@ export default async function MethodologyPage() {
           <li>Released, retired and traded players drop out of their old team&apos;s total.</li>
           <li>Dead money is shown beside the roster total and is never mixed into position groups.</li>
           <li>Teams on a bye keep their statuses from the last week they played.</li>
+          <li>
+            The week shown is the schedule&apos;s current week: the earliest week with a game still to play. Until
+            the league posts a week&apos;s roster, each team&apos;s latest roster carries forward, with last
+            week&apos;s gameday inactives back on the active roster.
+          </li>
         </ul>
       </Section>
 
-      <Section title="Active, questionable, inactive">
+      <Section title="Active, questionable, out">
         <ul className="list-disc space-y-2 pl-5">
           <li>
-            <strong className="text-fg">Inactive</strong> means the official gameday inactive list, injured reserve,
-            PUP, NFI, suspension or a player ruled out. The gameday list matches the league&apos;s official
-            inactives; it posts after the game, so the injury report is the signal before kickoff.
+            <strong className="text-fg">Out this week</strong> means ruled out or doubtful on the injury report
+            before the game, or on the official gameday inactive list once the game is played. This is the money
+            that changes a matchup.
           </li>
           <li>
-            <strong className="text-fg">Questionable</strong> means listed questionable or doubtful on the final
-            injury report and not later made inactive.
+            <strong className="text-fg">Out long-term</strong> means injured reserve, PUP, NFI, suspension or
+            another reserve list. That money is gone for weeks, so it is drawn as its own faint band and does not
+            set the order of the league board.
+          </li>
+          <li>
+            <strong className="text-fg">Questionable</strong> means listed questionable on the latest injury report
+            for a game not yet played. Questionable players count as on the field until ruled out. Once the game is
+            final, every player not on the gameday inactive list counts as active.
           </li>
           <li>
             <strong className="text-fg">Practice squad / other</strong> covers the practice squad and anyone the
             roster file has no gameday status for.
           </li>
         </ul>
+      </Section>
+
+      <Section title="Matchups">
+        <p>
+          Each game pairs every offensive group with the defense it faces: offensive line against the interior line
+          and edge rushers, receivers and tight ends against the secondary, running backs against linebackers, and
+          quarterbacks against the pass rush and secondary. Bars compare money on the field (active plus
+          questionable) by default, or full investment. The two biggest gaps, leaving out the quarterback row, are
+          the &ldquo;biggest edges&rdquo;. Money measures investment and availability, not form.
+        </p>
+      </Section>
+
+      <Section title="Week by week">
+        <p>
+          Past weeks are rebuilt every day from the nflverse roster and injury files, which keep each week. They use
+          today&apos;s contracts, so a player traded since then is missing from his old team&apos;s earlier weeks.
+        </p>
       </Section>
 
       <Section title="Estimates">
@@ -94,11 +125,25 @@ export default async function MethodologyPage() {
         <Section title="Reconciliation">
           <p>
             Each team&apos;s counted total is checked against OverTheCap&apos;s published active cap as of{" "}
-            {rec.reference_as_of}. A team passes within {pct(rec.tolerance, 0)}.{" "}
+            {rec.reference_as_of}. A team passes within {pct(rec.tolerance, 0)}, or within its own disclosed
+            allowance for a gap that is understood.{" "}
             <strong className="text-fg">
               {rec.teams_checked - rec.teams_failing} of {rec.teams_checked} teams pass.
-            </strong>
+            </strong>{" "}
+            The daily job also flags any team whose total moves more than 1% from one day to the next.
           </p>
+          {rec.teams.some((t) => t.allowance) && (
+            <ul className="list-disc space-y-1 pl-5 text-sm">
+              {rec.teams
+                .filter((t) => t.allowance)
+                .map((t) => (
+                  <li key={t.team}>
+                    <strong className="text-fg">{teamName[t.team] ?? t.team}</strong> ({t.diff_pct > 0 ? "+" : ""}
+                    {pct(t.diff_pct)}, allowed {pct(t.allowance ?? 0)}): {t.note}
+                  </li>
+                ))}
+            </ul>
+          )}
           <div className="overflow-x-auto rounded-lg border border-border">
             <table className="w-full min-w-[520px] text-sm">
               <thead className="bg-panel text-fg-muted">
@@ -126,7 +171,8 @@ export default async function MethodologyPage() {
                           {t.diff_pct > 0 ? "+" : ""}
                           {pct(t.diff_pct)}
                         </span>
-                        {!t.ok && <span className="ml-2 text-xs text-fg">over 1%</span>}
+                        {!t.ok && <span className="ml-2 text-xs text-fg">outside the gate</span>}
+                        {t.ok && t.allowance ? <span className="ml-2 text-xs text-fg-muted">known gap</span> : null}
                       </td>
                     </tr>
                   ))}

@@ -14,6 +14,7 @@ from . import (
     contracts,
     crosswalk,
     estimates,
+    health,
     reconcile,
     rollup,
     rosters,
@@ -22,7 +23,7 @@ from . import (
     summary,
     teams,
 )
-from .config import DEFAULT_SEASON, OUT_DIR, WEB_DATA
+from .config import DEFAULT_SEASON, OUT_DIR, WEB_DATA, WEB_PUBLIC
 
 log = logging.getLogger("captracker")
 
@@ -41,36 +42,139 @@ def cmd_check_contracts(args: argparse.Namespace) -> int:
     return 0 if info["has_per_year_cap_number"] else 1
 
 
-def _build_frames(season: int, week: int | None) -> dict:
-    team_df = teams.load_teams()
+def _shared_frames(season: int, week: int | None) -> dict:
+    """Everything that does not depend on the week being rolled up."""
+    games = sources.read("games")
+    wk = week or rosters.current_week(games, season)
     roster_raw = sources.read("rosters_weekly", season)
+    injuries = sources.read("injuries", season)
     cy = contracts.load_contract_years(season)
     cy = crosswalk.fill_gsis_by_name(cy, roster_raw)
-    status = rosters.player_week_status(roster_raw, sources.read("injuries", season), season)
-    wk = week or rosters.latest_week(status)
-    est = estimates.estimate_missing(cy, roster_raw, season, wk)
-    cy = contracts.with_player_key(pl.concat([cy, est]))
-    cw = crosswalk.load_crosswalk(cy)
+    status = rosters.player_week_status(roster_raw, injuries, season, games=games, through_week=wk)
+    return {
+        "season": season,
+        "week": wk,
+        "games": games,
+        "teams": teams.load_teams(),
+        "players": sources.read("players"),
+        "roster_raw": roster_raw,
+        "injuries": injuries,
+        "contract_years_base": cy,
+        "status": status,
+    }
+
+
+def _week_frames(shared: dict, week: int) -> dict:
+    """Contract rows, fact table and rollup for one week."""
+    season = shared["season"]
+    est = estimates.estimate_missing(
+        shared["contract_years_base"], shared["roster_raw"], season, week
+    )
+    cy = contracts.with_player_key(pl.concat([shared["contract_years_base"], est]))
+    cw = crosswalk.build_crosswalk(shared["players"], cy)
     grouped = rollup.assign_groups(cy, cw)
-    fact = rollup.player_week_cap(grouped, status, wk)
-    roll = rollup.rollup(fact)
+    fact = rollup.player_week_cap(grouped, shared["status"], week)
+    return {"contract_years": cy, "crosswalk": cw, "fact": fact, "rollup": rollup.rollup(fact)}
+
+
+def team_week_info(shared: dict, week: int) -> pl.DataFrame:
+    """Per team for one week: plays?, game final?, injury report out?, roster projected?"""
+    season = shared["season"]
+    all_teams = shared["teams"].select("team")
+    tg = (
+        rosters.team_games(shared["games"], season)
+        .filter(pl.col("week") == week)
+        .select("team", "opponent", "game_final", pl.lit(True).alias("has_game"))
+        .unique("team")
+    )
+    inj = shared["injuries"]
+    reported = (
+        inj.filter(
+            (pl.col("season") == season) & (pl.col("game_type") == "REG") & (pl.col("week") == week)
+        )
+        .select(pl.col("team").replace(teams.LEGACY_ABBR))
+        .unique()
+        .with_columns(pl.lit(True).alias("has_report"))
+    )
+    projected = (
+        shared["status"]
+        .filter(pl.col("week") == week)
+        .group_by("team")
+        .agg(pl.col("projected").any())
+    )
+    return (
+        all_teams.join(tg, on="team", how="left")
+        .join(reported, on="team", how="left")
+        .join(projected, on="team", how="left")
+        .with_columns(
+            pl.col("has_game").fill_null(False),
+            pl.col("game_final").fill_null(False),
+            pl.col("has_report").fill_null(False),
+            pl.col("projected").fill_null(False),
+        )
+    )
+
+
+def _build_frames(season: int, week: int | None) -> dict:
+    shared = _shared_frames(season, week)
+    wk = shared["week"]
+    w = _week_frames(shared, wk)
     try:
         ref = reconcile.load_reference(season)
     except FileNotFoundError:
         ref = None
+    tw = team_week_info(shared, wk)
     return {
+        **shared,
+        **w,
         "reference": ref,
-        "team_summary": summary.team_summary(roll, fact, ref, rollup.team_status_weeks(status, wk)),
-        "season": season,
-        "week": wk,
-        "teams": team_df,
+        "team_week": tw,
+        "team_summary": summary.team_summary(
+            w["rollup"], w["fact"], ref, rollup.team_status_weeks(shared["status"], wk), tw
+        ),
         "position_groups": rollup.position_groups_table(),
-        "crosswalk": cw,
-        "contract_years": cy,
-        "status": status,
-        "fact": fact,
-        "rollup": roll,
     }
+
+
+def _reconcile(f: dict) -> reconcile.ReconcileReport | None:
+    if f["reference"] is None:
+        return None
+    return reconcile.reconcile(
+        _team_totals(f["rollup"]),
+        f["reference"],
+        f["season"],
+        known_gaps=reconcile.load_known_gaps(f["season"]),
+    )
+
+
+def _history(f: dict) -> list[dict]:
+    """Team and unit totals for every week of the season up to the current one.
+
+    Past weeks are rebuilt from the nflverse files, which keep every week's roster and
+    injury report, so nothing has to be stored between runs. Cap numbers are today's.
+    """
+    rows: list[pl.DataFrame] = []
+    for week in range(1, f["week"] + 1):
+        roll = f["rollup"] if week == f["week"] else _week_frames(f, week)["rollup"]
+        rows.append(roll.filter(pl.col("level").is_in(["team", "unit"])))
+    if not rows:
+        return []
+    return (
+        pl.concat(rows)
+        .select(
+            "week",
+            "team",
+            "unit",
+            "cap_total",
+            "cap_active",
+            "cap_questionable",
+            "cap_inactive_week",
+            "cap_inactive_season",
+            "cap_unknown",
+        )
+        .sort(["week", "team", "unit"])
+        .to_dicts()
+    )
 
 
 def _team_totals(roll: pl.DataFrame) -> pl.DataFrame:
@@ -80,8 +184,8 @@ def _team_totals(roll: pl.DataFrame) -> pl.DataFrame:
 def cmd_build(args: argparse.Namespace) -> int:
     f = _build_frames(args.season, args.week)
     report = None
-    if f["reference"] is not None:
-        rep = reconcile.reconcile(_team_totals(f["rollup"]), f["reference"], args.season)
+    rep = _reconcile(f)
+    if rep is not None:
         report = rep.to_dict()
         print(reconcile.format_report(rep))
     else:
@@ -106,15 +210,23 @@ def cmd_build(args: argparse.Namespace) -> int:
     return 0
 
 
+def _max_week(df: pl.DataFrame, season: int) -> int | None:
+    reg = df.filter((pl.col("season") == season) & (pl.col("game_type") == "REG"))
+    return None if reg.is_empty() else int(reg["week"].max())
+
+
 def cmd_export(args: argparse.Namespace) -> int:
     from . import export
 
     f = _build_frames(args.season, args.week)
-    report = None
-    if f["reference"] is not None:
-        report = reconcile.reconcile(
-            _team_totals(f["rollup"]), f["reference"], args.season
-        ).to_dict()
+    rep = _reconcile(f)
+    report = rep.to_dict() if rep is not None else None
+    freshness = {
+        "schedule_week": f["week"],
+        "roster_week": _max_week(f["roster_raw"], f["season"]),
+        "injury_week": _max_week(f["injuries"], f["season"]),
+        "reference_as_of": report["reference_as_of"] if report else None,
+    }
     data = export.build_export(
         season=f["season"],
         week=f["week"],
@@ -122,39 +234,49 @@ def cmd_export(args: argparse.Namespace) -> int:
         team_summary=f["team_summary"],
         rollup=f["rollup"],
         fact=f["fact"],
-        games=sources.read("games"),
+        games=f["games"],
         reconcile_report=report,
+        freshness=freshness,
+        history=[] if args.fixture else _history(f),
     )
     out = Path(args.out)
     if args.fixture:
         data = export.build_fixture(data)
     export.write_export(data, out)
     print(f"wrote {out} ({out.stat().st_size / 1024:.0f} KB, {len(data['players'])} players)")
+    if args.fixture:
+        return 0
+
+    totals = health.team_totals(data)
+    previous = health.read_totals(Path(args.previous_totals)) if args.previous_totals else None
+    issues = health.evaluate(
+        week=f["week"],
+        freshness=freshness,
+        reconcile_report=report,
+        totals=totals,
+        previous=previous,
+    )
+    health.write_totals(Path(args.totals_out), data, totals)
+    health.write_report(Path(args.health_out), issues)
+    print(health.format_issues(issues))
     return 0
+
+
+def cmd_health(args: argparse.Namespace) -> int:
+    issues = health.read_report(Path(args.report))
+    print(health.format_issues(issues))
+    failed = health.publish_to_github(issues)
+    return 1 if failed and args.strict else 0
 
 
 def cmd_reconcile(args: argparse.Namespace) -> int:
     f = _build_frames(args.season, args.week)
-    if f["reference"] is None:
+    rep = _reconcile(f)
+    if rep is None:
         print(f"no OTC reference file for {args.season}", file=sys.stderr)
         return 1
-    rep = reconcile.reconcile(_team_totals(f["rollup"]), f["reference"], args.season)
     print(reconcile.format_report(rep))
     return 0 if rep.passed else 2
-
-
-def cmd_load(args: argparse.Namespace) -> int:
-    from . import load
-
-    if args.week is None:
-        latest = json.loads((OUT_DIR / str(args.season) / "latest.json").read_text())
-        path = OUT_DIR / latest["path"]
-    else:
-        path = snapshot.snapshot_dir(args.season, args.week)
-    counts = load.load_snapshot(Path(path))
-    for table, n in counts.items():
-        print(f"{table:<20} {n:>8} rows")
-    return 0
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -183,10 +305,23 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument(
         "--fixture", action="store_true", help="replace player data with synthetic values"
     )
+    p.add_argument(
+        "--previous-totals",
+        default=None,
+        help="totals.json from the last published run, for the day-over-day drift check",
+    )
+    p.add_argument(
+        "--totals-out",
+        default=str(WEB_PUBLIC / "data" / "totals.json"),
+        help="where to write this run's team totals (published with the site)",
+    )
+    p.add_argument("--health-out", default=str(OUT_DIR / "health.json"))
     p.set_defaults(func=cmd_export)
 
-    p = sub.add_parser("load", help="load a snapshot into Postgres")
-    p.set_defaults(func=cmd_load)
+    p = sub.add_parser("health", help="report the export's health checks (GitHub-aware)")
+    p.add_argument("--report", default=str(OUT_DIR / "health.json"))
+    p.add_argument("--strict", action="store_true", help="exit 1 when any check fails")
+    p.set_defaults(func=cmd_health)
 
     args = parser.parse_args(argv)
     logging.basicConfig(

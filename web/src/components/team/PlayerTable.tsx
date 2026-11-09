@@ -1,15 +1,27 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { FLAG_LABEL, UNIT_LABEL, money, reasonLabel } from "@/lib/format";
-import type { Flag, Group, Player, Unit } from "@/lib/types";
-import { Swatch, type SliceKey } from "../Availability";
+import { statusText } from "@/lib/availability";
+import { UNIT_LABEL, money } from "@/lib/format";
+import type { Group, Player, Unit } from "@/lib/types";
+import { playerSlice, SLICE_LABEL, Swatch, type SliceKey } from "../Availability";
 import { useMoneyMode } from "./MoneyMode";
 
 type SortKey = "name" | "group" | "cap" | "flag" | "years_left";
 
-const FLAG_ORDER: Record<Flag, number> = { inactive: 0, questionable: 1, active: 2, unknown: 3 };
-const FLAGS: (Flag | "all")[] = ["all", "active", "questionable", "inactive", "unknown"];
+type Filter = Exclude<SliceKey, "dead">;
+const SLICE_ORDER: Record<Filter, number> = {
+  inactive: 0,
+  season: 1,
+  questionable: 2,
+  active: 3,
+  unknown: 4,
+};
+const FILTERS: (Filter | "all")[] = ["all", "active", "questionable", "inactive", "season", "unknown"];
+const FILTER_LABEL: Record<Filter, string> = {
+  ...SLICE_LABEL,
+  season: "Out long-term",
+};
 /** Rows shown before "Show all"; filters and sorting still apply to every player. */
 const PAGE = 30;
 
@@ -24,7 +36,7 @@ export function PlayerTable({
 }) {
   const { fmt } = useMoneyMode();
   const [sort, setSort] = useState<{ key: SortKey; desc: boolean }>({ key: "cap", desc: true });
-  const [flag, setFlag] = useState<Flag | "all">("all");
+  const [flag, setFlag] = useState<Filter | "all">("all");
   const [unit, setUnit] = useState<Unit | "all">("all");
   const [query, setQuery] = useState("");
   const [showAll, setShowAll] = useState(false);
@@ -36,7 +48,10 @@ export function PlayerTable({
 
   const counts = useMemo(() => {
     const c: Record<string, number> = { all: players.length };
-    for (const p of players) c[p.flag] = (c[p.flag] ?? 0) + 1;
+    for (const p of players) {
+      const k = playerSlice(p);
+      c[k] = (c[k] ?? 0) + 1;
+    }
     return c;
   }, [players]);
 
@@ -44,7 +59,7 @@ export function PlayerTable({
     const q = query.trim().toLowerCase();
     const filtered = players.filter(
       (p) =>
-        (flag === "all" || p.flag === flag) &&
+        (flag === "all" || playerSlice(p) === flag) &&
         (unit === "all" || p.unit === unit) &&
         (!q || p.name.toLowerCase().includes(q) || (p.pos ?? "").toLowerCase() === q),
     );
@@ -58,7 +73,7 @@ export function PlayerTable({
         case "cap":
           return p.cap;
         case "flag":
-          return FLAG_ORDER[p.flag];
+          return SLICE_ORDER[playerSlice(p) as Filter];
         case "years_left":
           return p.years_left ?? -1;
       }
@@ -98,7 +113,7 @@ export function PlayerTable({
     <div>
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter by status">
-          {FLAGS.map((f) => (
+          {FILTERS.map((f) => (
             <button
               key={f}
               type="button"
@@ -110,8 +125,8 @@ export function PlayerTable({
                   : "border-border text-fg-muted hover:text-fg"
               }`}
             >
-              {f !== "all" && <Swatch k={f as SliceKey} color={color} size={10} />}
-              {f === "all" ? "All" : FLAG_LABEL[f]}
+              {f !== "all" && <Swatch k={f} color={color} size={10} />}
+              {f === "all" ? "All" : FILTER_LABEL[f]}
               <span className="num text-fg-faint">{counts[f] ?? 0}</span>
             </button>
           ))}
@@ -151,7 +166,7 @@ export function PlayerTable({
           </thead>
           <tbody>
             {(showAll ? rows : rows.slice(0, PAGE)).map((p) => {
-              const status = reasonLabel(p.reason) ?? p.report_status ?? FLAG_LABEL[p.flag];
+              const status = statusText(p);
               return (
                 <tr key={p.key} className="border-t border-border hover:bg-panel">
                   <td className="px-3 py-2">
@@ -185,7 +200,7 @@ export function PlayerTable({
                   </td>
                   <td className="px-3 py-2">
                     <span className="inline-flex items-center gap-2">
-                      <Swatch k={p.flag as SliceKey} color={color} />
+                      <Swatch k={playerSlice(p)} color={color} />
                       <span className="text-fg">{status}</span>
                       {p.injury && <span className="text-fg-muted">{p.injury}</span>}
                     </span>
@@ -221,3 +236,4 @@ export function PlayerTable({
     </div>
   );
 }
+

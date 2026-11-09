@@ -169,7 +169,9 @@ Accessibility is built in from the start: hatch patterns and marks mean nothing 
 
 ## Tech stack and architecture
 
-Recommended: a Next.js and TypeScript site on Vercel, a Postgres database on Neon, and Python ingestion jobs run on a GitHub Actions schedule. All three run free at hobby scale, and nothing in the design needs a server that stays on.
+Recommended: a Next.js and TypeScript site on Vercel, a Postgres database on Neon, and Python ingestion jobs run on a GitHub Actions schedule.
+
+> **As built (2026-11-09):** the site ships as a static export on GitHub Pages, built daily from one JSON snapshot; there is no database. Past weeks are rebuilt from the nflverse files on each run instead of being stored. The Postgres layer was removed after the first review since nothing read from it. All three run free at hobby scale, and nothing in the design needs a server that stays on.
 
 *Diagram: architecture: sources, ingest, database, web app.*
 

@@ -3,10 +3,11 @@
 import { hierarchy, treemap, treemapSquarify, type HierarchyRectangularNode } from "d3-hierarchy";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { textOn } from "@/design/tokens";
-import { FLAG_LABEL, money, pct, reasonLabel } from "@/lib/format";
+import { money, pct } from "@/lib/format";
 import type { Group, Player } from "@/lib/types";
-import { sliceStyle, Swatch, type SliceKey } from "../Availability";
+import { playerSlice, sliceStyle, Swatch } from "../Availability";
 import { Tip, TipRow } from "../Tip";
+import { statusText } from "@/lib/availability";
 
 type Node = { name: string; code?: string; player?: Player; children?: Node[] };
 
@@ -14,7 +15,9 @@ const HEADER = 20;
 
 /**
  * Every counted player sized by cap number, nested in position groups and filled
- * by availability. Click a group to zoom in; the breadcrumb zooms back out.
+ * by availability. Click a group to zoom in; the breadcrumb zooms back out. Zoomed
+ * in, a tap on a player shows his details and the group's players are listed below,
+ * so the view works on a phone where the small tiles have no room for names.
  */
 export function Treemap({
   color,
@@ -89,7 +92,7 @@ export function Treemap({
           </>
         )}
         <span className="ml-auto text-xs text-fg-faint">
-          {focus ? "Click the breadcrumb to zoom out" : "Click a group to zoom in"}
+          {focus ? "Tap a player for details" : "Tap a group to zoom in"}
         </span>
       </nav>
       <div ref={ref} className="relative w-full" style={{ height }}>
@@ -108,10 +111,27 @@ export function Treemap({
             node={l}
             color={color}
             teamTotal={teamTotal}
-            onClick={() => setFocus(focus ? null : (l.data.player!.group ?? null))}
+            onClick={focus ? undefined : () => setFocus(l.data.player!.group ?? null)}
           />
         ))}
       </div>
+      {focusGroup && (
+        <ol className="mt-3 divide-y divide-border rounded-lg border border-border text-sm">
+          {players
+            .filter((p) => p.group === focusGroup.code)
+            .sort((a, b) => b.cap - a.cap)
+            .map((p) => (
+              <li key={p.key} className="flex items-center gap-3 px-3 py-1.5">
+                <Swatch k={playerSlice(p)} color={color} />
+                <span className="min-w-0 flex-1 truncate">
+                  {p.name}
+                  <span className="ml-2 text-fg-muted">{statusText(p)}</span>
+                </span>
+                <span className="num text-base">{money(p.cap)}</span>
+              </li>
+            ))}
+        </ol>
+      )}
     </div>
   );
 }
@@ -153,14 +173,14 @@ function Leaf({
   node: HierarchyRectangularNode<Node>;
   color: string;
   teamTotal: number;
-  onClick: () => void;
+  onClick?: () => void;
 }) {
   const p = node.data.player!;
   const w = node.x1 - node.x0;
   const h = node.y1 - node.y0;
-  const k = p.flag as SliceKey;
+  const k = playerSlice(p);
   const ink = k === "active" ? textOn(color) : "#f3f4f6";
-  const status = reasonLabel(p.reason) ?? p.report_status ?? FLAG_LABEL[p.flag];
+  const status = statusText(p);
   return (
     <Tip
       className="absolute cursor-pointer overflow-hidden rounded-[3px]"

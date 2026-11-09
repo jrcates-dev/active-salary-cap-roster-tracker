@@ -12,6 +12,7 @@ RAW_DIR = DATA_DIR / "raw"
 OUT_DIR = DATA_DIR / "out"
 PACKAGE_DATA = Path(__file__).resolve().parent / "data"
 WEB_DATA = PIPELINE_ROOT.parent / "web" / "data"
+WEB_PUBLIC = PIPELINE_ROOT.parent / "web" / "public"
 
 DEFAULT_SEASON = int(os.environ.get("CAPTRACKER_SEASON", "2026"))
 

@@ -112,7 +112,7 @@ export function Heatmap({ groups, rows }: { groups: Group[]; rows: HeatRow[] }) 
                           </div>
                           <TipRow label="Cap" value={money(cell.cap)} />
                           <TipRow label="Share of team cap" value={pct(share)} />
-                          <TipRow label="Inactive this week" value={money(cell.inactive)} />
+                          <TipRow label="Out this week" value={money(cell.inactive)} />
                           <TipRow label="League rank by share" value={`${ordinal(range.ranks[r.team])} of 32`} />
                         </div>
                       }

@@ -24,6 +24,8 @@ class TeamCheck:
     nflverse_players: int
     otc_players: int
     ok: bool
+    allowance: float = 0.0
+    note: str = ""
 
 
 @dataclass
@@ -60,13 +62,32 @@ def load_reference(season: int) -> pl.DataFrame:
     return pl.read_csv(path)
 
 
+def load_known_gaps(season: int) -> dict[str, tuple[float, str]]:
+    """team -> (allowance, note) for gaps that are understood and disclosed.
+
+    A team listed here passes the gate within its own allowance instead of the 1%
+    tolerance, so the gate stays meaningful for the other 30 teams and still fails if a
+    known gap grows.
+    """
+    path = PACKAGE_DATA / "reference" / f"known_gaps_{season}.csv"
+    if not path.exists():
+        return {}
+    df = pl.read_csv(path, comment_prefix="#")
+    return {
+        r["team"]: (float(r["allowance"]), str(r.get("note") or ""))
+        for r in df.iter_rows(named=True)
+    }
+
+
 def reconcile(
     team_totals: pl.DataFrame,
     reference: pl.DataFrame,
     season: int,
     tolerance: float = RECONCILE_TOLERANCE,
+    known_gaps: dict[str, tuple[float, str]] | None = None,
 ) -> ReconcileReport:
     """team_totals needs columns team, cap_total, players (one row per team)."""
+    known_gaps = known_gaps or {}
     joined = reference.join(
         team_totals.select("team", "cap_total", "players"), on="team", how="left"
     ).sort("team")
@@ -76,6 +97,7 @@ def reconcile(
         theirs = int(row["active_cap_spending"])
         diff = ours - theirs
         pct = diff / theirs if theirs else 0.0
+        allowance, note = known_gaps.get(row["team"], (0.0, ""))
         checks.append(
             TeamCheck(
                 team=row["team"],
@@ -88,7 +110,9 @@ def reconcile(
                 if "players_right" in row
                 else int(row.get("players", 0) or 0),
                 otc_players=int(row["players"]),
-                ok=abs(pct) <= tolerance,
+                ok=abs(pct) <= max(tolerance, allowance),
+                allowance=allowance,
+                note=note,
             )
         )
     as_of = str(reference["as_of"][0]) if "as_of" in reference.columns else ""
@@ -107,6 +131,7 @@ def format_report(report: ReconcileReport) -> str:
             f"{t.team:<5}{t.nflverse_total:>14,}{t.otc_active:>14,}{t.diff:>14,}"
             f"{t.diff_pct:>8.1%}{t.nflverse_players:>5}{t.otc_players:>7}"
             f"  {'yes' if t.ok else 'NO'}"
+            + (f" (known gap, allowed {t.allowance:.1%})" if t.allowance else "")
         )
     lines.append(
         f"{'PASS' if report.passed else 'FAIL'}: {len(report.teams) - len(report.failing)}/"

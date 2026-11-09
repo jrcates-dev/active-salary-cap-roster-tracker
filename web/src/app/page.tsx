@@ -1,21 +1,29 @@
 import Link from "next/link";
-import { AvailabilityLegend, Swatch } from "@/components/Availability";
+import { AvailabilityLegend } from "@/components/Availability";
+import { GameCard } from "@/components/GameCard";
 import { Heatmap, type HeatRow } from "@/components/league/Heatmap";
 import { InactiveBoard } from "@/components/league/InactiveBoard";
 import { OffenseShare } from "@/components/league/OffenseShare";
+import { PlayersOut, type OutRow } from "@/components/league/PlayersOut";
 import { displayColor } from "@/design/tokens";
-import { getSnapshot } from "@/lib/data";
-import { money, pct, reasonLabel } from "@/lib/format";
+import { getSnapshot, weekGames } from "@/lib/data";
+import { money, pct } from "@/lib/format";
 
 export default async function LeaguePage() {
   const s = await getSnapshot();
-  const sum = (k: "cap_total" | "cap_inactive" | "cap_questionable") =>
-    s.summary.reduce((acc, t) => acc + t[k], 0);
+  const sum = (k: "cap_total" | "cap_inactive_week" | "cap_inactive_season" | "cap_questionable") =>
+    s.summary.reduce((acc, t) => acc + (t[k] ?? 0), 0);
   const total = sum("cap_total");
-  const inactive = sum("cap_inactive");
+  const outWeek = sum("cap_inactive_week");
+  const outSeason = sum("cap_inactive_season");
   const questionable = sum("cap_questionable");
-  const playersOut = s.players.filter((p) => p.flag === "inactive").length;
+  const isOut = (kind: "week" | "season") => (p: (typeof s.players)[number]) =>
+    p.flag === "inactive" && (p.absence ?? "week") === kind;
+  const nWeek = s.players.filter(isOut("week")).length;
+  const nSeason = s.players.filter(isOut("season")).length;
   const teamsById = Object.fromEntries(s.teams.map((t) => [t.team, t]));
+  const games = weekGames(s);
+  const finals = games.filter((g) => g.away_score !== null && g.home_score !== null).length;
 
   const groupsOrdered = [...s.groups].sort(
     (a, b) => unitIndex(a.unit) - unitIndex(b.unit) || a.order - b.order,
@@ -25,16 +33,22 @@ export default async function LeaguePage() {
     const cells: HeatRow["cells"] = {};
     for (const r of s.rollup) {
       if (r.team === t.team && r.level === "group") {
-        cells[r.position_group] = { cap: r.cap_total, inactive: r.cap_inactive };
+        cells[r.position_group] = { cap: r.cap_total, inactive: r.cap_inactive_week ?? 0 };
       }
     }
     return { team: t.team, nick: team.nick, name: team.name, color: displayColor(team), total: t.cap_total, cells };
   });
 
-  const biggestOut = s.players
-    .filter((p) => p.flag === "inactive")
-    .sort((a, b) => b.cap - a.cap)
-    .slice(0, 10);
+  const outRows = (kind: "week" | "season"): OutRow[] =>
+    s.players
+      .filter(isOut(kind))
+      .sort((a, b) => b.cap - a.cap)
+      .slice(0, 10)
+      .map((p) => ({ player: p, nick: teamsById[p.team].nick, color: displayColor(teamsById[p.team]) }));
+  const boardTeams = s.teams.map((t) => ({ team: t.team, nick: t.nick, name: t.name, color: displayColor(t) }));
+  const history = s.history.length
+    ? s.history
+    : s.summary.map((t) => ({ ...t, week: s.week, unit: "all" as const }));
 
   return (
     <main className="mx-auto max-w-7xl space-y-14 px-4 py-8 sm:px-6">
@@ -47,53 +61,55 @@ export default async function LeaguePage() {
             Where the money is, and whether it&apos;s playing
           </h1>
         </div>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <Hero label="Cap counted across 32 rosters" value={money(total, 2)} />
           <Hero
-            label={`Inactive this week · ${playersOut} players`}
-            value={money(inactive)}
-            sub={`${pct(inactive / total)} of all counted cap`}
+            label={`Out this week · ${nWeek} players`}
+            value={money(outWeek)}
+            sub={`${pct(outWeek / total)} of counted cap`}
             accent
           />
-          <Hero label="Questionable or doubtful" value={money(questionable)} sub={`${pct(questionable / total)} of cap`} />
+          <Hero
+            label={`Questionable · not yet ruled in or out`}
+            value={money(questionable)}
+            sub={questionable > 0 ? `${pct(questionable / total)} of cap` : "Every reported player is decided"}
+          />
+          <Hero
+            label={`Out long-term (IR, PUP) · ${nSeason} players`}
+            value={money(outSeason)}
+            sub={`${pct(outSeason / total)} of cap`}
+          />
         </div>
       </section>
+
+      {games.length > 0 && (
+        <section id="games" className="scroll-mt-4">
+          <SectionTitle
+            title={`Week ${s.week} matchups`}
+            note={`${finals} of ${games.length} games final. Each card names the biggest gap in money on the field between position groups that face each other.`}
+          />
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {games.map((g) => (
+              <GameCard key={g.game_id} s={s} g={g} />
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="grid gap-12 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div>
           <SectionTitle
-            title="Inactive money, team by team"
-            note="Each bar is a team's counted cap on one shared scale, split by this week's availability."
+            title="Money out, team by team"
+            note="Ranked by money out for this week's game. Long-term reserve lists are the faint band; they rarely change week to week."
           />
           <div className="mb-4">
             <AvailabilityLegend color="#c9ced8" />
           </div>
-          <InactiveBoard s={s} />
+          <InactiveBoard teams={boardTeams} history={history} week={s.week} />
         </div>
         <div>
-          <SectionTitle title="Most expensive players out" note={`Gameday inactive, reserve lists or ruled out, week ${s.week}.`} />
-          <ol className="divide-y divide-border rounded-lg border border-border bg-panel">
-            {biggestOut.map((p) => {
-              const team = teamsById[p.team];
-              const color = displayColor(team);
-              return (
-                <li key={p.key} className="flex items-center gap-3 px-4 py-2.5">
-                  <Swatch k="inactive" color={color} size={14} />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium">{p.name}</p>
-                    <p className="text-xs text-fg-muted">
-                      <Link href={`/team/${p.team}`} className="hover:underline">
-                        {team.nick}
-                      </Link>{" "}
-                      · {p.group} · {reasonLabel(p.reason) ?? "Inactive"}
-                      {p.injury ? ` · ${p.injury}` : ""}
-                    </p>
-                  </div>
-                  <span className="num text-xl">{money(p.cap)}</span>
-                </li>
-              );
-            })}
-          </ol>
+          <SectionTitle title="Most expensive players out" note={`Ruled out, doubtful or gameday inactive, and reserve lists, week ${s.week}.`} />
+          <PlayersOut week={s.week} thisWeek={outRows("week")} longTerm={outRows("season")} />
         </div>
       </section>
 
@@ -129,7 +145,7 @@ function Hero({ label, value, sub, accent }: { label: string; value: string; sub
   return (
     <div className={`rounded-lg border bg-panel px-5 py-4 ${accent ? "border-[#ff7b1c]/50" : "border-border"}`}>
       <p className="text-sm text-fg-muted">{label}</p>
-      <p className="num mt-1 text-5xl leading-none font-bold">{value}</p>
+      <p className="num mt-1 text-4xl leading-none font-bold sm:text-5xl">{value}</p>
       {sub && <p className="mt-1 text-sm text-fg-muted">{sub}</p>}
     </div>
   );

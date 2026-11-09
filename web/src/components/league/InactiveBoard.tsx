@@ -4,7 +4,7 @@ import { useMemo, useState, type CSSProperties } from "react";
 import { money } from "@/lib/format";
 import { statusHrefs } from "@/lib/rosterLink";
 import type { HistoryRow } from "@/lib/types";
-import { AvailabilityBar, SLICE_SHORT, slicesOf, Swatch, TeamSwatch, type SliceKey } from "../Availability";
+import { AvailabilityBar, SLICE_SHORT, slicesOf, Swatch, type SliceKey } from "../Availability";
 import { byDir, SortChip, useSort } from "../Sort";
 import { TeamChip } from "../TeamChip";
 import { SectionHead } from "../ui";
@@ -117,7 +117,7 @@ export function InactiveBoard({
               setPicked(true);
             }}
             label={SLICE_SHORT[k]}
-            swatch={k === "active" ? <TeamSwatch /> : <Swatch k={k} />}
+            swatch={<Swatch k={k} />}
             ascLabel="least money first"
             descLabel="most money first"
           />

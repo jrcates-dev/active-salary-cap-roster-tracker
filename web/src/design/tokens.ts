@@ -7,13 +7,11 @@
  *   1. Team identity   - the team's color marks the team: chips, switcher, headers.
  *                        Set per element with the `tc` class and `teamVars()`, read
  *                        as `var(--team)`.
- *   2. Money status    - one fixed hue per "not active" state, the same on every
+ *   2. Money status    - one fixed hue per availability state, the same on every
  *                        page and every team (globals.css, `--st-*` and `.s-*`):
- *                        amber questionable, red out this week, berry out
- *                        long-term, violet out for season, neutral practice squad
- *                        and dead money. Active money is the team's own color
- *                        where a team owns the mark, and teal on league totals.
- *                        Textures repeat each state's meaning.
+ *                        green active, amber questionable, red out this week, berry
+ *                        out long-term, violet out for season, neutral practice
+ *                        squad and dead money. Textures repeat the hue's meaning.
  *   3. Intensity       - one amber ramp for share of cap (globals.css, `--ramp-N`).
  *   4. Accent          - one orange, only where it carries meaning.
  *   5. Unit            - blue offense, green defense, gold special teams, only on
@@ -42,7 +40,7 @@ export const UNIT_COLOR: Record<Unit, string> = {
   special_teams: "var(--unit-st)",
 };
 
-/** Money status hues (globals.css, `--st-*`), stepped per theme. Active is the league-total teal. */
+/** Money status hues (globals.css, `--st-*`), stepped per theme. */
 export const STATUS_COLOR: Record<SliceKey, string> = {
   active: "var(--st-active)",
   questionable: "var(--st-questionable)",

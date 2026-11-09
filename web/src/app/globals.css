@@ -4,11 +4,10 @@
  * Design tokens. Color does six jobs and nothing else:
  *   surfaces and ink      neutral, one scale per theme
  *   team color            identity (set per element by the .tc class, see tokens.ts)
- *   money status          one fixed hue per "not active" state (--st-*), the same on
- *                         every page: amber questionable, red out this week, berry
- *                         out long-term, violet out for season, neutral practice
- *                         squad and dead money (.s-*). Active money is the team's
- *                         color where a team owns the mark, teal on league totals.
+ *   money status          one fixed hue per availability state (--st-*), the same on
+ *                         every page: green active, amber questionable, red out this
+ *                         week, berry out long-term, violet out for season, neutral
+ *                         practice squad and dead money (.s-*)
  *   intensity ramp        one amber hue for "share of cap" in the league heatmap
  *   accent                one orange, only where it carries meaning (a real edge, focus)
  *   unit                  blue offense, green defense, gold special teams, only where a
@@ -39,13 +38,14 @@
   --unit-st: #c98500;
   /*
    * Money status. Validated in bar order (adjacent pairs) on #ffffff: every pair
-   * clears ΔE 15 for normal vision and ΔE 9 under protan, deutan and tritan
-   * simulation. Amber sits under 3:1 on white, so it always carries a dashed ring,
+   * clears ΔE 15 for normal vision and ΔE 8 under protan, deutan and tritan
+   * simulation. Active green leans yellow of the defense unit's emerald; the two
+   * only meet where unit marks label a chart, never inside one bar. Amber sits under 3:1 on white, so it always carries a dashed ring,
    * a label or a swatch beside its name. Hatch, pinstripe and dots repeat the
    * three "not a plain fill" states so none depends on hue alone.
    */
-  --st-active: #0a95a6;
-  --st-active-ink: #111827; /* 4.9:1 */
+  --st-active: #3a9e3e;
+  --st-active-ink: #111827; /* 5.2:1 */
   --st-questionable: #efab00;
   --st-questionable-ink: #111827; /* 8.9:1 */
   --st-week: #e33b3b;
@@ -87,8 +87,8 @@
     --unit-def: #199e70;
     --unit-st: #c98500;
     /* Money status stepped for #141821: all clear 3:1 there and the same pair checks. */
-    --st-active: #1ba3b3;
-    --st-active-ink: #111827; /* 5.9:1 */
+    --st-active: #45a83a;
+    --st-active-ink: #111827; /* 5.8:1 */
     --st-questionable: #f2b318;
     --st-questionable-ink: #111827; /* 9.5:1 */
     --st-week: #f4543e;
@@ -223,11 +223,8 @@ body {
 
 /*
  * Money status fills. Each state has its own hue (--st-*, above), and the three
- * that are not a plain fill keep a texture too, so none depends on color alone.
- * Active money is the team's own color inside a team's element (.tc), so team
- * pages, matchups and per-team rows keep their identity; league-wide totals,
- * with no team, draw it teal:
- *   active         solid team color, or teal with no team
+ * that are not a plain fill keep a texture too, so none depends on color alone:
+ *   active         solid green
  *   questionable   solid amber in a dashed ring
  *   inactive       red with a darker 135deg hatch (out for this game)
  *   season         solid berry (reserve list, can return)
@@ -237,13 +234,9 @@ body {
  * Each class also sets --s (its hue) and --s-ink (text that reads on it).
  */
 .s-active {
-  --s: var(--team, var(--st-active));
-  --s-ink: var(--team-ink, var(--st-active-ink));
+  --s: var(--st-active);
+  --s-ink: var(--st-active-ink);
   background: var(--s);
-}
-/* The key for "active, in each team's own color" where a legend covers many teams. */
-.s-team {
-  background: conic-gradient(#0b2265 0 25%, #c8102e 0 50%, #ffb612 0 75%, #203731 0);
 }
 .s-questionable {
   --s: var(--st-questionable);

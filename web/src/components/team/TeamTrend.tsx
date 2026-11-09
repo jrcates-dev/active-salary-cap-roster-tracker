@@ -24,8 +24,9 @@ export function TeamTrend({ rows, week }: { rows: HistoryRow[]; week: number }) 
   const height = 132;
   return (
     <div>
+      {/* The scale's top value sits above its gridline, clear of the tallest bar. */}
+      <p className="num mb-1 text-right text-[11px] leading-none text-ink-3">{money(max)}</p>
       <div className="relative" style={{ height }}>
-        <span className="num pointer-events-none absolute top-0 right-0 text-[11px] text-ink-3">{money(max)}</span>
         <div className="absolute inset-x-0 top-0 border-t border-line" aria-hidden />
         <div className="flex h-full items-end gap-1.5 sm:gap-2">
           {data.map((r, i) => (

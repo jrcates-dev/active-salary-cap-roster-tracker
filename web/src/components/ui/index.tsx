@@ -33,11 +33,14 @@ export function SectionHead({
   count,
   aside,
   id,
+  asideClassName = "",
 }: {
   title: ReactNode;
   count?: ReactNode;
   aside?: ReactNode;
   id?: string;
+  /** Extra classes for the aside, e.g. to let a control bar take the full width on phones. */
+  asideClassName?: string;
 }) {
   return (
     <div className="mb-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
@@ -45,7 +48,7 @@ export function SectionHead({
         {title}
         {count !== undefined && <span className="num text-sm font-normal text-ink-3">{count}</span>}
       </h2>
-      {aside && <div className="flex min-w-0 flex-wrap items-center gap-2 text-[13px] text-ink-2">{aside}</div>}
+      {aside && <div className={`flex min-w-0 flex-wrap items-center gap-2 text-[13px] text-ink-2 ${asideClassName}`}>{aside}</div>}
     </div>
   );
 }

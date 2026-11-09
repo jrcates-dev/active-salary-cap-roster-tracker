@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { money, pct } from "@/lib/format";
-import { SLICE_LABEL, SLICE_ORDER, type SliceKey, type Slices } from "@/lib/availability";
+import { SLICE_LABEL, SLICE_ORDER, SLICE_SHORT, type SliceKey, type Slices } from "@/lib/availability";
 import { Tip, TipRow, TipTitle } from "./Tip";
 
 export { playerSlice, SLICE_LABEL, SLICE_SHORT, slicesOf, type SliceKey, type Slices } from "@/lib/availability";
@@ -138,7 +138,7 @@ export function AvailabilityLegend({
       {keys.map((k) => (
         <span key={k} className="flex items-center gap-1.5 whitespace-nowrap">
           <Swatch k={k} />
-          {short ? SHORT[k] : SLICE_LABEL[k]}
+          {short ? SLICE_SHORT[k] : SLICE_LABEL[k]}
         </span>
       ))}
       {extra}
@@ -146,12 +146,3 @@ export function AvailabilityLegend({
   );
 }
 
-const SHORT: Record<SliceKey, string> = {
-  active: "Active",
-  questionable: "Questionable",
-  inactive: "Out this week",
-  season: "Out long-term",
-  year: "Out for season",
-  unknown: "Practice squad",
-  dead: "Dead money",
-};

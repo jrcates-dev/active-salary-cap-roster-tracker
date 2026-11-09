@@ -121,10 +121,9 @@ export default async function LeaguePage() {
         </section>
       )}
 
-      <section className="grid gap-12 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+      <section className="grid grid-cols-[minmax(0,1fr)] gap-12 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div>
-          <SectionHead title="Money out by team" />
-          <InactiveBoard teams={boardTeams} history={history} week={s.week} />
+          <InactiveBoard title="Money out by team" teams={boardTeams} history={history} week={s.week} />
         </div>
         <div>
           <SectionHead title="Players out" />

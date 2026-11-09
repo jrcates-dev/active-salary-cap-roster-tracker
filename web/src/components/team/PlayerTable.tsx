@@ -6,7 +6,8 @@ import { UNIT_LABEL, money } from "@/lib/format";
 import type { Group, Player, Unit } from "@/lib/types";
 import { playerSlice, SLICE_SHORT, Swatch, type SliceKey } from "../Availability";
 import { ariaSort, SortHeader, type SortDir } from "../Sort";
-import { Chip, Select } from "../ui/controls";
+import { SectionHead } from "../ui";
+import { Chip, SearchInput, Select } from "../ui/controls";
 import { useMoneyMode } from "./MoneyMode";
 
 type SortKey = "name" | "group" | "cap" | "flag" | "years_left";
@@ -17,11 +18,12 @@ const FILTERS: (Filter | "all")[] = ["all", "active", "questionable", "inactive"
 const FILTER_TITLE: Partial<Record<Filter, string>> = {
   season: "On a reserve list and able to come back this season",
   year: YEAR_NOTE,
+  unknown: "Practice squad, plus anyone the roster file has no gameday status for",
 };
 /** Rows shown before "Show all"; filters and sorting still apply to every player. */
 const PAGE = 30;
 
-export function PlayerTable({ players, groups }: { players: Player[]; groups: Group[] }) {
+export function PlayerTable({ players, groups, week }: { players: Player[]; groups: Group[]; week: number }) {
   const { fmt } = useMoneyMode();
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: "cap", dir: "desc" });
   const [flag, setFlag] = useState<Filter | "all">("all");
@@ -92,9 +94,28 @@ export function PlayerTable({ players, groups }: { players: Player[]; groups: Gr
   );
 
   return (
-    <div>
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter by status">
+    <section>
+      <SectionHead
+        title="Roster"
+        count={`Week ${week}`}
+        asideClassName="w-full flex-nowrap sm:w-auto"
+        aside={
+          <>
+            <Select label="Filter by unit" value={unit} onChange={(v) => setUnit(v as Unit | "all")}>
+              <option value="all">All units</option>
+              {(["offense", "defense", "special_teams"] as Unit[]).map((u) => (
+                <option key={u} value={u}>
+                  {UNIT_LABEL[u]}
+                </option>
+              ))}
+            </Select>
+            <SearchInput label="Search players" placeholder="Search players" value={query} onChange={setQuery} className="flex-1 sm:w-52 sm:flex-none" />
+          </>
+        }
+      />
+      {/* One row that scrolls sideways on phones; wraps from small screens up. */}
+      <div className="strip -mx-4 -mt-1 mb-2 px-4 py-1 sm:mx-0 sm:px-0">
+        <div className="flex w-max gap-1.5 sm:w-auto sm:flex-wrap" role="group" aria-label="Filter by status">
           {FILTERS.map((f) => (
             <Chip
               key={f}
@@ -108,22 +129,6 @@ export function PlayerTable({ players, groups }: { players: Player[]; groups: Gr
             </Chip>
           ))}
         </div>
-        <Select label="Filter by unit" value={unit} onChange={(v) => setUnit(v as Unit | "all")}>
-          <option value="all">All units</option>
-          {(["offense", "defense", "special_teams"] as Unit[]).map((u) => (
-            <option key={u} value={u}>
-              {UNIT_LABEL[u]}
-            </option>
-          ))}
-        </Select>
-        <input
-          type="search"
-          placeholder="Search"
-          aria-label="Search players"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="h-7 w-full rounded-md border border-line bg-surface px-2.5 text-[13px] text-ink placeholder:text-ink-4 transition-colors duration-(--dur-1) hover:border-line-2 focus:border-line-2 focus:outline-none sm:ml-auto sm:w-48"
-        />
       </div>
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
@@ -189,7 +194,7 @@ export function PlayerTable({ players, groups }: { players: Player[]; groups: Gr
                 <td colSpan={2} className="text-right">
                   {rows.length > PAGE && (
                     <button type="button" onClick={() => setShowAll((v) => !v)} className="font-medium text-ink underline-offset-4 hover:underline">
-                      {showAll ? `Top ${PAGE}` : `All ${rows.length}`}
+                      {showAll ? `Show top ${PAGE}` : `Show all ${rows.length}`}
                     </button>
                   )}
                 </td>
@@ -198,6 +203,6 @@ export function PlayerTable({ players, groups }: { players: Player[]; groups: Gr
           </table>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

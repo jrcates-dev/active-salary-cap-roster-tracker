@@ -58,7 +58,7 @@ function UnitBlock({ u, lines, total, scale }: { u: Unit; lines: GroupLine[]; to
           const outWeek = r?.cap_inactive_week ?? 0;
           const reserve = (r?.cap_inactive_season ?? 0) + (r?.cap_inactive_year ?? 0);
           return (
-            <div key={l.group.code} className="grid grid-cols-[2.75rem_1fr_4.5rem_2.5rem] items-center gap-x-3 sm:grid-cols-[6.5rem_1fr_5rem_2.75rem]">
+            <div key={l.group.code} className="grid grid-cols-[2.75rem_minmax(0,1fr)_4.5rem_2.5rem] items-center gap-x-3 sm:grid-cols-[6.5rem_minmax(0,1fr)_5rem_2.75rem]">
               <div className="min-w-0">
                 <div className="num text-sm leading-none font-semibold">{l.group.code}</div>
                 <div className="mt-0.5 hidden truncate text-[11px] text-ink-3 sm:block">{l.group.label}</div>

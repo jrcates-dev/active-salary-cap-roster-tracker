@@ -6,6 +6,7 @@ import type { HistoryRow } from "@/lib/types";
 import { AvailabilityBar, SLICE_SHORT, slicesOf, Swatch, type SliceKey } from "../Availability";
 import { byDir, SortChip, useSort } from "../Sort";
 import { TeamChip } from "../TeamChip";
+import { SectionHead } from "../ui";
 import { Select, StepButton } from "../ui/controls";
 
 /** The legend entries, each of which ranks the board by its money when clicked. */
@@ -46,7 +47,17 @@ export interface BoardTeam {
  * ranked band is drawn at full strength and the rest fade. A week picker replays
  * past weeks and keeps the chosen order.
  */
-export function InactiveBoard({ teams, history, week }: { teams: BoardTeam[]; history: HistoryRow[]; week: number }) {
+export function InactiveBoard({
+  title,
+  teams,
+  history,
+  week,
+}: {
+  title: string;
+  teams: BoardTeam[];
+  history: HistoryRow[];
+  week: number;
+}) {
   const weeks = useMemo(() => [...new Set(history.map((h) => h.week))].sort((a, b) => a - b), [history]);
   const [shown, setShown] = useState(week);
   const [sort, toggleSort] = useSort<SliceKey>("inactive");
@@ -73,39 +84,42 @@ export function InactiveBoard({ teams, history, week }: { teams: BoardTeam[]; hi
 
   return (
     <div>
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <div className="tc-neutral -ml-2 flex flex-wrap items-center gap-0.5" role="group" aria-label="Rank teams by">
-          {SORT_KEYS.map((k) => (
-            <SortChip
-              key={k}
-              active={sort.key === k}
-              dir={sort.dir}
-              onClick={() => {
-                setAnimate(false);
-                toggleSort(k);
-                setPicked(true);
-              }}
-              label={SLICE_SHORT[k]}
-              swatch={<Swatch k={k} />}
-              ascLabel="least money first"
-              descLabel="most money first"
-            />
-          ))}
-        </div>
-        {weeks.length > 1 && (
-          <div className="flex items-center gap-1" role="group" aria-label="Week">
-            <StepButton dir="prev" label="Previous week" disabled={idx <= 0} onClick={() => pickWeek(weeks[idx - 1])} />
-            <Select label="Show week" value={shown} onChange={(v) => pickWeek(Number(v))}>
-              {weeks.map((w) => (
-                <option key={w} value={w}>
-                  Week {w}
-                  {w === week ? " · now" : ""}
-                </option>
-              ))}
-            </Select>
-            <StepButton dir="next" label="Next week" disabled={idx >= weeks.length - 1} onClick={() => pickWeek(weeks[idx + 1])} />
-          </div>
-        )}
+      <SectionHead
+        title={title}
+        aside={
+          weeks.length > 1 && (
+            <div className="flex items-center gap-1" role="group" aria-label="Week">
+              <StepButton dir="prev" label="Previous week" disabled={idx <= 0} onClick={() => pickWeek(weeks[idx - 1])} />
+              <Select label="Show week" value={shown} onChange={(v) => pickWeek(Number(v))}>
+                {weeks.map((w) => (
+                  <option key={w} value={w}>
+                    Week {w}
+                    {w === week ? " · now" : ""}
+                  </option>
+                ))}
+              </Select>
+              <StepButton dir="next" label="Next week" disabled={idx >= weeks.length - 1} onClick={() => pickWeek(weeks[idx + 1])} />
+            </div>
+          )
+        }
+      />
+      <div className="tc-neutral mb-3 -ml-2 flex flex-wrap items-center gap-0.5" role="group" aria-label="Rank teams by">
+        {SORT_KEYS.map((k) => (
+          <SortChip
+            key={k}
+            active={sort.key === k}
+            dir={sort.dir}
+            onClick={() => {
+              setAnimate(false);
+              toggleSort(k);
+              setPicked(true);
+            }}
+            label={SLICE_SHORT[k]}
+            swatch={<Swatch k={k} />}
+            ascLabel="least money first"
+            descLabel="most money first"
+          />
+        ))}
       </div>
       <ol className="space-y-1">
         {rows.map((r, i) => {
@@ -113,7 +127,7 @@ export function InactiveBoard({ teams, history, week }: { teams: BoardTeam[]; hi
           return (
             <li
               key={r.team}
-              className="tc grid grid-cols-[1.25rem_5.25rem_1fr_5.25rem] items-center gap-x-3 sm:grid-cols-[1.5rem_7.5rem_1fr_8.5rem]"
+              className="tc grid grid-cols-[1.25rem_5.25rem_minmax(0,1fr)_5.75rem] items-center gap-x-3 sm:grid-cols-[1.5rem_7.5rem_minmax(0,1fr)_8.5rem]"
               style={t.vars}
             >
               <span className="num text-right text-xs text-ink-3">{i + 1}</span>
@@ -126,7 +140,7 @@ export function InactiveBoard({ teams, history, week }: { teams: BoardTeam[]; hi
                 emphasis={picked ? sort.key : undefined}
                 animate={animate}
               />
-              <span className="num text-right leading-tight">
+              <span className="num text-right leading-tight whitespace-nowrap">
                 <span className="block text-sm font-medium">{money(value(r))}</span>
                 <span className="block text-[11px] text-ink-3">
                   {sort.key === "inactive" ? `+${money(reserve(r))} reserve` : SHORT[sort.key]}

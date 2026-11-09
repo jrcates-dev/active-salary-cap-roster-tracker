@@ -13,7 +13,10 @@ import { money, ordinal } from "@/lib/format";
 import { biggestEdges, edgeSides, gameEdges, groupMoney, leagueRanks, PAIRS } from "@/lib/matchup";
 import type { Game, Snapshot } from "@/lib/types";
 
-/** Every game of the current and the next week is prerendered. */
+/**
+ * Every game of the regular season is prerendered, so any week can be previewed.
+ * Money always comes from the current week's rosters and statuses.
+ */
 export const dynamicParams = false;
 
 function slugOf(g: Game) {
@@ -21,7 +24,7 @@ function slugOf(g: Game) {
 }
 
 function gamesFor(s: Snapshot) {
-  return s.games.filter((g) => g.week === s.week || g.week === s.week + 1);
+  return s.games;
 }
 
 export async function generateStaticParams() {
@@ -52,6 +55,7 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
   const nick = (abbr: string) => team(abbr)?.nick ?? abbr;
   const final = g.away_score !== null && g.home_score !== null;
   const future = g.week > s.week;
+  const past = g.week < s.week;
 
   const ranks = Object.fromEntries(
     PAIRS.flatMap((p) => [
@@ -97,9 +101,19 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
 
       <header className="space-y-5">
         <p className="eyebrow text-center">
-          Week {g.week} · {final ? "Final" : kickoffLabel(g)}
+          <Link href={`/matchups/?week=${g.week}`} className="hover:text-ink">
+            Week {g.week}
+          </Link>{" "}
+          · {final ? "Final" : kickoffLabel(g)}
           {future && " · early look"}
         </p>
+        {(future || past) && (
+          <p className="mx-auto max-w-xl text-center text-[13px] text-ink-3">
+            {future
+              ? `Money and injury statuses below are from week ${s.week}. They update each day as this game gets closer.`
+              : `Money and injury statuses below are from the current week ${s.week}, not from the week this game was played.`}
+          </p>
+        )}
         <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 sm:gap-6">
           <TeamHead s={s} abbr={away.team} score={final ? g.away_score : null} won={final && g.away_score! > g.home_score!} align="right" />
           <span className="text-sm text-ink-3">at</span>

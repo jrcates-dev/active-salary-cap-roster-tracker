@@ -1,13 +1,12 @@
-import Link from "next/link";
 import { AvailabilityBar, AvailabilityLegend, Swatch } from "@/components/Availability";
-import { GameCard } from "@/components/GameCard";
 import { Heatmap, type HeatRow } from "@/components/league/Heatmap";
 import { InactiveBoard } from "@/components/league/InactiveBoard";
 import { OffenseShare } from "@/components/league/OffenseShare";
 import { PlayersOut, type OutRow } from "@/components/league/PlayersOut";
+import { WeekGames } from "@/components/WeekGames";
 import { PageHead, SectionHead, Stat, WRAP } from "@/components/ui";
 import { teamVars, UNITS } from "@/design/tokens";
-import { getSnapshot, weekGames } from "@/lib/data";
+import { cardTeams, getSnapshot, weekSlates } from "@/lib/data";
 import { money, pct } from "@/lib/format";
 import type { Absence } from "@/lib/types";
 
@@ -25,8 +24,7 @@ export default async function LeaguePage() {
   const count = (kind: Absence) => s.players.filter(isOut(kind)).length;
   const nQuestionable = s.players.filter((p) => p.flag === "questionable").length;
   const teamsById = Object.fromEntries(s.teams.map((t) => [t.team, t]));
-  const games = weekGames(s);
-  const finals = games.filter((g) => g.away_score !== null && g.home_score !== null).length;
+  const slates = weekSlates(s);
 
   const groupsOrdered = [...s.groups].sort(
     (a, b) => UNITS.indexOf(a.unit) - UNITS.indexOf(b.unit) || a.order - b.order,
@@ -102,22 +100,15 @@ export default async function LeaguePage() {
         </div>
       </section>
 
-      {games.length > 0 && (
+      {slates.length > 0 && (
         <section id="games" className="scroll-mt-20">
-          <SectionHead
-            title={`Week ${s.week} games`}
-            count={`${finals} of ${games.length} final`}
-            aside={
-              <Link href="/matchups" className="font-medium text-ink-2 hover:text-ink">
-                All matchups →
-              </Link>
-            }
+          <WeekGames
+            slates={slates}
+            teams={cardTeams(s)}
+            dataWeek={s.week}
+            initialWeek={s.week}
+            more={{ href: "/matchups/", label: "All matchups" }}
           />
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            {games.map((g) => (
-              <GameCard key={g.game_id} s={s} g={g} />
-            ))}
-          </div>
         </section>
       )}
 

@@ -67,6 +67,9 @@ export const unitMark: Record<Unit, { glyph: string; label: string }> = {
   special_teams: { glyph: "◆", label: "Special teams" },
 };
 
+/** Units in display order. */
+export const UNITS: Unit[] = ["offense", "defense", "special_teams"];
+
 function luminance(hex: string): number {
   const c = hex.replace("#", "");
   const [r, g, b] = [0, 2, 4].map((i) => parseInt(c.slice(i, i + 2), 16) / 255);

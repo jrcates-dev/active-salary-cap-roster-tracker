@@ -3,8 +3,29 @@
 import { useMemo, useState } from "react";
 import { money } from "@/lib/format";
 import type { HistoryRow } from "@/lib/types";
-import { AvailabilityBar, slicesOf } from "../Availability";
+import { AvailabilityBar, SLICE_LABEL, slicesOf, Swatch, type SliceKey } from "../Availability";
+import { byDir, SortChip, useSort } from "../Sort";
 import { TeamChip } from "../TeamChip";
+
+/** The legend entries, each of which ranks the board by its money when clicked. */
+const SORT_KEYS: SliceKey[] = ["active", "questionable", "inactive", "season", "unknown"];
+const LEGEND_COLOR = "#c9ced8";
+
+const COLUMN: Record<string, keyof HistoryRow> = {
+  active: "cap_active",
+  questionable: "cap_questionable",
+  inactive: "cap_inactive_week",
+  season: "cap_inactive_season",
+  unknown: "cap_unknown",
+};
+
+/** Few words naming the ranked money under each team's number. */
+const SHORT: Record<string, string> = {
+  active: "active",
+  questionable: "questionable",
+  season: "long-term",
+  unknown: "practice squad",
+};
 
 export interface BoardTeam {
   team: string;
@@ -14,9 +35,11 @@ export interface BoardTeam {
 }
 
 /**
- * All 32 teams ranked by money out for this week's game, on one shared axis. Money
- * on reserve lists (IR, PUP) is drawn as its own faint band and does not set the
- * order, since it barely changes week to week. A week picker replays past weeks.
+ * All 32 teams on one shared axis, ranked by money out for this week's game until
+ * the reader picks another legend entry. Clicking an entry ranks teams by that
+ * money; clicking it again flips the order. Once the reader has picked, the
+ * ranked band is drawn at full strength and the rest fade. A week picker replays
+ * past weeks and keeps the chosen order.
  */
 export function InactiveBoard({
   teams,
@@ -32,18 +55,42 @@ export function InactiveBoard({
     [history],
   );
   const [shown, setShown] = useState(week);
+  const [sort, toggleSort] = useSort<SliceKey>("inactive");
+  const [picked, setPicked] = useState(false);
   const byTeam = Object.fromEntries(teams.map((t) => [t.team, t]));
+  const value = (r: HistoryRow) => Number(r[COLUMN[sort.key]] ?? 0);
   const rows = history
     .filter((h) => h.week === shown && h.unit === "all" && byTeam[h.team])
     .sort(
       (a, b) =>
-        b.cap_inactive_week - a.cap_inactive_week || b.cap_inactive_season - a.cap_inactive_season,
+        byDir(value(a), value(b), sort.dir) ||
+        byDir(a.cap_inactive_week, b.cap_inactive_week, "desc") ||
+        byDir(a.cap_inactive_season, b.cap_inactive_season, "desc") ||
+        byTeam[a.team].nick.localeCompare(byTeam[b.team].nick),
     );
   const scale = Math.max(1, ...rows.map((r) => r.cap_total));
   const idx = weeks.indexOf(shown);
 
   return (
     <div>
+      <div className="mb-4 flex flex-wrap items-center gap-x-1 gap-y-1" role="group" aria-label="Rank teams by">
+        <span className="mr-1 text-sm text-fg-faint">Rank by</span>
+        {SORT_KEYS.map((k) => (
+          <SortChip
+            key={k}
+            active={sort.key === k}
+            dir={sort.dir}
+            onClick={() => {
+              toggleSort(k);
+              setPicked(true);
+            }}
+            label={SLICE_LABEL[k]}
+            swatch={<Swatch k={k} color={LEGEND_COLOR} />}
+            ascLabel="least money first"
+            descLabel="most money first"
+          />
+        ))}
+      </div>
       {weeks.length > 1 && (
         <div className="mb-4 flex items-center gap-2 text-sm" role="group" aria-label="Week">
           <button
@@ -104,11 +151,14 @@ export function InactiveBoard({
                 height={16}
                 title={`${t.name} · week ${shown}`}
                 slices={slicesOf(r)}
+                emphasis={picked ? sort.key : undefined}
               />
               <span className="num text-right text-lg leading-none">
-                {money(r.cap_inactive_week)}
+                {money(value(r))}
                 <span className="block text-xs text-fg-muted sm:ml-2 sm:inline">
-                  +{money(r.cap_inactive_season)} long-term
+                  {sort.key === "inactive"
+                    ? `+${money(r.cap_inactive_season)} long-term`
+                    : SHORT[sort.key]}
                 </span>
               </span>
             </li>

@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useMemo } from "react";
 import { intensityColor, intensityInk, intensityRamp, unitMark } from "@/design/tokens";
 import { money, ordinal, pct } from "@/lib/format";
 import type { Group } from "@/lib/types";
+import { ariaSort, byDir, SortHeader, useSort } from "../Sort";
 import { Tip, TipRow } from "../Tip";
 
 export interface HeatRow {
@@ -22,7 +23,8 @@ export interface HeatRow {
  * cell means "spends more here than most of the league".
  */
 export function Heatmap({ groups, rows }: { groups: Group[]; rows: HeatRow[] }) {
-  const [sort, setSort] = useState<string>("team");
+  // Team names read A to Z first; every money column reads biggest share first.
+  const [sort, toggleSort] = useSort<string>("team", (k) => (k === "team" ? "asc" : "desc"));
 
   const ranges = useMemo(() => {
     const out: Record<string, { min: number; max: number; ranks: Record<string, number> }> = {};
@@ -39,16 +41,17 @@ export function Heatmap({ groups, rows }: { groups: Group[]; rows: HeatRow[] }) 
   }, [groups, rows]);
 
   const sorted = useMemo(() => {
-    if (sort === "team") return [...rows].sort((a, b) => a.nick.localeCompare(b.nick));
-    return [...rows].sort(
-      (a, b) => (b.cells[sort]?.cap ?? 0) / b.total - (a.cells[sort]?.cap ?? 0) / a.total,
-    );
+    const { key, dir } = sort;
+    const byName = (a: HeatRow, b: HeatRow) => a.nick.localeCompare(b.nick);
+    if (key === "team") return [...rows].sort((a, b) => (dir === "asc" ? byName(a, b) : byName(b, a)));
+    const share = (r: HeatRow) => (r.cells[key]?.cap ?? 0) / r.total;
+    return [...rows].sort((a, b) => byDir(share(a), share(b), dir) || byName(a, b));
   }, [rows, sort]);
 
   return (
     <div>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3 text-sm text-fg-muted">
-        <p>Share of each team&apos;s counted cap. Click a column to rank teams by it.</p>
+        <p>Share of each team&apos;s counted cap. Click a column to rank teams by it, and click again to flip the order.</p>
         <div className="flex items-center gap-2" aria-label="Color scale">
           <span>Less than the league</span>
           <span className="flex gap-[2px]">
@@ -63,21 +66,38 @@ export function Heatmap({ groups, rows }: { groups: Group[]; rows: HeatRow[] }) 
         <table className="w-full min-w-[760px] table-fixed border-separate border-spacing-[2px] text-sm">
           <thead>
             <tr>
-              <th scope="col" className="w-28 text-left font-medium">
-                <SortButton active={sort === "team"} onClick={() => setSort("team")}>
+              <th scope="col" className="w-28 text-left font-medium" aria-sort={ariaSort(sort.key === "team", sort.dir)}>
+                <SortHeader
+                  active={sort.key === "team"}
+                  dir={sort.dir}
+                  onClick={() => toggleSort("team")}
+                  label="team name"
+                  ascLabel="A to Z"
+                  descLabel="Z to A"
+                >
                   Team
-                </SortButton>
+                </SortHeader>
               </th>
               {groups.map((g, i) => (
                 <Fragment key={g.code}>
                   {i > 0 && groups[i - 1].unit !== g.unit && <th aria-hidden className="w-2" />}
-                  <th scope="col" title={g.label} className="font-medium">
+                  <th
+                    scope="col"
+                    title={g.label}
+                    className="font-medium"
+                    aria-sort={ariaSort(sort.key === g.code, sort.dir)}
+                  >
                     <span aria-hidden className="block text-[10px] text-fg-faint">
                       {unitMark[g.unit].glyph}
                     </span>
-                    <SortButton active={sort === g.code} onClick={() => setSort(g.code)}>
+                    <SortHeader
+                      active={sort.key === g.code}
+                      dir={sort.dir}
+                      onClick={() => toggleSort(g.code)}
+                      label={`${g.label} share`}
+                    >
                       {g.code}
-                    </SortButton>
+                    </SortHeader>
                   </th>
                 </Fragment>
               ))}
@@ -128,26 +148,5 @@ export function Heatmap({ groups, rows }: { groups: Group[]; rows: HeatRow[] }) 
         </table>
       </div>
     </div>
-  );
-}
-
-function SortButton({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={`num text-base ${active ? "text-fg underline underline-offset-4" : "text-fg-muted hover:text-fg"}`}
-    >
-      {children}
-    </button>
   );
 }

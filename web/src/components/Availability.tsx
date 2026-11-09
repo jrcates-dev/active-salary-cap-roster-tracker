@@ -64,9 +64,12 @@ export function AvailabilityBar({
   title,
   marker,
   markerLabel,
+  emphasis,
 }: {
   color: string;
   slices: Slices;
+  /** When set, every other slice is drawn faded so this one reads first. */
+  emphasis?: SliceKey;
   scale?: number;
   height?: number;
   title?: ReactNode;
@@ -86,7 +89,13 @@ export function AvailabilityBar({
             <Tip
               key={k}
               className="h-full min-w-[2px] rounded-[3px]"
-              style={{ flexGrow: v, flexBasis: 0, ...sliceStyle(k, color) }}
+              style={{
+                flexGrow: v,
+                flexBasis: 0,
+                ...sliceStyle(k, color),
+                ...(emphasis === k ? { boxShadow: "inset 0 0 0 1.5px var(--text)" } : {}),
+                opacity: emphasis && emphasis !== k ? 0.25 : undefined,
+              }}
               content={
                 <div className="space-y-1">
                   {title && <div className="mb-1 font-semibold">{title}</div>}

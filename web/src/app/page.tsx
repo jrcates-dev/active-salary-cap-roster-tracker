@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { AvailabilityLegend } from "@/components/Availability";
 import { GameCard } from "@/components/GameCard";
 import { Heatmap, type HeatRow } from "@/components/league/Heatmap";
 import { InactiveBoard } from "@/components/league/InactiveBoard";
@@ -100,11 +99,8 @@ export default async function LeaguePage() {
         <div>
           <SectionTitle
             title="Money out, team by team"
-            note="Ranked by money out for this week's game. Long-term reserve lists are the faint band; they rarely change week to week."
+            note="Ranked by money out for this week's game. Click any entry below to rank by that money instead, and click it again to flip the order. Long-term reserve lists are the faint band."
           />
-          <div className="mb-4">
-            <AvailabilityLegend color="#c9ced8" />
-          </div>
           <InactiveBoard teams={boardTeams} history={history} week={s.week} />
         </div>
         <div>
@@ -122,7 +118,7 @@ export default async function LeaguePage() {
       </section>
 
       <section className="max-w-3xl">
-        <SectionTitle title="Offense or defense?" note="Share of counted cap by unit, most offense-heavy first." />
+        <SectionTitle title="Offense or defense?" note="Share of counted cap by unit, most offense-heavy first. Click a unit to rank teams by its share, and click it again to flip the order." />
         <OffenseShare s={s} />
       </section>
 

@@ -102,6 +102,7 @@ export function SortChip({
   swatch,
   ascLabel = "lowest first",
   descLabel = "highest first",
+  tone,
 }: {
   active: boolean;
   dir: SortDir;
@@ -110,16 +111,30 @@ export function SortChip({
   swatch: ReactNode;
   ascLabel?: string;
   descLabel?: string;
+  /** The series color. When set, the active chip wears it as a ring and a light wash. */
+  tone?: string;
 }) {
   const now = active ? `, sorted ${directionWords(dir, ascLabel, descLabel)}` : "";
+  const toned = active && tone;
   return (
     <button
       type="button"
       onClick={onClick}
       aria-label={`Sort by ${label}${now}`}
       aria-pressed={active}
+      style={
+        toned
+          ? {
+              borderColor: tone,
+              background: `color-mix(in srgb, ${tone} 14%, var(--surface))`,
+              boxShadow: `inset 0 0 0 1px ${tone}`,
+            }
+          : undefined
+      }
       className={`group flex h-7 items-center gap-2 rounded-md border px-2 text-[13px] whitespace-nowrap transition-colors duration-(--dur-1) ${
-        active ? "border-line-2 bg-surface-2 text-ink" : "border-transparent text-ink-2 hover:bg-surface-2 hover:text-ink"
+        active
+          ? `text-ink ${toned ? "font-medium" : "border-line-2 bg-surface-2"}`
+          : "border-transparent text-ink-2 hover:bg-surface-2 hover:text-ink"
       }`}
     >
       {swatch}

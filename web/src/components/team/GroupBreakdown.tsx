@@ -1,6 +1,6 @@
 "use client";
 
-import { unitMark } from "@/design/tokens";
+import { UNIT_COLOR, unitMark } from "@/design/tokens";
 import { money, ordinal } from "@/lib/format";
 import type { Group, RollupRow, Unit } from "@/lib/types";
 import { AvailabilityBar, slicesOf } from "../Availability";
@@ -41,7 +41,7 @@ function UnitBlock({ u, lines, total, scale }: { u: Unit; lines: GroupLine[]; to
     <section>
       <div className="mb-3 flex items-baseline justify-between gap-3 border-b border-line pb-2">
         <h3 className="flex items-center gap-2 text-[13px] font-medium tracking-[0.06em] text-ink-2 uppercase">
-          <span aria-hidden className="text-[10px] text-ink-3">
+          <span aria-hidden className="text-[10px]" style={{ color: UNIT_COLOR[u] }}>
             {unitMark[u].glyph}
           </span>
           {unitMark[u].label}

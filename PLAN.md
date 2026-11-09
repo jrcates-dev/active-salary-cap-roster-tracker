@@ -148,7 +148,7 @@ Color does three jobs and nothing else, so a reader never has to guess what a hu
 | Availability | Active money is solid team color. Inactive money is the same hue at 35% opacity with a diagonal hatch. Dead money is a flat neutral gray. Questionable is solid with a dashed outline | Gameday bars, treemap tiles, player rows |
 | Intensity | One sequential ramp (deep navy to hot orange) for percent of cap in the league heatmap and for league-rank badges. Never used for team identity | League heatmap, rank badges, matchup gap labels |
 
-Units get a fixed neutral mark rather than a color, so they can coexist with team colors: offense is a filled circle, defense a filled square, special teams a diamond. Those marks appear in legends, headers and the treemap tile corners.
+Units get a fixed mark and, only where a chart splits money by unit, a fixed hue: offense is a blue filled circle, defense a green filled square, special teams a gold diamond. The hues are validated as a set for color-vision deficiency and contrast in both themes, and the mark shapes keep the unit readable without color. Team colors never appear inside a unit split, so the two meanings never share a chart.
 
 ### Typography and layout
 

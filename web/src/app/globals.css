@@ -6,6 +6,8 @@
  *   team color            identity (set per element by the .tc class, see tokens.ts)
  *   intensity ramp        one amber hue for "share of cap" in the league heatmap
  *   accent                one orange, only where it carries meaning (a real edge, focus)
+ *   unit                  blue offense, green defense, gold special teams, only where a
+ *                         chart splits money by unit (and the unit marks that label it)
  * Availability states are patterns on the team color (.s-*), so none depends on hue.
  */
 :root {
@@ -27,6 +29,10 @@
   --ps-fill: #eceff3;
   --ps-dot: #8b94a5;
   --pop-shadow: 0 16px 40px -12px rgb(17 24 39 / 0.22), 0 0 0 1px var(--line);
+  /* Unit hues: validated as a set on #ffffff (CVD and normal-vision separation, 3:1). */
+  --unit-off: #2a78d6;
+  --unit-def: #199e70;
+  --unit-st: #c98500;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --dur-1: 120ms;
   --dur-2: 200ms;
@@ -54,6 +60,10 @@
     --ps-fill: #1e2433;
     --ps-dot: #727d8f;
     --pop-shadow: 0 16px 40px -12px rgb(0 0 0 / 0.6), 0 0 0 1px var(--line-2);
+    /* Same hues stepped for #141821. */
+    --unit-off: #3987e5;
+    --unit-def: #199e70;
+    --unit-st: #c98500;
   }
 }
 

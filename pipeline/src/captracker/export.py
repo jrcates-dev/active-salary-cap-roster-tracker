@@ -38,12 +38,10 @@ def _records(df: pl.DataFrame) -> list[dict]:
     return df.to_dicts()
 
 
-def _games(games: pl.DataFrame, season: int, week: int) -> list[dict]:
-    g = games.filter(
-        (pl.col("season") == season)
-        & (pl.col("game_type") == "REG")
-        & pl.col("week").is_in([week - 1, week, week + 1])
-    )
+def _games(games: pl.DataFrame, season: int) -> list[dict]:
+    """Every regular-season game, so the site can show any week's slate and preview
+    future matchups with the current rosters."""
+    g = games.filter((pl.col("season") == season) & (pl.col("game_type") == "REG"))
     return _records(
         g.select(
             "game_id",
@@ -116,7 +114,7 @@ def build_export(
         "summary": _records(team_summary.drop("season", "week")),
         "rollup": _records(rollup.select(ROLLUP_FIELDS)),
         "players": _records(players),
-        "games": _games(games, season, week),
+        "games": _games(games, season),
         "reconcile": reconcile_report,
         "freshness": freshness,
         "history": history or [],

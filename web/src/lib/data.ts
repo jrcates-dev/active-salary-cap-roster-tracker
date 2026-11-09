@@ -1,6 +1,9 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import type { Player, RollupRow, Snapshot, Team, TeamSummary } from "./types";
+import { teamVars } from "@/design/tokens";
+import { biggestEdges, edgeShort, gameEdges } from "./matchup";
+import type { CardGame, CardSide, CardTeams, WeekSlate } from "./schedule";
+import type { Game, Player, RollupRow, Snapshot, Team, TeamSummary } from "./types";
 
 /**
  * The site reads one JSON snapshot per build. `data/snapshot.json` is the real one
@@ -125,4 +128,46 @@ export function kickoffLabel(g: { gameday: string; gametime: string | null }) {
   const [h, m] = g.gametime.split(":").map(Number);
   const hour = ((h + 11) % 12) + 1;
   return `${day} · ${hour}:${String(m).padStart(2, "0")} ${h >= 12 ? "PM" : "AM"} ET`;
+}
+
+/** A game as a card shows it: plain data, with the money edge from today's rosters. */
+export function cardGame(s: Snapshot, g: Game): CardGame {
+  const nick = (abbr: string) => s.teams.find((t) => t.team === abbr)?.nick ?? abbr;
+  const final = g.away_score !== null && g.home_score !== null;
+  const [edge] = biggestEdges(gameEdges(s, g.away_team, g.home_team));
+  const side = (abbr: string, score: number | null): CardSide => ({ abbr, score });
+  return {
+    id: g.game_id,
+    href: matchupHref(g),
+    when: final ? "Final" : kickoffLabel(g),
+    final,
+    away: side(g.away_team, g.away_score),
+    home: side(g.home_team, g.home_score),
+    edge: edge ? { short: edgeShort(edge, (a) => a), title: edgeShort(edge, nick) } : null,
+  };
+}
+
+/** Name and colors for every team, for game cards. */
+export function cardTeams(s: Snapshot): CardTeams {
+  return Object.fromEntries(s.teams.map((t) => [t.team, { nick: t.nick, vars: teamVars(t) }]));
+}
+
+/** Every week of the schedule, each with its games as cards and its byes. */
+export function weekSlates(s: Snapshot): WeekSlate[] {
+  const weeks = [...new Set(s.games.map((g) => g.week))].sort((a, b) => a - b);
+  return weeks.map((week) => {
+    const games = weekGames(s, week);
+    const playing = new Set(games.flatMap((g) => [g.away_team, g.home_team]));
+    const days = games.map((g) => g.gameday).sort();
+    return {
+      week,
+      firstDay: days[0],
+      lastDay: days[days.length - 1],
+      games: games.map((g) => cardGame(s, g)),
+      byes: s.teams
+        .filter((t) => !playing.has(t.team))
+        .map((t) => t.nick)
+        .sort(),
+    };
+  });
 }

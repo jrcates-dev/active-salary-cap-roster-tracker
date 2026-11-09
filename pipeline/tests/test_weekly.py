@@ -251,3 +251,19 @@ def test_season_outlook_table_loads():
     assert table is not None and table.height > 0
     assert table["gsis_id"].is_unique().all()
     assert set(table["outlook"]) <= set(rosters.OUTLOOKS)
+
+
+def test_export_carries_the_whole_regular_season():
+    # The site's week picker previews any week, so every regular-season game is exported.
+    from captracker import export
+
+    games = _games([(w, "GB", "NE", 20 if w < 9 else None) for w in range(1, 20)])
+    games = games.with_columns(
+        pl.when(pl.col("week") == 19)
+        .then(pl.lit("POST"))
+        .otherwise("game_type")
+        .alias("game_type"),
+        pl.lit("13:00").alias("gametime"),
+    )
+    out = export._games(games, 2026)
+    assert sorted({g["week"] for g in out}) == list(range(1, 19))

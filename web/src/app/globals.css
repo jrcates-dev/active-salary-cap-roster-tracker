@@ -4,10 +4,11 @@
  * Design tokens. Color does six jobs and nothing else:
  *   surfaces and ink      neutral, one scale per theme
  *   team color            identity (set per element by the .tc class, see tokens.ts)
- *   money status          one fixed hue per availability state (--st-*), the same on
- *                         every page: teal active, amber questionable, red out this
- *                         week, berry out long-term, violet out for season, neutral
- *                         practice squad and dead money (.s-*)
+ *   money status          one fixed hue per "not active" state (--st-*), the same on
+ *                         every page: amber questionable, red out this week, berry
+ *                         out long-term, violet out for season, neutral practice
+ *                         squad and dead money (.s-*). Active money is the team's
+ *                         color where a team owns the mark, teal on league totals.
  *   intensity ramp        one amber hue for "share of cap" in the league heatmap
  *   accent                one orange, only where it carries meaning (a real edge, focus)
  *   unit                  blue offense, green defense, gold special teams, only where a
@@ -222,8 +223,11 @@ body {
 
 /*
  * Money status fills. Each state has its own hue (--st-*, above), and the three
- * that are not a plain fill keep a texture too, so none depends on color alone:
- *   active         solid teal
+ * that are not a plain fill keep a texture too, so none depends on color alone.
+ * Active money is the team's own color inside a team's element (.tc), so team
+ * pages, matchups and per-team rows keep their identity; league-wide totals,
+ * with no team, draw it teal:
+ *   active         solid team color, or teal with no team
  *   questionable   solid amber in a dashed ring
  *   inactive       red with a darker 135deg hatch (out for this game)
  *   season         solid berry (reserve list, can return)
@@ -233,9 +237,13 @@ body {
  * Each class also sets --s (its hue) and --s-ink (text that reads on it).
  */
 .s-active {
-  --s: var(--st-active);
-  --s-ink: var(--st-active-ink);
+  --s: var(--team, var(--st-active));
+  --s-ink: var(--team-ink, var(--st-active-ink));
   background: var(--s);
+}
+/* The key for "active, in each team's own color" where a legend covers many teams. */
+.s-team {
+  background: conic-gradient(#0b2265 0 25%, #c8102e 0 50%, #ffb612 0 75%, #203731 0);
 }
 .s-questionable {
   --s: var(--st-questionable);

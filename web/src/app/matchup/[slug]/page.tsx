@@ -175,7 +175,17 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
           })}
         </div>
         <div>
-          <AvailabilityLegend keys={["active", "questionable", "inactive", "season", "year"]} short />
+          <AvailabilityLegend
+            keys={["active", "questionable", "inactive", "season", "year"]}
+            short
+            activeSwatch={
+              <span className="flex gap-0.5">
+                {[away, home].map((t) => (
+                  <span key={t.team} className="tc sw s-active" style={teamVars(t)} />
+                ))}
+              </span>
+            }
+          />
         </div>
       </section>
 

@@ -78,7 +78,7 @@ export function OffenseShareBoard({ rows }: { rows: UnitRow[] }) {
             <span className="num text-right text-xs text-ink-3">{i + 1}</span>
             <TeamChip team={r.team} nick={r.nick} vars={r.vars} size="sm" />
             <div className="relative h-2.5">
-              <div className={`flex h-full gap-[2px] ${animate ? "grow" : ""}`}>
+              <div className={`flex h-full gap-[2px] ${animate ? "bar-grow" : ""}`}>
                 {UNITS.map((u) => (
                   <Tip
                     key={u}

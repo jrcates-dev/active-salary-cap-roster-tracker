@@ -240,7 +240,8 @@ body {
   border-radius: 3px;
 }
 
-/* Bars grow once on load, then stay still. */
+/* Bars grow once on load, then stay still. Named bar-* because Tailwind's own
+   `grow` utility is flex-grow: 1, which stretched bars to fill their row. */
 @keyframes grow-x {
   from {
     transform: scaleX(0);
@@ -249,11 +250,11 @@ body {
     transform: scaleX(1);
   }
 }
-.grow {
+.bar-grow {
   transform-origin: left center;
   animation: grow-x var(--dur-3) var(--ease) both;
 }
-.grow-r {
+.bar-grow-r {
   transform-origin: right center;
   animation: grow-x var(--dur-3) var(--ease) both;
 }
@@ -265,7 +266,7 @@ body {
     transform: scaleY(1);
   }
 }
-.grow-up {
+.bar-grow-up {
   transform-origin: center bottom;
   animation: grow-y var(--dur-3) var(--ease) both;
 }

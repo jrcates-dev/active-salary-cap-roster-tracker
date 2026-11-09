@@ -42,7 +42,7 @@ export function TeamTrend({ rows, week }: { rows: HistoryRow[]; week: number }) 
               }
             >
               <div
-                className={`grow-up flex flex-col-reverse gap-[2px] transition-opacity duration-(--dur-1) group-hover:opacity-80 ${
+                className={`bar-grow-up flex flex-col-reverse gap-[2px] transition-opacity duration-(--dur-1) group-hover:opacity-80 ${
                   r.week === week ? "" : ""
                 }`}
                 style={{ height: `${(totals[i] / max) * 100}%` }}

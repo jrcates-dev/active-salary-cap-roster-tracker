@@ -8,16 +8,11 @@ import { Tip, TipHint, TipRow, TipTitle } from "./Tip";
 
 export { playerSlice, SLICE_LABEL, SLICE_SHORT, slicesOf, type SliceKey, type Slices } from "@/lib/availability";
 
-/** The CSS class that paints one availability state: the team color for active inside a `.tc`, else its status hue. */
+/** The CSS class that paints one availability state in its money status hue. */
 export const sliceClass = (k: SliceKey) => `s-${k}`;
 
 /** States drawn with a texture; a share printed on them sits on a solid chip of the hue. */
 const TEXTURED = new Set<SliceKey>(["inactive", "year", "unknown"]);
-
-/** The key for active money drawn in many teams' colors at once (a list of teams). */
-export function TeamSwatch({ size = 12 }: { size?: number }) {
-  return <span aria-hidden className="sw s-team" style={{ width: size, height: size }} />;
-}
 
 export function Swatch({ k, size = 12, className = "" }: { k: SliceKey; size?: number; className?: string }) {
   return <span aria-hidden className={`sw ${sliceClass(k)} ${className}`} style={{ width: size, height: size }} />;
@@ -40,8 +35,7 @@ function useWidth<T extends HTMLElement>() {
 /**
  * The segmented availability bar used at every level. Thin (8 to 12px) beside a
  * row's figures, tall (28px) with its shares printed inside when it stands alone.
- * Active wears the enclosing `.tc` team color (teal with no team); every other
- * state wears its money status hue (globals.css, `.s-*`). `scale` sets the full
+ * Each state wears its money status hue (globals.css, `.s-*`). `scale` sets the full
  * width in dollars so bars in a list share one axis; `marker` draws a tick.
  */
 export function AvailabilityBar({
@@ -161,20 +155,17 @@ export function AvailabilityLegend({
   keys = ["active", "questionable", "inactive", "season", "year", "unknown"],
   extra,
   short = false,
-  activeSwatch,
 }: {
   keys?: SliceKey[];
   extra?: ReactNode;
   short?: boolean;
-  /** Stands in for the active swatch where active money wears more than one team color. */
-  activeSwatch?: ReactNode;
 }) {
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[13px] text-ink-2">
       {keys.map((k) => (
         <span key={k} className="flex items-center gap-1.5 whitespace-nowrap">
-          {k === "active" && activeSwatch ? activeSwatch : <Swatch k={k} />}
-          {k === "active" && activeSwatch ? "Active, in team color" : short ? SLICE_SHORT[k] : SLICE_LABEL[k]}
+          <Swatch k={k} />
+          {short ? SLICE_SHORT[k] : SLICE_LABEL[k]}
         </span>
       ))}
       {extra}

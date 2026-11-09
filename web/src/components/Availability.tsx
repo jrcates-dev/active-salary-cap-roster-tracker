@@ -1,129 +1,123 @@
 "use client";
 
-import type { CSSProperties, ReactNode } from "react";
-import { deadMoney, hatch, practiceSquad } from "@/design/tokens";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { money, pct } from "@/lib/format";
 import { SLICE_LABEL, SLICE_ORDER, type SliceKey, type Slices } from "@/lib/availability";
-import { Tip, TipRow } from "./Tip";
+import { Tip, TipRow, TipTitle } from "./Tip";
 
 export { playerSlice, SLICE_LABEL, SLICE_SHORT, slicesOf, type SliceKey, type Slices } from "@/lib/availability";
 
-/**
- * Fill style for one availability state in a team's color. Each state differs in
- * pattern as well as tone, so none depends on color alone:
- *   active        solid team color
- *   questionable  team color at 55% inside a dashed light outline
- *   inactive      bold diagonal hatch in the team color
- *   season        faint flat team color (present on the books, gone for weeks)
- *   year          empty box in a thin team-color outline with faint level pinstripes
- *                 (on the books, gone for the season)
- *   unknown       neutral dotted gray (practice squad)
- *   dead          flat neutral gray
- */
-export function sliceStyle(key: SliceKey, color: string): CSSProperties {
-  switch (key) {
-    case "active":
-      return { background: color };
-    case "questionable":
-      return {
-        background: `${color}8c`,
-        outline: "1.5px dashed rgba(243, 244, 246, 0.85)",
-        outlineOffset: "-1.5px",
-      };
-    case "inactive":
-      return { background: hatch(color) };
-    case "season":
-      return { background: `${color}33`, boxShadow: `inset 0 0 0 1px ${color}59` };
-    case "year":
-      return {
-        background: `repeating-linear-gradient(0deg, ${color}38 0 1px, transparent 1px 4px)`,
-        boxShadow: `inset 0 0 0 1px ${color}8c`,
-      };
-    case "unknown":
-      return {
-        background: `radial-gradient(${practiceSquad.dot} 1px, transparent 1.4px) 0 0 / 5px 5px, ${practiceSquad.fill}`,
-      };
-    case "dead":
-      return { background: deadMoney };
-  }
+/** The CSS class that paints one availability state in the enclosing team color. */
+export const sliceClass = (k: SliceKey) => `s-${k}`;
+
+export function Swatch({ k, size = 12, className = "" }: { k: SliceKey; size?: number; className?: string }) {
+  return <span aria-hidden className={`sw ${sliceClass(k)} ${className}`} style={{ width: size, height: size }} />;
 }
 
-export function Swatch({ k, color, size = 12 }: { k: SliceKey; color: string; size?: number }) {
-  return (
-    <span
-      aria-hidden
-      className="inline-block shrink-0 rounded-[3px]"
-      style={{ width: size, height: size, ...sliceStyle(k, color) }}
-    />
-  );
+/** Width of an element, updated as it resizes; 0 until mounted. */
+function useWidth<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  const [width, setWidth] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => setWidth(entry.contentRect.width));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return [ref, width] as const;
 }
 
 /**
- * The stacked availability bar used at every level: league row, team header,
- * position group. Segments are separated by a 2px gap. `scale` sets the bar's
- * full width in dollars so bars in a list share one axis.
+ * The segmented availability bar used at every level. Thin (8 to 12px) beside a
+ * row's figures, tall (28px) with its shares printed inside when it stands alone.
+ * It reads the team color from an enclosing `.tc` element. `scale` sets the full
+ * width in dollars so bars in a list share one axis; `marker` draws a tick.
  */
 export function AvailabilityBar({
-  color,
   slices,
   scale,
-  height = 22,
+  height = 10,
   title,
   marker,
   markerLabel,
   emphasis,
+  labels = false,
+  animate = true,
 }: {
-  color: string;
   slices: Slices;
-  /** When set, every other slice is drawn faded so this one reads first. */
-  emphasis?: SliceKey;
   scale?: number;
   height?: number;
   title?: ReactNode;
   marker?: number;
   markerLabel?: string;
+  /** When set, every other slice is drawn faded so this one reads first. */
+  emphasis?: SliceKey;
+  /** Print each share inside its block where it fits (the tall bar). */
+  labels?: boolean;
+  animate?: boolean;
 }) {
-  const order = SLICE_ORDER;
-  const total = order.reduce((acc, k) => acc + (slices[k] ?? 0), 0);
+  const [ref, width] = useWidth<HTMLDivElement>();
+  const total = SLICE_ORDER.reduce((acc, k) => acc + (slices[k] ?? 0), 0);
   const full = Math.max(scale ?? total, total, 1);
+  const radius = height >= 20 ? 4 : 3;
   return (
-    <div className="relative w-full" style={{ height }}>
-      <div className="flex h-full gap-[2px]" style={{ width: `${(total / full) * 100}%` }}>
-        {order.map((k) => {
+    <div ref={ref} className="relative w-full" style={{ height }}>
+      <div
+        className={`flex h-full gap-[2px] ${animate ? "grow" : ""}`}
+        style={{ width: `${(total / full) * 100}%` }}
+        role="img"
+        aria-label={SLICE_ORDER.filter((k) => (slices[k] ?? 0) > 0)
+          .map((k) => `${SLICE_LABEL[k]} ${money(slices[k] ?? 0)}`)
+          .join(", ")}
+      >
+        {SLICE_ORDER.map((k) => {
           const v = slices[k] ?? 0;
           if (v <= 0) return null;
+          const px = width * (v / full);
+          const share = pct(v / total, 0);
           return (
             <Tip
               key={k}
-              className="h-full min-w-[2px] rounded-[3px]"
+              className={`${sliceClass(k)} relative h-full min-w-[2px] overflow-hidden transition-opacity duration-(--dur-2)`}
               style={{
                 flexGrow: v,
                 flexBasis: 0,
-                ...sliceStyle(k, color),
-                ...(emphasis === k ? { boxShadow: "inset 0 0 0 1.5px var(--text)" } : {}),
-                opacity: emphasis && emphasis !== k ? 0.25 : undefined,
+                borderRadius: radius,
+                ...(emphasis === k ? { boxShadow: "inset 0 0 0 2px var(--ink)" } : {}),
+                opacity: emphasis && emphasis !== k ? 0.3 : undefined,
               }}
               content={
-                <div className="space-y-1">
-                  {title && <div className="mb-1 font-semibold">{title}</div>}
-                  <TipRow
-                    label={SLICE_LABEL[k]}
-                    value={`${money(v)} · ${pct(v / total)}`}
-                    swatch={<Swatch k={k} color={color} />}
-                  />
+                <div>
+                  {title && <TipTitle>{title}</TipTitle>}
+                  <TipRow label={SLICE_LABEL[k]} value={`${money(v)} · ${pct(v / total)}`} swatch={<Swatch k={k} />} />
                 </div>
               }
-            />
+            >
+              {labels && px >= 40 && (
+                <span className="pointer-events-none absolute inset-y-0 left-1.5 flex items-center">
+                  <span
+                    className={`num rounded-[3px] text-xs font-medium ${k === "active" ? "" : "bg-surface/85 px-1"}`}
+                    style={{ color: k === "active" ? "var(--team-ink)" : "var(--ink)" }}
+                  >
+                    {share}
+                  </span>
+                </span>
+              )}
+            </Tip>
           );
         })}
       </div>
       {marker !== undefined && marker > 0 && (
         <Tip
-          className="absolute -top-1 -bottom-1 w-[6px] -translate-x-1/2 cursor-default"
+          className="absolute -inset-y-1 w-2 -translate-x-1/2 cursor-default"
           style={{ left: `${(marker / full) * 100}%` }}
           content={markerLabel ?? `League median ${money(marker)}`}
         >
-          <span className="absolute inset-y-0 left-1/2 w-[2px] -translate-x-1/2 rounded bg-fg" />
+          <span
+            className="absolute inset-y-0 left-1/2 w-0.5 -translate-x-1/2 rounded-full bg-ink"
+            style={{ boxShadow: "0 0 0 2px var(--surface)" }}
+          />
         </Tip>
       )}
     </div>
@@ -131,23 +125,33 @@ export function AvailabilityBar({
 }
 
 export function AvailabilityLegend({
-  color,
   keys = ["active", "questionable", "inactive", "season", "year", "unknown"],
   extra,
+  short = false,
 }: {
-  color: string;
   keys?: SliceKey[];
   extra?: ReactNode;
+  short?: boolean;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-fg-muted">
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[13px] text-ink-2">
       {keys.map((k) => (
-        <span key={k} className="flex items-center gap-2">
-          <Swatch k={k} color={color} />
-          {SLICE_LABEL[k]}
+        <span key={k} className="flex items-center gap-1.5 whitespace-nowrap">
+          <Swatch k={k} />
+          {short ? SHORT[k] : SLICE_LABEL[k]}
         </span>
       ))}
       {extra}
     </div>
   );
 }
+
+const SHORT: Record<SliceKey, string> = {
+  active: "Active",
+  questionable: "Questionable",
+  inactive: "Out this week",
+  season: "Out long-term",
+  year: "Out for season",
+  unknown: "Practice squad",
+  dead: "Dead money",
+};

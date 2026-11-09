@@ -1,79 +1,50 @@
 /**
- * Design tokens for the salary cap tracker.
+ * Color logic for the salary cap tracker. The CSS tokens live in globals.css; this
+ * file holds what has to be computed per team: the team color that reads on each
+ * theme's surface, and the ink that reads on that color.
  *
- * Color does three jobs and nothing else (PLAN.md, "Color system"):
- *   1. Team identity   - the team's color fills its bars and tiles.
- *   2. Availability    - active is solid team color; questionable is the team color
- *                        inside a dashed light outline; out this week is a bold
- *                        diagonal hatch of the team color; out long-term (IR) is a
- *                        faint flat tint; out for the season is an empty outline
- *                        with faint pinstripes; practice squad is a dotted neutral;
- *                        dead money is a flat neutral gray (see Availability.tsx).
- *   3. Intensity       - one sequential ramp for percent of cap in the league
- *                        heatmap. Never used for team identity.
+ * Color does four jobs and nothing else (PLAN.md, "Color system"):
+ *   1. Team identity   - the team's color fills its marks. Set per element with the
+ *                        `tc` class and `teamVars()`, read as `var(--team)`.
+ *   2. Availability    - patterns on the team color (globals.css, `.s-*`).
+ *   3. Intensity       - one amber ramp for share of cap (globals.css, `--ramp-N`).
+ *   4. Accent          - one orange, only where it carries meaning.
  * Units get a fixed neutral mark, not a color: offense ●, defense ■, special teams ◆.
  */
+import type { CSSProperties } from "react";
 import type { Unit } from "@/lib/types";
 
-/** Surface and text colors for the dark broadcast-graphics look. */
-export const surface = {
-  bg: "#0b0d12",
-  panel: "#12151d",
-  panelRaised: "#181c26",
-  border: "#262b38",
-  text: "#f3f4f6",
-  textMuted: "#9aa3b5",
-  textFaint: "#6b7385",
-} as const;
-
-/** Dead money is never a team color. */
-export const deadMoney = "#5b6170";
-
-/** Practice squad money: a dotted neutral, so it never reads as team money or dead money. */
-export const practiceSquad = { fill: "#1d212b", dot: "#6b7385" } as const;
-
-/**
- * Sequential ramp for percent-of-cap intensity (league heatmap).
- * One hue (orange), dark to bright: on the near-black surface the low end recedes
- * toward the background and the high end glows. Never used for team identity.
- */
-export const intensityRamp = [
-  "#1f1712",
-  "#33200f",
-  "#4b2a11",
-  "#653513",
-  "#824114",
-  "#a04e15",
-  "#c05c16",
-  "#e06b18",
-  "#ff7b1c",
-] as const;
-
-/** Pick a ramp color for a value in [0, 1]. */
-export function intensityColor(t: number): string {
-  const clamped = Math.min(1, Math.max(0, t));
-  const idx = Math.min(intensityRamp.length - 1, Math.floor(clamped * intensityRamp.length));
-  return intensityRamp[idx];
-}
-
-/** Ink to put on a ramp cell so the number stays readable. */
-export function intensityInk(t: number): string {
-  return t >= 0.66 ? "#0b0d12" : "#f3f4f6";
-}
+/** The chart surfaces each theme draws on; team colors must clear 3:1 on them. */
+export const SURFACE = { light: "#ffffff", dark: "#141821" } as const;
+export type Theme = keyof typeof SURFACE;
 
 /** Unit marks: shapes, not colors, so they coexist with team colors. */
-export const unitMark: Record<Unit, { glyph: string; label: string }> = {
-  offense: { glyph: "●", label: "Offense" },
-  defense: { glyph: "■", label: "Defense" },
-  special_teams: { glyph: "◆", label: "Special teams" },
+export const unitMark: Record<Unit, { glyph: string; label: string; short: string }> = {
+  offense: { glyph: "●", label: "Offense", short: "OFF" },
+  defense: { glyph: "■", label: "Defense", short: "DEF" },
+  special_teams: { glyph: "◆", label: "Special teams", short: "ST" },
 };
 
 /** Units in display order. */
 export const UNITS: Unit[] = ["offense", "defense", "special_teams"];
 
-function luminance(hex: string): number {
+/** Index into the 9-step intensity ramp for a value in [0, 1]. */
+export function rampStep(t: number): number {
+  const clamped = Math.min(1, Math.max(0, t));
+  return Math.min(8, Math.floor(clamped * 9));
+}
+
+function rgb(hex: string): [number, number, number] {
   const c = hex.replace("#", "");
-  const [r, g, b] = [0, 2, 4].map((i) => parseInt(c.slice(i, i + 2), 16) / 255);
+  return [0, 2, 4].map((i) => parseInt(c.slice(i, i + 2), 16)) as [number, number, number];
+}
+
+function toHex([r, g, b]: [number, number, number]): string {
+  return `#${[r, g, b].map((v) => Math.round(Math.min(255, Math.max(0, v))).toString(16).padStart(2, "0")).join("")}`;
+}
+
+function luminance(hex: string): number {
+  const [r, g, b] = rgb(hex).map((v) => v / 255);
   const lin = (v: number) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
   return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
 }
@@ -83,14 +54,9 @@ export function contrast(a: string, b: string): number {
   return (hi + 0.05) / (lo + 0.05);
 }
 
-/** Text on a team color falls back to white or near-black, whichever reads. */
-export function textOn(hex: string): "#ffffff" | "#0b0d12" {
-  return contrast(hex, "#ffffff") >= contrast(hex, "#0b0d12") ? "#ffffff" : "#0b0d12";
-}
-
-function rgb(hex: string): [number, number, number] {
-  const c = hex.replace("#", "");
-  return [0, 2, 4].map((i) => parseInt(c.slice(i, i + 2), 16)) as [number, number, number];
+/** Text on a team color: white or near-black, whichever reads. */
+export function textOn(hex: string): "#ffffff" | "#111827" {
+  return contrast(hex, "#ffffff") >= contrast(hex, "#111827") ? "#ffffff" : "#111827";
 }
 
 /** HSL saturation in [0, 1]: silver, white and black score near 0. */
@@ -103,44 +69,77 @@ function saturation(hex: string): number {
   return (max - min) / (1 - Math.abs(2 * l - 1));
 }
 
-/** Mix a color toward white by `t` in [0, 1]. */
-function lighten(hex: string, t: number): string {
-  return `#${rgb(hex)
-    .map((v) => Math.round(v + (255 - v) * t).toString(16).padStart(2, "0"))
-    .join("")}`;
+/** Mix toward white (t > 0) or black (t < 0). */
+function shade(hex: string, t: number): string {
+  const target = t > 0 ? 255 : 0;
+  const k = Math.abs(t);
+  return toHex(rgb(hex).map((v) => v + (target - v) * k) as [number, number, number]);
 }
 
 const MIN_CONTRAST = 3;
+const HEX = /^#[0-9a-f]{6}$/i;
 
-/**
- * The team color to draw marks with on the dark panel. Several primaries (Eagles
- * green, Giants and Colts blue, Cowboys and Texans navy) nearly vanish on
- * near-black. Prefer the first real hue that clears 3:1; if none does, lighten the
- * team's main hue until it does, rather than falling back to a silver or gray
- * secondary that reads as "no team". Only teams with no hue at all (Raiders) get gray.
- */
-export function displayColor(t: {
+export interface TeamColors {
   color_primary: string;
   color_secondary: string | null;
   color_3: string | null;
   color_4: string | null;
-}): string {
+}
+
+/**
+ * The team color to draw marks with on a theme's surface.
+ *
+ * Light: the first listed color that clears 3:1 on white and is either a real hue
+ * or near-black (Steelers and Raiders black is identity too; silver is not). Most
+ * primaries pass as they are. A team whose hues are all too light (none today) has
+ * its primary darkened until it reads.
+ *
+ * Dark: several primaries (Eagles green, Giants and Colts blue, Cowboys and Texans
+ * navy) nearly vanish on near-black, so prefer the first real hue that clears 3:1;
+ * if none does, lighten the main hue until it does rather than fall back to a
+ * silver secondary that reads as "no team". Only a team with no hue at all gets gray.
+ */
+export function displayColor(t: TeamColors, theme: Theme = "dark"): string {
+  const surface = SURFACE[theme];
   const options = [t.color_primary, t.color_secondary, t.color_3, t.color_4].filter(
-    (c): c is string => !!c && /^#[0-9a-f]{6}$/i.test(c),
+    (c): c is string => !!c && HEX.test(c),
   );
   const hued = options.filter((c) => saturation(c) >= 0.25);
-  const ok = hued.find((c) => contrast(c, surface.panel) >= MIN_CONTRAST);
+  if (theme === "light") {
+    const identity = options.filter((c) => saturation(c) >= 0.25 || luminance(c) <= 0.03);
+    const ok = identity.find((c) => contrast(c, surface) >= MIN_CONTRAST);
+    if (ok) return ok;
+    const base = hued[0] ?? options[0];
+    if (base) {
+      for (let step = 1; step <= 20; step++) {
+        const c = shade(base, -step * 0.05);
+        if (contrast(c, surface) >= MIN_CONTRAST) return c;
+      }
+    }
+    return "#64748b";
+  }
+  const ok = hued.find((c) => contrast(c, surface) >= MIN_CONTRAST);
   if (ok) return ok;
   if (hued.length > 0) {
     for (let step = 1; step <= 20; step++) {
-      const c = lighten(hued[0], step * 0.05);
-      if (contrast(c, surface.panel) >= MIN_CONTRAST) return c;
+      const c = shade(hued[0], step * 0.05);
+      if (contrast(c, surface) >= MIN_CONTRAST) return c;
     }
   }
-  return options.find((c) => contrast(c, surface.panel) >= MIN_CONTRAST) ?? surface.textMuted;
+  return options.find((c) => contrast(c, surface) >= MIN_CONTRAST) ?? "#8a94a6";
 }
 
-/** CSS background for the out-this-week hatch in a given color. */
-export function hatch(color: string): string {
-  return `repeating-linear-gradient(135deg, ${color}d9 0 2px, ${color}24 2px 6px)`;
+/**
+ * CSS variables for one team, to put on an element with the `tc` class. The theme
+ * picks `--team` and `--team-ink` from these in globals.css.
+ */
+export function teamVars(t: TeamColors): CSSProperties {
+  const light = displayColor(t, "light");
+  const dark = displayColor(t, "dark");
+  return {
+    "--tc": light,
+    "--tc-ink": textOn(light),
+    "--tc-d": dark,
+    "--tc-d-ink": textOn(dark),
+  } as CSSProperties;
 }

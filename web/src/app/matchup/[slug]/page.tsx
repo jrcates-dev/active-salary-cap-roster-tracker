@@ -3,11 +3,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AvailabilityBar, AvailabilityLegend, Swatch } from "@/components/Availability";
 import { MatchupChart, type MatchupHalf, type MatchupRow } from "@/components/matchup/MatchupChart";
+import { Logo } from "@/components/Logo";
+import { Strip } from "@/components/site/Strip";
+import { SectionHead, WRAP } from "@/components/ui";
+import { teamVars } from "@/design/tokens";
 import { playerSlice, slicesOf, statusText } from "@/lib/availability";
-import { displayColor } from "@/design/tokens";
-import { getSnapshot, kickoffLabel, matchupHref } from "@/lib/data";
-import { money } from "@/lib/format";
-import { biggestEdges, edgeSides, edgeText, gameEdges, groupMoney, leagueRanks, PAIRS } from "@/lib/matchup";
+import { getSnapshot, kickoffLabel, matchupHref, weekGames } from "@/lib/data";
+import { money, ordinal } from "@/lib/format";
+import { biggestEdges, edgeSides, gameEdges, groupMoney, leagueRanks, PAIRS } from "@/lib/matchup";
 import type { Game, Snapshot } from "@/lib/types";
 
 /** Every game of the current and the next week is prerendered. */
@@ -34,7 +37,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const g = gamesFor(s).find((x) => slugOf(x) === slug);
   if (!g) return { title: "Matchup not found" };
   const nick = (a: string) => s.teams.find((t) => t.team === a)?.nick ?? a;
-  return { title: `${nick(g.away_team)} at ${nick(g.home_team)} · Week ${g.week} matchup` };
+  return { title: `${nick(g.away_team)} at ${nick(g.home_team)} · Week ${g.week}` };
 }
 
 export default async function MatchupPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -73,78 +76,92 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
     }));
     return {
       title: `${off.nick} offense vs ${def.nick} defense`,
-      offTeam: { abbr: offAbbr, nick: off.nick, color: displayColor(off) },
-      defTeam: { abbr: defAbbr, nick: def.nick, color: displayColor(def) },
+      offTeam: { abbr: offAbbr, nick: off.nick, vars: teamVars(off) },
+      defTeam: { abbr: defAbbr, nick: def.nick, vars: teamVars(def) },
       rows,
     };
   };
   const halves = [half(away.team, home.team), half(home.team, away.team)];
   const edges = biggestEdges(gameEdges(s, away.team, home.team));
+  const strip = weekGames(s, g.week).map((x) => ({
+    key: x.game_id,
+    href: matchupHref(x),
+    label: `${x.away_team} @ ${x.home_team}`,
+    title: `${nick(x.away_team)} at ${nick(x.home_team)}`,
+    current: x.game_id === g.game_id,
+  }));
 
   return (
-    <main className="mx-auto max-w-6xl space-y-10 px-4 py-8 sm:px-6">
-      <header className="space-y-3">
-        <p className="text-sm tracking-wider text-fg-muted uppercase">
+    <main className={`${WRAP} space-y-12 py-5 sm:py-6`}>
+      <Strip items={strip} label={`Week ${g.week} games`} />
+
+      <header className="space-y-5">
+        <p className="eyebrow text-center">
           Week {g.week} · {final ? "Final" : kickoffLabel(g)}
           {future && " · early look"}
         </p>
-        <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-4">
-          <TeamHead s={s} abbr={away.team} score={final ? g.away_score : null} align="right" />
-          <span className="num text-2xl text-fg-faint">at</span>
-          <TeamHead s={s} abbr={home.team} score={final ? g.home_score : null} align="left" />
+        <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 sm:gap-6">
+          <TeamHead s={s} abbr={away.team} score={final ? g.away_score : null} won={final && g.away_score! > g.home_score!} align="right" />
+          <span className="text-sm text-ink-3">at</span>
+          <TeamHead s={s} abbr={home.team} score={final ? g.home_score : null} won={final && g.home_score! > g.away_score!} align="left" />
         </div>
-        {future && (
-          <p className="rounded-md border border-border bg-panel px-4 py-2 text-sm text-fg-muted">
-            This game is in week {g.week}. Statuses are this week&apos;s; the picture changes once week {g.week}&apos;s
-            injury reports come out.
-          </p>
-        )}
       </header>
 
       {edges.length > 0 && (
-        <section className="rounded-lg border border-[#ff7b1c]/50 bg-panel px-5 py-4">
-          <h2 className="num mb-2 text-xl font-semibold">Biggest edges on paper</h2>
-          <ul className="space-y-1">
-            {edges.map((e) => (
-              <li key={`${e.offTeam}-${e.pair.key}`} className="text-fg">
-                {edgeText(e, nick)}{" "}
-                <span className="text-fg-muted">
-                  · {money(edgeSides(e).winMoney.field)} vs {money(edgeSides(e).loseMoney.field)} on the field
-                </span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-2 text-xs text-fg-muted">
-            Ranks are each group&apos;s money on the field against the other 31 teams. Money is a proxy for talent,
-            not a prediction: it says where each team invested and who is available.
-          </p>
+        <section aria-label="Biggest edges" className="grid gap-3 md:grid-cols-2">
+          {edges.map((e) => {
+            const x = edgeSides(e);
+            return (
+              <div key={`${e.offTeam}-${e.pair.key}`} className="card border-l-[3px] border-l-accent px-4 py-3.5">
+                <p className="eyebrow mb-2">Edge · {e.pair.label}</p>
+                <p className="flex flex-wrap items-baseline gap-x-2 text-[15px]">
+                  <span className="font-semibold">
+                    {nick(x.win)} {x.winLabel}
+                  </span>
+                  <span className="num rounded bg-surface-2 px-1.5 text-xs font-medium text-ink-2">{ordinal(x.winRank)}</span>
+                  <span className="text-ink-3">vs</span>
+                  <span className="font-medium text-ink-2">
+                    {nick(x.lose)} {x.loseLabel}
+                  </span>
+                  <span className="num rounded bg-surface-2 px-1.5 text-xs font-medium text-ink-2">{ordinal(x.loseRank)}</span>
+                </p>
+                <p className="num mt-1.5 text-[13px] text-ink-3">
+                  {money(x.winMoney.field)} vs {money(x.loseMoney.field)} on the field
+                </p>
+              </div>
+            );
+          })}
         </section>
       )}
 
-      <section className="grid gap-4 md:grid-cols-2 [&>*]:min-w-0">
-        {[away, home].map((t) => {
-          const sum = s.summary.find((x) => x.team === t.team)!;
-          const color = displayColor(t);
-          return (
-            <div key={t.team} className="rounded-lg border border-border bg-panel px-5 py-4">
-              <div className="mb-2 flex items-baseline justify-between">
-                <Link href={`/team/${t.team}`} className="num text-xl font-semibold hover:underline">
-                  {t.name}
-                </Link>
-                <span className="num text-lg">{money(sum.cap_total)}</span>
+      <section className="space-y-3">
+        <div className="grid gap-3 md:grid-cols-2 [&>*]:min-w-0">
+          {[away, home].map((t) => {
+            const sum = s.summary.find((x) => x.team === t.team)!;
+            return (
+              <div key={t.team} className="tc card px-4 py-4" style={teamVars(t)}>
+                <div className="mb-3 flex items-baseline justify-between gap-3">
+                  <Link href={`/team/${t.team}`} className="flex items-center gap-2 text-[15px] font-semibold hover:underline">
+                    <span aria-hidden className="h-3 w-3 rounded-[3px]" style={{ background: "var(--team)" }} />
+                    {t.name}
+                  </Link>
+                  <span className="num text-[15px] font-semibold">{money(sum.cap_total)}</span>
+                </div>
+                <AvailabilityBar height={20} labels title={t.name} slices={slicesOf(sum)} />
+                <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 sm:grid-cols-4">
+                  <StatPair label="On the field" value={money(sum.cap_active + sum.cap_questionable)} />
+                  <StatPair label="Out this week" value={money(sum.cap_inactive_week)} />
+                  <StatPair label="Out long-term" value={money(sum.cap_inactive_season)} />
+                  <StatPair label="Out for season" value={money(sum.cap_inactive_year ?? 0)} />
+                </dl>
               </div>
-              <AvailabilityBar color={color} height={22} title={t.name} slices={slicesOf(sum)} />
-              <dl className="mt-3 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
-                <Stat label="On the field" value={money(sum.cap_active + sum.cap_questionable)} />
-                <Stat label="Out this week" value={money(sum.cap_inactive_week)} />
-                <Stat label="Out long-term" value={money(sum.cap_inactive_season)} />
-                <Stat label="Out for season" value={money(sum.cap_inactive_year ?? 0)} />
-              </dl>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
+        <div className="tc-neutral">
+          <AvailabilityLegend keys={["active", "questionable", "inactive", "season", "year"]} short />
+        </div>
       </section>
-      <AvailabilityLegend color="#c9ced8" keys={["active", "questionable", "inactive", "season", "year"]} />
 
       <MatchupChart halves={halves} />
 
@@ -157,40 +174,32 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
   );
 }
 
-function TeamHead({
-  s,
-  abbr,
-  score,
-  align,
-}: {
-  s: Snapshot;
-  abbr: string;
-  score: number | null;
-  align: "left" | "right";
-}) {
+function TeamHead({ s, abbr, score, won, align }: { s: Snapshot; abbr: string; score: number | null; won: boolean; align: "left" | "right" }) {
   const t = s.teams.find((x) => x.team === abbr)!;
+  const dim = score !== null && !won;
   return (
     <Link
       href={`/team/${abbr}`}
-      className={`flex items-center gap-3 hover:underline ${align === "right" ? "flex-row-reverse text-right" : ""}`}
+      className={`tc flex items-center gap-3 rounded-md sm:gap-4 ${align === "right" ? "flex-row-reverse text-right" : ""}`}
+      style={teamVars(t)}
     >
-      {t.logo_url && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={t.logo_url} alt="" width={56} height={56} className="hidden h-14 w-14 sm:block" />
-      )}
-      <div>
-        <p className="num text-3xl leading-none font-bold sm:text-4xl">{t.nick}</p>
-        {score !== null && <p className="num text-2xl text-fg-muted">{score}</p>}
-      </div>
+      <span className="hidden sm:block">
+        <Logo src={t.logo_url} size={60} />
+      </span>
+      <span className="block h-10 w-1.5 rounded-full sm:hidden" style={{ background: "var(--team)" }} aria-hidden />
+      <span className="min-w-0">
+        <span className={`block truncate text-[22px] leading-none font-semibold tracking-tight sm:text-[32px] ${dim ? "text-ink-3" : ""}`}>{t.nick}</span>
+        {score !== null && <span className={`fig mt-1 block text-[26px] leading-none sm:text-[34px] ${dim ? "text-ink-3" : ""}`}>{score}</span>}
+      </span>
     </Link>
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function StatPair({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs text-fg-muted">{label}</dt>
-      <dd className="num text-xl">{value}</dd>
+      <dt className="text-[11px] text-ink-3">{label}</dt>
+      <dd className="num text-sm font-medium">{value}</dd>
     </div>
   );
 }
@@ -198,7 +207,6 @@ function Stat({ label, value }: { label: string; value: string }) {
 /** The biggest names out or in doubt for this game, by cap number. */
 function KeyAbsences({ s, abbr }: { s: Snapshot; abbr: string }) {
   const t = s.teams.find((x) => x.team === abbr)!;
-  const color = displayColor(t);
   const rows = s.players
     .filter((p) => p.team === abbr && (p.flag === "inactive" || p.flag === "questionable"))
     .sort((a, b) => {
@@ -207,22 +215,22 @@ function KeyAbsences({ s, abbr }: { s: Snapshot; abbr: string }) {
     })
     .slice(0, 8);
   return (
-    <div>
-      <h2 className="num mb-2 text-xl font-semibold">{t.nick}: who&apos;s out</h2>
+    <div className="tc" style={teamVars(t)}>
+      <SectionHead title={`${t.nick} out`} count={rows.length || undefined} />
       {rows.length === 0 ? (
-        <p className="text-sm text-fg-muted">Nobody out or in doubt.</p>
+        <p className="card px-4 py-5 text-center text-sm text-ink-3">Everyone available</p>
       ) : (
-        <ol className="divide-y divide-border rounded-lg border border-border bg-panel text-sm">
+        <ol className="card divide-y divide-line text-sm">
           {rows.map((p) => (
-            <li key={p.key} className="flex items-center gap-3 px-3 py-2">
-              <Swatch k={playerSlice(p)} color={color} />
+            <li key={p.key} className="flex items-center gap-3 px-3.5 py-2">
+              <Swatch k={playerSlice(p)} />
               <span className="min-w-0 flex-1 truncate">
                 <span className="font-medium">{p.name}</span>
-                <span className="ml-2 text-fg-muted">
+                <span className="ml-2 text-ink-3">
                   {p.group} · {statusText(p)}
                 </span>
               </span>
-              <span className="num text-base">{money(p.cap)}</span>
+              <span className="num font-medium">{money(p.cap)}</span>
             </li>
           ))}
         </ol>

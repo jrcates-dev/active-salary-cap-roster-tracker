@@ -1,15 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import { money } from "@/lib/format";
 import type { HistoryRow } from "@/lib/types";
 import { AvailabilityBar, SLICE_SHORT, slicesOf, Swatch, type SliceKey } from "../Availability";
 import { byDir, SortChip, useSort } from "../Sort";
 import { TeamChip } from "../TeamChip";
+import { Select, StepButton } from "../ui/controls";
 
 /** The legend entries, each of which ranks the board by its money when clicked. */
 const SORT_KEYS: SliceKey[] = ["active", "questionable", "inactive", "season", "year", "unknown"];
-const LEGEND_COLOR = "#c9ced8";
 
 const COLUMN: Record<string, keyof HistoryRow> = {
   active: "cap_active",
@@ -20,12 +20,12 @@ const COLUMN: Record<string, keyof HistoryRow> = {
   unknown: "cap_unknown",
 };
 
-/** Few words naming the ranked money under each team's number. */
+/** A word or two naming the ranked money under each team's number. */
 const SHORT: Record<string, string> = {
   active: "active",
   questionable: "questionable",
   season: "long-term",
-  year: "out for season",
+  year: "for season",
   unknown: "practice squad",
 };
 
@@ -36,7 +36,7 @@ export interface BoardTeam {
   team: string;
   nick: string;
   name: string;
-  color: string;
+  vars: CSSProperties;
 }
 
 /**
@@ -46,22 +46,13 @@ export interface BoardTeam {
  * ranked band is drawn at full strength and the rest fade. A week picker replays
  * past weeks and keeps the chosen order.
  */
-export function InactiveBoard({
-  teams,
-  history,
-  week,
-}: {
-  teams: BoardTeam[];
-  history: HistoryRow[];
-  week: number;
-}) {
-  const weeks = useMemo(
-    () => [...new Set(history.map((h) => h.week))].sort((a, b) => a - b),
-    [history],
-  );
+export function InactiveBoard({ teams, history, week }: { teams: BoardTeam[]; history: HistoryRow[]; week: number }) {
+  const weeks = useMemo(() => [...new Set(history.map((h) => h.week))].sort((a, b) => a - b), [history]);
   const [shown, setShown] = useState(week);
   const [sort, toggleSort] = useSort<SliceKey>("inactive");
   const [picked, setPicked] = useState(false);
+  // Bars grow once on first paint; a re-sort moves rows, which must not replay it.
+  const [animate, setAnimate] = useState(true);
   const byTeam = Object.fromEntries(teams.map((t) => [t.team, t]));
   const value = (r: HistoryRow) => Number(r[COLUMN[sort.key]] ?? 0);
   const rows = history
@@ -75,95 +66,70 @@ export function InactiveBoard({
     );
   const scale = Math.max(1, ...rows.map((r) => r.cap_total));
   const idx = weeks.indexOf(shown);
+  const pickWeek = (w: number) => {
+    setAnimate(false);
+    setShown(w);
+  };
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-center gap-x-1 gap-y-1" role="group" aria-label="Rank teams by">
-        <span className="mr-1 text-sm text-fg-faint">Rank by</span>
-        {SORT_KEYS.map((k) => (
-          <SortChip
-            key={k}
-            active={sort.key === k}
-            dir={sort.dir}
-            onClick={() => {
-              toggleSort(k);
-              setPicked(true);
-            }}
-            label={SLICE_SHORT[k]}
-            swatch={<Swatch k={k} color={LEGEND_COLOR} />}
-            ascLabel="least money first"
-            descLabel="most money first"
-          />
-        ))}
-      </div>
-      {weeks.length > 1 && (
-        <div className="mb-4 flex items-center gap-2 text-sm" role="group" aria-label="Week">
-          <button
-            type="button"
-            disabled={idx <= 0}
-            onClick={() => setShown(weeks[idx - 1])}
-            className="rounded-md border border-border px-2 py-1 text-fg-muted enabled:hover:text-fg disabled:opacity-40"
-            aria-label="Previous week"
-          >
-            ‹
-          </button>
-          <select
-            aria-label="Show week"
-            value={shown}
-            onChange={(e) => setShown(Number(e.target.value))}
-            className="rounded-md border border-border bg-panel px-2 py-1 text-fg"
-          >
-            {weeks.map((w) => (
-              <option key={w} value={w}>
-                Week {w}
-                {w === week ? " (now)" : ""}
-              </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            disabled={idx >= weeks.length - 1}
-            onClick={() => setShown(weeks[idx + 1])}
-            className="rounded-md border border-border px-2 py-1 text-fg-muted enabled:hover:text-fg disabled:opacity-40"
-            aria-label="Next week"
-          >
-            ›
-          </button>
-          {shown !== week && (
-            <button
-              type="button"
-              onClick={() => setShown(week)}
-              className="ml-1 text-fg-muted underline-offset-4 hover:text-fg hover:underline"
-            >
-              Back to week {week}
-            </button>
-          )}
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <div className="tc-neutral -ml-2 flex flex-wrap items-center gap-0.5" role="group" aria-label="Rank teams by">
+          {SORT_KEYS.map((k) => (
+            <SortChip
+              key={k}
+              active={sort.key === k}
+              dir={sort.dir}
+              onClick={() => {
+                setAnimate(false);
+                toggleSort(k);
+                setPicked(true);
+              }}
+              label={SLICE_SHORT[k]}
+              swatch={<Swatch k={k} />}
+              ascLabel="least money first"
+              descLabel="most money first"
+            />
+          ))}
         </div>
-      )}
-      <ol className="space-y-2">
+        {weeks.length > 1 && (
+          <div className="flex items-center gap-1" role="group" aria-label="Week">
+            <StepButton dir="prev" label="Previous week" disabled={idx <= 0} onClick={() => pickWeek(weeks[idx - 1])} />
+            <Select label="Show week" value={shown} onChange={(v) => pickWeek(Number(v))}>
+              {weeks.map((w) => (
+                <option key={w} value={w}>
+                  Week {w}
+                  {w === week ? " · now" : ""}
+                </option>
+              ))}
+            </Select>
+            <StepButton dir="next" label="Next week" disabled={idx >= weeks.length - 1} onClick={() => pickWeek(weeks[idx + 1])} />
+          </div>
+        )}
+      </div>
+      <ol className="space-y-1">
         {rows.map((r, i) => {
           const t = byTeam[r.team];
           return (
             <li
               key={r.team}
-              className="grid grid-cols-[1.5rem_5.5rem_1fr_4.75rem] items-center gap-3 sm:grid-cols-[1.5rem_8rem_1fr_8.5rem]"
+              className="tc grid grid-cols-[1.25rem_5.25rem_1fr_5.25rem] items-center gap-x-3 sm:grid-cols-[1.5rem_7.5rem_1fr_8.5rem]"
+              style={t.vars}
             >
-              <span className="num text-right text-fg-faint">{i + 1}</span>
-              <TeamChip team={t.team} nick={t.nick} color={t.color} size="sm" />
+              <span className="num text-right text-xs text-ink-3">{i + 1}</span>
+              <TeamChip team={t.team} nick={t.nick} vars={t.vars} size="sm" />
               <AvailabilityBar
-                color={t.color}
                 scale={scale}
-                height={16}
-                title={`${t.name} · week ${shown}`}
+                height={10}
+                title={`${t.name} · Week ${shown}`}
                 slices={slicesOf(r)}
                 emphasis={picked ? sort.key : undefined}
+                animate={animate}
               />
-              <span className="num text-right text-lg leading-none">
-                {money(value(r))}
-                <span className="block text-xs text-fg-muted sm:ml-2 sm:inline">
-                  {sort.key === "inactive"
-                    ? `+${money(reserve(r))} reserve`
-                    : SHORT[sort.key]}
+              <span className="num text-right leading-tight">
+                <span className="block text-sm font-medium">{money(value(r))}</span>
+                <span className="block text-[11px] text-ink-3">
+                  {sort.key === "inactive" ? `+${money(reserve(r))} reserve` : SHORT[sort.key]}
                 </span>
               </span>
             </li>

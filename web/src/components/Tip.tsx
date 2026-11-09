@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 /**
@@ -25,6 +25,7 @@ export function Tip({
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
   const ref = useRef<HTMLElement | null>(null);
   const touched = useRef(false);
+  const [touch, setTouch] = useState(false);
 
   useEffect(() => {
     if (!pos) return;
@@ -52,6 +53,7 @@ export function Tip({
       style={style}
       onPointerDown={(e) => {
         touched.current = e.pointerType !== "mouse";
+        setTouch(touched.current);
       }}
       onMouseMove={(e) => {
         if (!touched.current) setPos({ x: e.clientX, y: e.clientY });
@@ -76,7 +78,7 @@ export function Tip({
               top: Math.min(pos.y + 16, window.innerHeight - 180),
             }}
           >
-            {content}
+            <TouchContext.Provider value={touch}>{content}</TouchContext.Provider>
           </div>,
           document.body,
         )}
@@ -98,6 +100,22 @@ export function TipRow({ label, value, swatch }: { label: ReactNode; value: Reac
         {label}
       </span>
       <span className="num font-medium text-ink">{value}</span>
+    </div>
+  );
+}
+
+/** Whether the open tip was opened by a tap rather than a mouse. */
+const TouchContext = createContext(false);
+
+/**
+ * The last line of a tip on a mark that links somewhere: how to follow it. A tap
+ * shows the tip first, so a touch reader is told to tap again.
+ */
+export function TipHint({ children = "see these players" }: { children?: ReactNode }) {
+  const touch = useContext(TouchContext);
+  return (
+    <div className="mt-1.5 border-t border-line pt-1.5 text-xs font-medium text-ink-2">
+      {touch ? "Tap again" : "Click"} to {children} →
     </div>
   );
 }

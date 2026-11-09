@@ -5,7 +5,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { money, pct } from "@/lib/format";
 import type { Group, Player } from "@/lib/types";
 import { playerSlice, sliceClass, Swatch } from "../Availability";
+import { ChartLink } from "../ChartLink";
 import { Tip, TipRow, TipTitle } from "../Tip";
+import { rosterHref } from "@/lib/rosterLink";
 import { statusText } from "@/lib/availability";
 
 type Node = { name: string; code?: string; player?: Player; children?: Node[] };
@@ -29,7 +31,7 @@ type Measure = (text: string, size: number, weight: number) => number;
  * biggest name that fits, shortened to "C. Davis" or "Davis" when needed, with
  * the cap number, share and status underneath while there is room.
  */
-export function Treemap({ groups, players, teamTotal }: { groups: Group[]; players: Player[]; teamTotal: number }) {
+export function Treemap({ team, groups, players, teamTotal }: { team: string; groups: Group[]; players: Player[]; teamTotal: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const fontRef = useRef<HTMLSpanElement>(null);
   const [width, setWidth] = useState(0);
@@ -97,7 +99,17 @@ export function Treemap({ groups, players, teamTotal }: { groups: Group[]; playe
             <span className="rounded-md bg-surface-2 px-2 py-1 font-medium text-ink">{focusGroup.label}</span>
           </>
         )}
-        <span className="ml-auto text-xs text-ink-3">{focus ? "Tap a player" : "Tap a group to zoom"}</span>
+        {focusGroup ? (
+          <ChartLink
+            href={rosterHref(team, { groups: [focusGroup.code] })}
+            tapPreview={false}
+            className="ml-auto rounded-md px-2 py-1 text-xs font-medium text-ink-2 transition-colors duration-(--dur-1) hover:bg-surface-2 hover:text-ink"
+          >
+            {focusGroup.code} in the roster ↓
+          </ChartLink>
+        ) : (
+          <span className="ml-auto text-xs text-ink-3">Tap a group to zoom</span>
+        )}
       </nav>
       <span ref={fontRef} className="fig" hidden />
       <div ref={ref} className="relative w-full overflow-hidden rounded-lg" style={{ height }}>

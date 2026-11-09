@@ -2,9 +2,11 @@
 
 import { useState, type CSSProperties } from "react";
 import { money, ordinal } from "@/lib/format";
+import { statusHrefs, type RosterStatus } from "@/lib/rosterLink";
 import type { GroupMoney, MatchupMode } from "@/lib/matchup";
-import { sliceClass, Swatch, type SliceKey } from "../Availability";
-import { Tip, TipRow, TipTitle } from "../Tip";
+import { SEGMENT_LINK, sliceClass, Swatch, type SliceKey } from "../Availability";
+import { ChartLink } from "../ChartLink";
+import { Tip, TipHint, TipRow, TipTitle } from "../Tip";
 import { Segmented } from "../ui/controls";
 
 export interface MatchupRow {
@@ -12,6 +14,9 @@ export interface MatchupRow {
   label: string;
   offLabel: string;
   defLabel: string;
+  /** Position-group codes on each side, for links to those players. */
+  offGroups: string[];
+  defGroups: string[];
   off: GroupMoney;
   def: GroupMoney;
   ranks: Record<MatchupMode, { off: number; def: number }>;
@@ -43,7 +48,8 @@ const SLICES: { k: SliceKey; f: keyof GroupMoney; label: string }[] = [
  * runs right, one shared scale for the whole game. The ratio badge sits between
  * them and points at the side with more money; it turns accent at 1.5x. Out and
  * reserve money stay visible as patterned segments so a reader sees what an
- * injury took away.
+ * injury took away. Each segment links to the team's roster filtered to the
+ * groups and that status.
  */
 export function MatchupChart({ halves }: { halves: MatchupHalf[] }) {
   const [mode, setMode] = useState<MatchupMode>("field");
@@ -93,7 +99,14 @@ export function MatchupChart({ halves }: { halves: MatchupHalf[] }) {
                 <div key={r.key}>
                   <p className="eyebrow mb-1.5 text-center">{r.label}</p>
                   <div className="grid grid-cols-[minmax(0,1fr)_3.25rem_minmax(0,1fr)] items-center gap-2">
-                    <Bar money={r.off} vars={h.offTeam.vars} scale={scale} dir="left" title={`${h.offTeam.nick} ${r.offLabel}`} />
+                    <Bar
+                      money={r.off}
+                      vars={h.offTeam.vars}
+                      scale={scale}
+                      dir="left"
+                      title={`${h.offTeam.nick} ${r.offLabel}`}
+                      hrefs={statusHrefs(h.offTeam.abbr, { groups: r.offGroups })}
+                    />
                     <span
                       className={`num flex h-6 items-center justify-center gap-0.5 rounded-md text-xs font-semibold ${
                         strong ? "bg-accent text-accent-ink" : even ? "bg-surface-2 text-ink-3" : "bg-surface-2 text-ink"
@@ -104,7 +117,14 @@ export function MatchupChart({ halves }: { halves: MatchupHalf[] }) {
                       {badge}
                       {!even && !offWins && <Caret dir="right" />}
                     </span>
-                    <Bar money={r.def} vars={h.defTeam.vars} scale={scale} dir="right" title={`${h.defTeam.nick} ${r.defLabel}`} />
+                    <Bar
+                      money={r.def}
+                      vars={h.defTeam.vars}
+                      scale={scale}
+                      dir="right"
+                      title={`${h.defTeam.nick} ${r.defLabel}`}
+                      hrefs={statusHrefs(h.defTeam.abbr, { groups: r.defGroups })}
+                    />
                   </div>
                   <div className="mt-1.5 grid grid-cols-[minmax(0,1fr)_3.25rem_minmax(0,1fr)] gap-2 text-xs text-ink-3">
                     <p className="num truncate text-right">
@@ -141,12 +161,14 @@ function Bar({
   scale,
   dir,
   title,
+  hrefs,
 }: {
   money: GroupMoney;
   vars: CSSProperties;
   scale: number;
   dir: "left" | "right";
   title: string;
+  hrefs: Record<RosterStatus, string>;
 }) {
   const total = SLICES.reduce((acc, s) => acc + (m[s.f] as number), 0);
   return (
@@ -159,6 +181,7 @@ function Bar({
           {SLICES.map((s) =>
             (m[s.f] as number) > 0 ? <TipRow key={s.k} label={s.label} value={money(m[s.f] as number)} swatch={<Swatch k={s.k} />} /> : null,
           )}
+          {total > 0 && <TipHint />}
         </div>
       }
     >
@@ -169,7 +192,15 @@ function Bar({
         {SLICES.map((s) => {
           const val = m[s.f] as number;
           if (val <= 0) return null;
-          return <div key={s.k} className={`${sliceClass(s.k)} h-full min-w-[2px] rounded-[3px]`} style={{ flexGrow: val, flexBasis: 0 }} />;
+          return (
+            <div key={s.k} className={`${sliceClass(s.k)} relative h-full min-w-[2px] rounded-[3px]`} style={{ flexGrow: val, flexBasis: 0 }}>
+              <ChartLink
+                href={hrefs[s.k as RosterStatus]}
+                label={`${title}, ${s.label} ${money(val)}: show these players`}
+                className={SEGMENT_LINK}
+              />
+            </div>
+          );
         })}
       </div>
     </Tip>

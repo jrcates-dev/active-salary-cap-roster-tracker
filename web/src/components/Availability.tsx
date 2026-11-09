@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { money, pct } from "@/lib/format";
 import { SLICE_LABEL, SLICE_ORDER, SLICE_SHORT, type SliceKey, type Slices } from "@/lib/availability";
-import { Tip, TipRow, TipTitle } from "./Tip";
+import { ChartLink } from "./ChartLink";
+import { Tip, TipHint, TipRow, TipTitle } from "./Tip";
 
 export { playerSlice, SLICE_LABEL, SLICE_SHORT, slicesOf, type SliceKey, type Slices } from "@/lib/availability";
 
@@ -44,6 +45,8 @@ export function AvailabilityBar({
   emphasis,
   labels = false,
   animate = true,
+  hrefs,
+  subject,
 }: {
   slices: Slices;
   scale?: number;
@@ -56,6 +59,10 @@ export function AvailabilityBar({
   /** Print each share inside its block where it fits (the tall bar). */
   labels?: boolean;
   animate?: boolean;
+  /** Where each slice leads (its players in a roster). A slice left out leads nowhere. */
+  hrefs?: Partial<Record<SliceKey, string>>;
+  /** Who the bar is about, for screen readers: "Seattle Seahawks". Goes with `hrefs`. */
+  subject?: string;
 }) {
   const [ref, width] = useWidth<HTMLDivElement>();
   const total = SLICE_ORDER.reduce((acc, k) => acc + (slices[k] ?? 0), 0);
@@ -66,16 +73,21 @@ export function AvailabilityBar({
       <div
         className={`flex h-full gap-[2px] ${animate ? "bar-grow" : ""}`}
         style={{ width: `${(total / full) * 100}%` }}
-        role="img"
-        aria-label={SLICE_ORDER.filter((k) => (slices[k] ?? 0) > 0)
-          .map((k) => `${SLICE_LABEL[k]} ${money(slices[k] ?? 0)}`)
-          .join(", ")}
+        role={hrefs ? "group" : "img"}
+        aria-label={
+          hrefs
+            ? subject
+            : SLICE_ORDER.filter((k) => (slices[k] ?? 0) > 0)
+                .map((k) => `${SLICE_LABEL[k]} ${money(slices[k] ?? 0)}`)
+                .join(", ")
+        }
       >
         {SLICE_ORDER.map((k) => {
           const v = slices[k] ?? 0;
           if (v <= 0) return null;
           const px = width * (v / full);
           const share = pct(v / total, 0);
+          const href = hrefs?.[k] ?? null;
           return (
             <Tip
               key={k}
@@ -91,9 +103,17 @@ export function AvailabilityBar({
                 <div>
                   {title && <TipTitle>{title}</TipTitle>}
                   <TipRow label={SLICE_LABEL[k]} value={`${money(v)} · ${pct(v / total)}`} swatch={<Swatch k={k} />} />
+                  {href && <TipHint />}
                 </div>
               }
             >
+              {href && (
+                <ChartLink
+                  href={href}
+                  label={`${subject ? `${subject}, ` : ""}${SLICE_LABEL[k]} ${money(v)}: show these players`}
+                  className={SEGMENT_LINK}
+                />
+              )}
               {labels && px >= 40 && (
                 <span className="pointer-events-none absolute inset-y-0 left-1.5 flex items-center">
                   <span
@@ -123,6 +143,10 @@ export function AvailabilityBar({
     </div>
   );
 }
+
+/** A link laid over a whole chart segment, ringed on hover and focus so it reads as clickable. */
+export const SEGMENT_LINK =
+  "absolute inset-0 rounded-[inherit] transition-[box-shadow,background-color] duration-(--dur-1) hover:bg-surface/25 hover:shadow-[inset_0_0_0_2px_var(--ink)] focus-visible:shadow-[inset_0_0_0_2px_var(--ink)]";
 
 export function AvailabilityLegend({
   keys = ["active", "questionable", "inactive", "season", "year", "unknown"],

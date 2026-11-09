@@ -49,6 +49,22 @@ fails the run if a check failed (which emails the repo owner):
 ```bash
 ```
 
+## Out for season
+
+No free feed says an injury ends a season, so `rosters.season_outlook` splits reserve-list
+money two ways:
+
+- **Roster codes** (automatic): R48/R49 (designated for return) means coming back; a player
+  who goes back to IR or PUP after a return window without being activated is out for the
+  season by league rule.
+- **`data/season_outlook_<season>.csv`** (by hand): one row per player reported out for the
+  season (`out_for_season`) or confirmed coming back (`returning`), with an optional
+  `from_week`, the injury as `note`, a `source` link and the `checked` date. The table wins
+  over the roster codes. Rows for players back on the active roster are simply ignored.
+
+Everyone else on a reserve list counts as able to come back. Refresh the table weekly from
+injury news (a public IR tracker plus team announcements; never OverTheCap or Spotrac).
+
 ## Layout
 
 | Module | Job |
@@ -59,8 +75,9 @@ fails the run if a check failed (which emails the repo owner):
 | `contracts.py` | explode the contracts file's `season_history` into one cap row per player per season; derive year-one cap for this season's rookie deals |
 | `estimates.py` | minimum-salary estimates for rostered players with no contract row |
 | `crosswalk.py` | player id crosswalk (gsis, otc, espn, pfr, sleeper), plus name matching for contracts without a `gsis_id` |
-| `rosters.py` | weekly roster status + injury report + schedule -> `player_week_status` with the active / inactive / questionable flag and the absence type (this week or long-term); resolves Questionable once a game is final; projects rosters to the coming week |
-| `rollup.py` | team -> unit -> position group totals: active, questionable, out this week, out long-term |
+| `rosters.py` | weekly roster status + injury report + schedule -> `player_week_status` with the active / inactive / questionable flag and the absence type (this week, long-term, or out for the season); resolves Questionable once a game is final; projects rosters to the coming week |
+| `rollup.py` | team -> unit -> position group totals: active, questionable, out this week, out long-term, out for season |
+| `data/season_outlook_<season>.csv` | hand-kept table of reserve-list players done for the season (or confirmed coming back), with the injury and a news source; see "Out for season" below |
 | `summary.py` | one row per team: availability totals, estimates, dead money and cap space |
 | `reconcile.py` | the 1% gate against the hand-entered OTC team totals, with per-team allowances for known gaps |
 | `health.py` | stale-source, reconciliation, drift and reference-age checks after each export |

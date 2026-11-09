@@ -30,6 +30,7 @@ ROLLUP_FIELDS = [
     "cap_unknown",
     "cap_inactive_week",
     "cap_inactive_season",
+    "cap_inactive_year",
 ]
 
 
@@ -91,6 +92,8 @@ def build_export(
             pl.col("gameday_flag").alias("flag"),
             pl.col("inactive_reason").alias("reason"),
             "absence",
+            "outlook_basis",
+            "outlook_note",
             "roster_status",
             "report_status",
             "injury",
@@ -134,8 +137,8 @@ def build_fixture(real: dict, seed: int = 7) -> dict:
     """
     rng = random.Random(seed)
     flags = ["active"] * 14 + ["inactive"] * 3 + ["questionable"] * 2 + ["unknown"]
-    reasons = {"inactive": ["injured_reserve", "out", "inactive_list"]}
-    absence_of = {"injured_reserve": "season", "out": "week", "inactive_list": "week"}
+    reasons = {"inactive": ["injured_reserve", "injured_reserve", "out", "inactive_list"]}
+    absence_of = {"out": "week", "inactive_list": "week"}
     weights = {
         "QB": 3, "RB": 4, "WR": 6, "TE": 3, "OL": 9, "IDL": 6, "EDGE": 5,
         "LB": 5, "CB": 6, "S": 4, "K": 1, "P": 1, "LS": 1,
@@ -150,6 +153,15 @@ def build_fixture(real: dict, seed: int = 7) -> dict:
                 cap = max(247_500, min(cap, 55_000_000)) // 500 * 500
                 flag = rng.choice(flags)
                 reason = rng.choice(reasons.get(flag, [None]))
+                # Reserve list: about a third of them done for the year.
+                absence = absence_of.get(reason, "season") if reason else None
+                if absence == "season" and rng.random() < 0.35:
+                    absence = "year"
+                basis = (
+                    ("table" if absence == "year" else rng.choice([None, "designated_for_return"]))
+                    if absence in ("season", "year")
+                    else None
+                )
                 players.append(
                     {
                         "team": abbr,
@@ -163,7 +175,11 @@ def build_fixture(real: dict, seed: int = 7) -> dict:
                         "source": "contract",
                         "flag": flag,
                         "reason": reason,
-                        "absence": absence_of.get(reason) if reason else None,
+                        "absence": absence,
+                        "outlook_basis": basis,
+                        "outlook_note": "Season-ending injury (synthetic)"
+                        if basis == "table"
+                        else None,
                         "roster_status": "ACT",
                         "report_status": None,
                         "injury": None,
@@ -183,7 +199,7 @@ def build_fixture(real: dict, seed: int = 7) -> dict:
         .otherwise(0)
         .sum()
         .alias(f"cap_inactive_{a}")
-        for a in ("week", "season")
+        for a in ("week", "season", "year")
     ]
     aggs = [
         pl.col("cap").sum().alias("cap_total"),
@@ -210,7 +226,7 @@ def build_fixture(real: dict, seed: int = 7) -> dict:
     ).select(ROLLUP_FIELDS)
     summary = by_team.select(
         "team", "cap_total", "players", "cap_active", "cap_inactive", "cap_questionable",
-        "cap_unknown", "cap_inactive_week", "cap_inactive_season",
+        "cap_unknown", "cap_inactive_week", "cap_inactive_season", "cap_inactive_year",
     ).with_columns(
         pl.lit(0).alias("players_estimated"),
         pl.lit(0).alias("cap_estimated"),
@@ -231,7 +247,8 @@ def build_fixture(real: dict, seed: int = 7) -> dict:
     history = []
     for t in _records(summary.sort("team")):
         for w in range(1, real["week"] + 1):
-            season_out = int(t["cap_total"] * (0.04 + 0.01 * w + rng.random() * 0.02))
+            season_out = int(t["cap_total"] * (0.03 + 0.005 * w + rng.random() * 0.02))
+            year_out = int(t["cap_total"] * (0.01 + 0.005 * w + rng.random() * 0.01))
             week_out = int(t["cap_total"] * rng.random() * 0.06)
             history.append(
                 {
@@ -239,10 +256,15 @@ def build_fixture(real: dict, seed: int = 7) -> dict:
                     "team": t["team"],
                     "unit": "all",
                     "cap_total": t["cap_total"],
-                    "cap_active": t["cap_total"] - season_out - week_out - t["cap_unknown"],
+                    "cap_active": t["cap_total"]
+                    - season_out
+                    - year_out
+                    - week_out
+                    - t["cap_unknown"],
                     "cap_questionable": 0,
                     "cap_inactive_week": week_out,
                     "cap_inactive_season": season_out,
+                    "cap_inactive_year": year_out,
                     "cap_unknown": t["cap_unknown"],
                 }
             )

@@ -1,10 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { statusText } from "@/lib/availability";
+import { statusText, YEAR_NOTE } from "@/lib/availability";
 import { UNIT_LABEL, money } from "@/lib/format";
 import type { Group, Player, Unit } from "@/lib/types";
-import { playerSlice, SLICE_LABEL, Swatch, type SliceKey } from "../Availability";
+import { playerSlice, SLICE_SHORT, Swatch, type SliceKey } from "../Availability";
 import { useMoneyMode } from "./MoneyMode";
 
 type SortKey = "name" | "group" | "cap" | "flag" | "years_left";
@@ -13,14 +13,16 @@ type Filter = Exclude<SliceKey, "dead">;
 const SLICE_ORDER: Record<Filter, number> = {
   inactive: 0,
   season: 1,
-  questionable: 2,
-  active: 3,
-  unknown: 4,
+  year: 2,
+  questionable: 3,
+  active: 4,
+  unknown: 5,
 };
-const FILTERS: (Filter | "all")[] = ["all", "active", "questionable", "inactive", "season", "unknown"];
-const FILTER_LABEL: Record<Filter, string> = {
-  ...SLICE_LABEL,
-  season: "Out long-term",
+const FILTERS: (Filter | "all")[] = ["all", "active", "questionable", "inactive", "season", "year", "unknown"];
+const FILTER_LABEL: Record<Filter, string> = SLICE_SHORT;
+const FILTER_TITLE: Partial<Record<Filter, string>> = {
+  season: "On a reserve list and able to come back this season",
+  year: YEAR_NOTE,
 };
 /** Rows shown before "Show all"; filters and sorting still apply to every player. */
 const PAGE = 30;
@@ -118,6 +120,7 @@ export function PlayerTable({
               key={f}
               type="button"
               aria-pressed={flag === f}
+              title={f === "all" ? undefined : FILTER_TITLE[f]}
               onClick={() => setFlag(f)}
               className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm ${
                 flag === f
@@ -202,7 +205,9 @@ export function PlayerTable({
                     <span className="inline-flex items-center gap-2">
                       <Swatch k={playerSlice(p)} color={color} />
                       <span className="text-fg">{status}</span>
-                      {p.injury && <span className="text-fg-muted">{p.injury}</span>}
+                      {(p.outlook_note ?? p.injury) && (
+                        <span className="text-fg-muted">{p.outlook_note ?? p.injury}</span>
+                      )}
                     </span>
                   </td>
                   <td className="num px-3 py-2 text-right text-base text-fg-muted">

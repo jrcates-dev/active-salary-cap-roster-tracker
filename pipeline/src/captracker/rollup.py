@@ -74,8 +74,9 @@ def player_week_cap(
     every total; that money is the team's dead money or another team's cap.
     Practice squad players count at practice squad pay.
     """
-    if "absence" not in status.columns:
-        status = status.with_columns(pl.lit(None, dtype=pl.String).alias("absence"))
+    for c in ("absence", "outlook_basis", "outlook_note"):
+        if c not in status.columns:
+            status = status.with_columns(pl.lit(None, dtype=pl.String).alias(c))
     weeks = team_status_weeks(status, week)
     latest = (
         status.join(weeks, on="team")
@@ -91,6 +92,8 @@ def player_week_cap(
             "gameday_flag",
             "inactive_reason",
             "absence",
+            "outlook_basis",
+            "outlook_note",
         )
         .unique(subset=["gsis_id"], keep="last")
     )
@@ -145,7 +148,9 @@ def _absence_sum(kind: str) -> pl.Expr:
     )
 
 
-ABSENCE_COLUMNS = ["cap_inactive_week", "cap_inactive_season"]
+# week: this game only; season: a reserve list, can come back; year: out for the season.
+ABSENCE_KINDS = ("week", "season", "year")
+ABSENCE_COLUMNS = [f"cap_inactive_{k}" for k in ABSENCE_KINDS]
 
 
 def rollup(fact: pl.DataFrame) -> pl.DataFrame:
@@ -160,8 +165,7 @@ def rollup(fact: pl.DataFrame) -> pl.DataFrame:
         pl.col("cap_number").sum().alias("cap_total"),
         pl.len().alias("players"),
         *[_flag_sum(f) for f in FLAGS],
-        _absence_sum("week"),
-        _absence_sum("season"),
+        *[_absence_sum(k) for k in ABSENCE_KINDS],
     ]
     by_group = (
         fact.filter(pl.col("position_group").is_not_null())

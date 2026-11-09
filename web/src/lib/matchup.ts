@@ -57,13 +57,23 @@ export interface GroupMoney {
   questionable: number;
   out: number;
   season: number;
+  year: number;
   unknown: number;
   /** Money expected on the field: active plus questionable (counted until ruled out). */
   field: number;
 }
 
 export function groupMoney(s: Snapshot, team: string, codes: string[]): GroupMoney {
-  const m: GroupMoney = { total: 0, active: 0, questionable: 0, out: 0, season: 0, unknown: 0, field: 0 };
+  const m: GroupMoney = {
+    total: 0,
+    active: 0,
+    questionable: 0,
+    out: 0,
+    season: 0,
+    year: 0,
+    unknown: 0,
+    field: 0,
+  };
   for (const r of s.rollup) {
     if (r.team !== team || r.level !== "group" || !codes.includes(r.position_group)) continue;
     m.total += r.cap_total;
@@ -71,6 +81,7 @@ export function groupMoney(s: Snapshot, team: string, codes: string[]): GroupMon
     m.questionable += r.cap_questionable;
     m.out += r.cap_inactive_week ?? 0;
     m.season += r.cap_inactive_season ?? 0;
+    m.year += r.cap_inactive_year ?? 0;
     m.unknown += r.cap_unknown;
   }
   m.field = m.active + m.questionable;

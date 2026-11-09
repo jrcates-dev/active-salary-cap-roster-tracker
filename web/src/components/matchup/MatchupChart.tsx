@@ -28,6 +28,7 @@ const SLICES: { k: SliceKey; f: keyof GroupMoney; label: string }[] = [
   { k: "questionable", f: "questionable", label: "Questionable" },
   { k: "inactive", f: "out", label: "Out this week" },
   { k: "season", f: "season", label: "Out long-term" },
+  { k: "year", f: "year", label: "Out for season" },
 ];
 
 const MODES: { m: MatchupMode; label: string; title: string }[] = [
@@ -38,8 +39,8 @@ const MODES: { m: MatchupMode; label: string; title: string }[] = [
 /**
  * Mirrored bars: the offense's group runs left from the spine, the defense it faces
  * runs right, one shared scale for the whole game. The ratio badge sits on the side
- * with more money. Out and long-term money stay visible as hatched and faint segments
- * so a reader sees what an injury took away.
+ * with more money. Out, long-term and out-for-season money stay visible as hatched,
+ * faint and outlined segments so a reader sees what an injury took away.
  */
 export function MatchupChart({ halves }: { halves: MatchupHalf[] }) {
   const [mode, setMode] = useState<MatchupMode>("field");

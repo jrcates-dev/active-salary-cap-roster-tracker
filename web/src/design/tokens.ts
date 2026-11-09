@@ -6,8 +6,9 @@
  *   2. Availability    - active is solid team color; questionable is the team color
  *                        inside a dashed light outline; out this week is a bold
  *                        diagonal hatch of the team color; out long-term (IR) is a
- *                        faint flat tint; practice squad is a dotted neutral; dead
- *                        money is a flat neutral gray (see Availability.tsx).
+ *                        faint flat tint; out for the season is an empty outline
+ *                        with faint pinstripes; practice squad is a dotted neutral;
+ *                        dead money is a flat neutral gray (see Availability.tsx).
  *   3. Intensity       - one sequential ramp for percent of cap in the league
  *                        heatmap. Never used for team identity.
  * Units get a fixed neutral mark, not a color: offense ●, defense ■, special teams ◆.

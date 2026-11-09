@@ -71,8 +71,18 @@ export default async function MethodologyPage() {
           </li>
           <li>
             <strong className="text-fg">Out long-term</strong> means injured reserve, PUP, NFI, suspension or
-            another reserve list. That money is gone for weeks, so it is drawn as its own faint band and does not
-            set the order of the league board.
+            another reserve list, with a way back this season. That money is gone for weeks, so it is drawn as its
+            own faint band and does not set the order of the league board.
+          </li>
+          <li>
+            <strong className="text-fg">Out for season</strong> is reserve-list money that will not play again this
+            year, drawn as an empty outlined band. No free data feed says an injury ends a season, so two signals
+            decide it. First, a hand-kept table of reported season-ending injuries (torn ACLs, patellar tendons,
+            Achilles and the like), taken from public injury news and checked by date. Second, the roster codes: a
+            player whose 21-day return window closed without being activated must, by league rule, stay on reserve
+            for the rest of the season. Everyone else on a reserve list counts as able to come back. The table can lag
+            the news by a few days and it covers reported injuries only, so a player shut down quietly stays in
+            &quot;Out long-term&quot; until it is updated.
           </li>
           <li>
             <strong className="text-fg">Questionable</strong> means listed questionable on the latest injury report

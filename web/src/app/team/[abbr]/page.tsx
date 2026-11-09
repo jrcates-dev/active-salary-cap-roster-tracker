@@ -111,18 +111,17 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
           <AvailabilityLegend color={color} keys={["active", "questionable", "inactive", "season", "unknown", "dead"]} />
         </section>
 
-        <section className="grid gap-10 lg:grid-cols-2">
-          <div>
-            <SectionTitle
-              title="Position groups"
-              note="Tick marks the league median. Rank is out of 32 by money spent."
-            />
-            <GroupBreakdown color={color} lines={lines} unitRows={unitRows} />
-          </div>
-          <div>
-            <SectionTitle title="Every player, sized by cap number" note="Hover for details." />
-            <Treemap color={color} groups={s.groups} players={players} teamTotal={base} />
-          </div>
+        <section className="max-w-3xl">
+          <SectionTitle
+            title="Position groups"
+            note="Tick marks the league median. Rank is out of 32 by money spent."
+          />
+          <GroupBreakdown color={color} lines={lines} unitRows={unitRows} />
+        </section>
+
+        <section>
+          <SectionTitle title="Every player, sized by cap number" note="Hover for details." />
+          <Treemap color={color} groups={s.groups} players={players} teamTotal={base} />
         </section>
 
         {trend.length > 1 && (

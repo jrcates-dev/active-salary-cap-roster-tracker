@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { statusText, YEAR_NOTE } from "@/lib/availability";
+import { parseRosterFilter, ROSTER_EVENT, ROSTER_ID, rosterQuery, scrollToRoster, type RosterFilter } from "@/lib/rosterLink";
 import { UNIT_LABEL, money } from "@/lib/format";
 import type { Group, Player, Unit } from "@/lib/types";
 import { playerSlice, SLICE_SHORT, Swatch, type SliceKey } from "../Availability";
@@ -22,14 +23,69 @@ const FILTER_TITLE: Partial<Record<Filter, string>> = {
 };
 /** Rows shown before "Show all"; filters and sorting still apply to every player. */
 const PAGE = 30;
+const UNIT_KEYS: Unit[] = ["offense", "defense", "special_teams"];
+
+/**
+ * Which players by position: "all", a unit ("defense"), or position groups
+ * ("g:IDL,EDGE"). One value, so the select below can show any of them.
+ */
+type Pos = "all" | Unit | `g:${string}`;
+const posOf = (f: RosterFilter): Pos => (f.groups?.length ? `g:${f.groups.join(",")}` : (f.unit ?? "all"));
+const groupsOf = (pos: Pos) => (pos.startsWith("g:") ? pos.slice(2).split(",") : null);
+const filterOf = (flag: Filter | "all", pos: Pos): RosterFilter => ({
+  status: flag === "all" ? undefined : flag,
+  groups: groupsOf(pos) ?? undefined,
+  unit: pos !== "all" && !pos.startsWith("g:") ? (pos as Unit) : undefined,
+});
 
 export function PlayerTable({ players, groups, week }: { players: Player[]; groups: Group[]; week: number }) {
   const { fmt } = useMoneyMode();
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: "cap", dir: "desc" });
   const [flag, setFlag] = useState<Filter | "all">("all");
-  const [unit, setUnit] = useState<Unit | "all">("all");
+  const [pos, setPos] = useState<Pos>("all");
   const [query, setQuery] = useState("");
   const [showAll, setShowAll] = useState(false);
+
+  /** Sets the filters a chart link asked for, clearing the rest. */
+  const apply = useCallback((f: RosterFilter) => {
+    setFlag(f.status ?? "all");
+    setPos(posOf(f));
+    setQuery("");
+    setShowAll(false);
+  }, []);
+
+  // Links from charts: on arrival (the query string), from a chart on this page
+  // (an event, the URL is already updated), and back/forward between filters.
+  useEffect(() => {
+    const fromUrl = () => parseRosterFilter(window.location.search);
+    const arrived = fromUrl();
+    const frame = arrived
+      ? requestAnimationFrame(() => {
+          apply(arrived);
+          scrollToRoster();
+        })
+      : 0;
+    const onLink = (e: Event) => {
+      apply((e as CustomEvent<RosterFilter>).detail);
+      scrollToRoster();
+    };
+    const onPop = () => apply(fromUrl() ?? {});
+    window.addEventListener(ROSTER_EVENT, onLink);
+    window.addEventListener("popstate", onPop);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener(ROSTER_EVENT, onLink);
+      window.removeEventListener("popstate", onPop);
+    };
+  }, [apply]);
+
+  /** Keeps the address in step with the filters the reader picks, so it can be shared. */
+  const pick = (nextFlag: Filter | "all", nextPos: Pos) => {
+    setFlag(nextFlag);
+    setPos(nextPos);
+    const url = `${window.location.pathname}${rosterQuery(filterOf(nextFlag, nextPos))}${window.location.hash}`;
+    window.history.replaceState(null, "", url);
+  };
 
   const groupOrder = useMemo(() => {
     const unitRank: Record<string, number> = { offense: 0, defense: 1, special_teams: 2 };
@@ -47,10 +103,11 @@ export function PlayerTable({ players, groups, week }: { players: Player[]; grou
 
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase();
+    const codes = groupsOf(pos);
     const filtered = players.filter(
       (p) =>
         (flag === "all" || playerSlice(p) === flag) &&
-        (unit === "all" || p.unit === unit) &&
+        (codes ? codes.includes(p.group ?? "") : pos === "all" || p.unit === pos) &&
         (!q || p.name.toLowerCase().includes(q) || (p.pos ?? "").toLowerCase() === q),
     );
     const dir = sort.dir === "desc" ? -1 : 1;
@@ -74,10 +131,14 @@ export function PlayerTable({ players, groups, week }: { players: Player[]; grou
       const c = typeof va === "string" ? va.localeCompare(vb as string) : va - (vb as number);
       return c !== 0 ? c * dir : b.cap - a.cap;
     });
-  }, [players, flag, unit, query, sort, groupOrder]);
+  }, [players, flag, pos, query, sort, groupOrder]);
 
   const total = rows.reduce((acc, p) => acc + p.cap, 0);
-  const filtered = flag !== "all" || unit !== "all" || query.trim() !== "";
+  const filtered = flag !== "all" || pos !== "all" || query.trim() !== "";
+  const pickedGroups = groupsOf(pos);
+  // A link can ask for several groups at once (a matchup's defensive front); the
+  // select gets an option for that set so it always shows what is applied.
+  const combo = pickedGroups && pickedGroups.length > 1 ? pos : null;
 
   const header = (key: SortKey, label: string, align: "left" | "right" = "left", natural: SortDir = "asc") => (
     <th scope="col" aria-sort={ariaSort(sort.key === key, sort.dir)} className={align === "right" ? "text-right" : "text-left"}>
@@ -94,19 +155,28 @@ export function PlayerTable({ players, groups, week }: { players: Player[]; grou
   );
 
   return (
-    <section>
+    <section id={ROSTER_ID} className="scroll-mt-28">
       <SectionHead
         title="Roster"
         count={`Week ${week}`}
         asideClassName="w-full flex-nowrap sm:w-auto"
         aside={
           <>
-            <Select label="Filter by unit" value={unit} onChange={(v) => setUnit(v as Unit | "all")}>
-              <option value="all">All units</option>
-              {(["offense", "defense", "special_teams"] as Unit[]).map((u) => (
-                <option key={u} value={u}>
-                  {UNIT_LABEL[u]}
-                </option>
+            <Select label="Filter by position" value={pos} onChange={(v) => pick(flag, v as Pos)}>
+              <option value="all">All positions</option>
+              {combo && <option value={combo}>{pickedGroups!.join(" + ")}</option>}
+              {UNIT_KEYS.map((u) => (
+                <optgroup key={u} label={UNIT_LABEL[u]}>
+                  <option value={u}>All {UNIT_LABEL[u].toLowerCase()}</option>
+                  {groups
+                    .filter((g) => g.unit === u)
+                    .sort((a, b) => a.order - b.order)
+                    .map((g) => (
+                      <option key={g.code} value={`g:${g.code}`}>
+                        {g.code} · {g.label}
+                      </option>
+                    ))}
+                </optgroup>
               ))}
             </Select>
             <SearchInput label="Search players" placeholder="Search players" value={query} onChange={setQuery} className="flex-1 sm:w-52 sm:flex-none" />
@@ -120,7 +190,7 @@ export function PlayerTable({ players, groups, week }: { players: Player[]; grou
             <Chip
               key={f}
               active={flag === f}
-              onClick={() => setFlag(f)}
+              onClick={() => pick(f, pos)}
               count={counts[f] ?? 0}
               title={f === "all" ? undefined : FILTER_TITLE[f]}
               swatch={f !== "all" ? <Swatch k={f} size={10} /> : undefined}

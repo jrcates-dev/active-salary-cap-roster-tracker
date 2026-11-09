@@ -80,7 +80,7 @@ export function WeekGames({
               aria-label="Week"
               value={slate.week}
               onChange={(e) => pick(Number(e.target.value))}
-              className="absolute inset-0 cursor-pointer appearance-none opacity-0"
+              className="absolute inset-0 cursor-pointer appearance-none bg-surface text-ink opacity-0"
             >
               {slates.map((s) => (
                 <option key={s.week} value={s.week}>

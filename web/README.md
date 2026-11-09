@@ -16,6 +16,10 @@ pnpm dev
 | `data/snapshot.json` | The real week snapshot, written by `captracker export` in `pipeline/`. Gitignored, because the repo is public and the file holds per-player contract data |
 | `data/fixture.json` | Synthetic data with the same shape (real team names and colors, fake players and dollars). Committed, used by CI and fresh clones |
 
+For the hosted site, the daily ingest workflow exports `snapshot.json` and commits it to
+the default branch, which triggers a rebuild. It does this only while the repository is
+private; on a public repo the step logs and skips.
+
 `src/lib/data.ts` reads `snapshot.json` and falls back to `fixture.json`. When the
 fixture is in use, a banner under the nav says so.
 

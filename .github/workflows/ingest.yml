@@ -18,6 +18,14 @@ on:
         type: boolean
         default: true
 
+# Two runs must never race to push the snapshot.
+concurrency:
+  group: ingest
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
 jobs:
   ingest:
     runs-on: ubuntu-latest
@@ -26,6 +34,9 @@ jobs:
         working-directory: pipeline
     env:
       CAPTRACKER_SEASON: ${{ inputs.season || '2026' }}
+      WEEK_INPUT: ${{ inputs.week }}
+      # The secrets context is not allowed in a step's `if`, so expose a flag instead.
+      HAS_DATABASE: ${{ secrets.DATABASE_URL != '' }}
     steps:
       - uses: actions/checkout@v4
       # setup-uv creates and activates a venv (VIRTUAL_ENV, on PATH) when
@@ -40,16 +51,21 @@ jobs:
         run: captracker fetch
 
       - name: Build snapshot and reconcile
-        id: build
-        # Phase 0: the gate is reported but does not block, because the nflverse file is
-        # known to run 2-20% under OTC's active cap (see docs/phase0-findings.md).
-        # Flip the default to false once the gap is closed.
+        # 30 of 32 teams reconcile within 1%; Baltimore and Indianapolis are still
+        # open (docs/phase0-findings.md, section 6), so the gate reports but does
+        # not block by default. Flip the default to false once all 32 pass.
         run: |
           WEEK_ARG=""
-          if [ -n "${{ inputs.week }}" ]; then WEEK_ARG="--week ${{ inputs.week }}"; fi
+          if [ -n "$WEEK_INPUT" ]; then WEEK_ARG="--week $WEEK_INPUT"; fi
           DRIFT=""
           if [ "${{ inputs.allow_drift || 'true' }}" = "true" ]; then DRIFT="--allow-drift"; fi
           captracker $WEEK_ARG build $DRIFT | tee build.log
+
+      - name: Export the site snapshot
+        run: |
+          WEEK_ARG=""
+          if [ -n "$WEEK_INPUT" ]; then WEEK_ARG="--week $WEEK_INPUT"; fi
+          captracker $WEEK_ARG export
 
       - name: Upload snapshot
         uses: actions/upload-artifact@v4
@@ -60,8 +76,36 @@ jobs:
             pipeline/build.log
           retention-days: 14
 
+      # The snapshot holds per-player contract data, so it is only committed while
+      # the repository is private. On a public repo this step logs and skips.
+      # The push to the default branch is what triggers the hosted site to rebuild.
+      - name: Commit the snapshot (private repo only)
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          private=$(gh api "repos/${{ github.repository }}" --jq .private)
+          if [ "$private" != "true" ]; then
+            echo "Repository is public: not committing web/data/snapshot.json."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # snapshot.json stays in .gitignore so it is never committed by accident
+          # from a laptop; this job adds it on purpose.
+          git add -f web/data/snapshot.json
+          if git diff --cached --quiet; then
+            echo "Snapshot unchanged."
+            exit 0
+          fi
+          week=$(python3 -c "import json; print(json.load(open('web/data/snapshot.json'))['week'])")
+          git commit -m "data: ${CAPTRACKER_SEASON} week ${week} snapshot"
+          branch="${{ github.event.repository.default_branch || 'main' }}"
+          git pull --rebase origin "$branch"
+          git push origin "HEAD:$branch"
+
       - name: Load into Postgres
-        if: ${{ secrets.DATABASE_URL != '' }}
+        if: env.HAS_DATABASE == 'true'
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: captracker load

@@ -163,7 +163,7 @@ function Bar({
       }
     >
       <div
-        className={`flex h-full gap-[2px] ${dir === "left" ? "grow-r flex-row-reverse" : "grow"}`}
+        className={`flex h-full gap-[2px] ${dir === "left" ? "bar-grow-r flex-row-reverse" : "bar-grow"}`}
         style={{ width: `${(total / scale) * 100}%` }}
       >
         {SLICES.map((s) => {

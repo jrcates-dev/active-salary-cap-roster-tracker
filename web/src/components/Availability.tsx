@@ -64,7 +64,7 @@ export function AvailabilityBar({
   return (
     <div ref={ref} className="relative w-full" style={{ height }}>
       <div
-        className={`flex h-full gap-[2px] ${animate ? "grow" : ""}`}
+        className={`flex h-full gap-[2px] ${animate ? "bar-grow" : ""}`}
         style={{ width: `${(total / full) * 100}%` }}
         role="img"
         aria-label={SLICE_ORDER.filter((k) => (slices[k] ?? 0) > 0)

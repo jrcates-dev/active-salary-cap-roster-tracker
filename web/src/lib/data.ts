@@ -9,8 +9,15 @@ import type { Player, RollupRow, Snapshot, Team, TeamSummary } from "./types";
  */
 const DATA_DIR = path.join(process.cwd(), "data");
 
-export async function getSnapshot(): Promise<Snapshot> {
-  "use cache";
+let cached: Promise<Snapshot> | null = null;
+
+/** Read once per build process; every page shares the parsed snapshot. */
+export function getSnapshot(): Promise<Snapshot> {
+  cached ??= readSnapshot();
+  return cached;
+}
+
+async function readSnapshot(): Promise<Snapshot> {
   for (const file of ["snapshot.json", "fixture.json"]) {
     try {
       const raw = await readFile(path.join(DATA_DIR, file), "utf8");

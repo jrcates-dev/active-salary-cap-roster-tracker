@@ -11,6 +11,9 @@ import { getSnapshot, groupLeagueStats, teamGame, teamView } from "@/lib/data";
 import { money, pct } from "@/lib/format";
 import type { Snapshot } from "@/lib/types";
 
+/** Every team is prerendered; a static export has no server to render any other. */
+export const dynamicParams = false;
+
 export async function generateStaticParams() {
   const s = await getSnapshot();
   return s.teams.map((t) => ({ abbr: t.team }));

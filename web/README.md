@@ -16,9 +16,18 @@ pnpm dev
 | `data/snapshot.json` | The real week snapshot, written by `captracker export` in `pipeline/`. Gitignored, because the repo is public and the file holds per-player contract data |
 | `data/fixture.json` | Synthetic data with the same shape (real team names and colors, fake players and dollars). Committed, used by CI and fresh clones |
 
-For the hosted site, the daily ingest workflow exports `snapshot.json` and commits it to
-the default branch, which triggers a rebuild. It does this only while the repository is
-private; on a public repo the step logs and skips.
+## Hosting
+
+The site is a static export: `pnpm build` writes plain files to `out/`. Preview them
+with any static server, for example `python3 -m http.server 3000 -d out`.
+
+It is hosted on GitHub Pages at `https://jrcates-dev.github.io/active-salary-cap-roster-tracker/`.
+The daily ingest workflow (`.github/workflows/ingest.yml`) fetches fresh data, exports
+`snapshot.json` inside the run, builds with `PAGES_BASE_PATH=/<repo-name>`, and deploys
+`out/` to Pages. The snapshot is never committed. A push to `main` redeploys the same way.
+
+If the repository is ever made private again, Pages stops being free, so the workflow
+switches to committing the snapshot to `main` for a host like Vercel to rebuild from.
 
 `src/lib/data.ts` reads `snapshot.json` and falls back to `fixture.json`. When the
 fixture is in use, a banner under the nav says so.

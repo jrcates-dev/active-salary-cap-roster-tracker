@@ -366,6 +366,26 @@ body {
   background: color-mix(in srgb, var(--accent) 25%, transparent);
 }
 
+/*
+ * Native dropdown lists. Chrome, Edge and Firefox draw the open list from each
+ * option's own colors, falling back to a white list when the select is transparent.
+ * Tailwind's reset makes selects transparent and inherit the page ink, so in dark
+ * mode a select without its own fill (the week picker on the home page) opened as
+ * near-white text on white. Every option gets the theme's surface and ink, and
+ * every select follows the theme's color-scheme so Safari and mobile pickers do too.
+ */
+select {
+  color-scheme: inherit;
+}
+select option,
+select optgroup {
+  background-color: var(--surface);
+  color: var(--ink);
+}
+select option:disabled {
+  color: var(--ink-4);
+}
+
 /* A horizontal strip that scrolls without a visible bar. */
 .strip {
   overflow-x: auto;

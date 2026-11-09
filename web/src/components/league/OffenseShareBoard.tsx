@@ -1,19 +1,12 @@
 "use client";
 
 import { useMemo, useState, type CSSProperties } from "react";
-import { unitMark, UNITS } from "@/design/tokens";
+import { UNIT_COLOR, unitMark, UNITS } from "@/design/tokens";
 import { money, pct } from "@/lib/format";
 import type { Unit } from "@/lib/types";
 import { byDir, SortChip, useSort } from "../Sort";
 import { TeamChip } from "../TeamChip";
 import { Tip, TipRow, TipTitle } from "../Tip";
-
-/** Units are three neutral steps, not colors: team color stays reserved for identity. */
-const UNIT_FILL: Record<Unit, string> = {
-  offense: "var(--ink-2)",
-  defense: "var(--ink-4)",
-  special_teams: "var(--line-2)",
-};
 
 export interface UnitRow {
   team: string;
@@ -27,13 +20,19 @@ export interface UnitRow {
 /**
  * Each team's counted cap split by unit, ranked from most offense-heavy until the
  * reader picks another unit. Clicking a unit ranks teams by that unit's share;
- * clicking it again flips the order.
+ * clicking it again flips the order. The ranked unit always sits at the left edge
+ * of every bar, so its segments line up and compare directly; once the reader has
+ * picked one, the other units fade back.
  */
 export function OffenseShareBoard({ rows }: { rows: UnitRow[] }) {
   const [sort, toggleSort] = useSort<Unit>("offense");
   const [picked, setPicked] = useState(false);
   const [animate, setAnimate] = useState(true);
   const share = (r: UnitRow, u: Unit) => (r.total ? r.unitCap[u] / r.total : 0);
+  const order = [sort.key, ...UNITS.filter((u) => u !== sort.key)];
+  const swatch = (u: Unit, size = 12) => (
+    <span aria-hidden className="sw" style={{ background: UNIT_COLOR[u], width: size, height: size }} />
+  );
 
   const sorted = useMemo(
     () =>
@@ -61,7 +60,8 @@ export function OffenseShareBoard({ rows }: { rows: UnitRow[] }) {
                 setPicked(true);
               }}
               label={unitMark[u].label}
-              swatch={<span aria-hidden className="sw" style={{ background: UNIT_FILL[u] }} />}
+              tone={UNIT_COLOR[u]}
+              swatch={swatch(u)}
               ascLabel="smallest share first"
               descLabel="biggest share first"
             />
@@ -72,6 +72,22 @@ export function OffenseShareBoard({ rows }: { rows: UnitRow[] }) {
           Even split
         </span>
       </div>
+      <div
+        aria-hidden
+        className="mb-1.5 grid grid-cols-[1.25rem_5.25rem_1fr_2.75rem] items-end gap-x-3 text-[11px] font-medium tracking-[0.06em] text-ink-3 uppercase sm:grid-cols-[1.5rem_7.5rem_1fr_3rem]"
+      >
+        <span />
+        <span />
+        <span className="flex items-center gap-1.5">
+          {swatch(sort.key, 8)}
+          {unitMark[sort.key].label} share
+          <span className="-ml-1.5 hidden sm:inline">, from the left</span>
+        </span>
+        <span className="flex items-center justify-end gap-1">
+          {swatch(sort.key, 8)}
+          {unitMark[sort.key].short}
+        </span>
+      </div>
       <ol className="space-y-[7px]">
         {sorted.map((r, i) => (
           <li key={r.team} className="grid grid-cols-[1.25rem_5.25rem_1fr_2.75rem] items-center gap-x-3 sm:grid-cols-[1.5rem_7.5rem_1fr_3rem]">
@@ -79,21 +95,26 @@ export function OffenseShareBoard({ rows }: { rows: UnitRow[] }) {
             <TeamChip team={r.team} nick={r.nick} vars={r.vars} size="sm" />
             <div className="relative h-2.5">
               <div className={`flex h-full gap-[2px] ${animate ? "bar-grow" : ""}`}>
-                {UNITS.map((u) => (
+                {order.map((u) => (
                   <Tip
                     key={u}
                     className="h-full rounded-[3px] transition-opacity duration-(--dur-2)"
                     style={{
                       flexGrow: r.unitCap[u],
                       flexBasis: 0,
-                      background: UNIT_FILL[u],
+                      background: UNIT_COLOR[u],
                       opacity: picked && sort.key !== u ? 0.3 : undefined,
                     }}
                     content={
                       <div>
                         <TipTitle>{r.name}</TipTitle>
                         {UNITS.map((v) => (
-                          <TipRow key={v} label={unitMark[v].label} value={`${money(r.unitCap[v])} · ${pct(share(r, v))}`} />
+                          <TipRow
+                            key={v}
+                            swatch={swatch(v, 10)}
+                            label={unitMark[v].label}
+                            value={`${money(r.unitCap[v])} · ${pct(share(r, v))}`}
+                          />
                         ))}
                       </div>
                     }

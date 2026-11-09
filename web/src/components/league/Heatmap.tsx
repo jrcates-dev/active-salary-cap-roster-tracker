@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Fragment, useMemo, type CSSProperties } from "react";
-import { rampStep, unitMark, UNITS } from "@/design/tokens";
+import { rampStep, UNIT_COLOR, unitMark, UNITS } from "@/design/tokens";
 import { money, ordinal, pct } from "@/lib/format";
 import type { Group } from "@/lib/types";
 import { ariaSort, byDir, SortHeader, useSort } from "../Sort";
@@ -73,7 +73,7 @@ export function Heatmap({ groups, rows }: { groups: Group[]; rows: HeatRow[] }) 
                 <Fragment key={u}>
                   {i > 0 && <td className="w-1.5" />}
                   <th scope="colgroup" colSpan={unitSpan(u)} className="pb-1 text-center text-[11px] font-medium tracking-[0.08em] text-ink-3 uppercase">
-                    <span aria-hidden className="mr-1.5 text-[9px]">
+                    <span aria-hidden className="mr-1.5 text-[9px]" style={{ color: UNIT_COLOR[u] }}>
                       {unitMark[u].glyph}
                     </span>
                     {unitMark[u].label}

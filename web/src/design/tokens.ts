@@ -3,13 +3,15 @@
  * file holds what has to be computed per team: the team color that reads on each
  * theme's surface, and the ink that reads on that color.
  *
- * Color does four jobs and nothing else (PLAN.md, "Color system"):
+ * Color does five jobs and nothing else (PLAN.md, "Color system"):
  *   1. Team identity   - the team's color fills its marks. Set per element with the
  *                        `tc` class and `teamVars()`, read as `var(--team)`.
  *   2. Availability    - patterns on the team color (globals.css, `.s-*`).
  *   3. Intensity       - one amber ramp for share of cap (globals.css, `--ramp-N`).
  *   4. Accent          - one orange, only where it carries meaning.
- * Units get a fixed neutral mark, not a color: offense ●, defense ■, special teams ◆.
+ *   5. Unit            - blue offense, green defense, gold special teams, only on
+ *                        charts that split money by unit and on the unit marks
+ *                        (offense ●, defense ■, special teams ◆) that label them.
  */
 import type { CSSProperties } from "react";
 import type { Unit } from "@/lib/types";
@@ -18,11 +20,18 @@ import type { Unit } from "@/lib/types";
 export const SURFACE = { light: "#ffffff", dark: "#141821" } as const;
 export type Theme = keyof typeof SURFACE;
 
-/** Unit marks: shapes, not colors, so they coexist with team colors. */
+/** Unit marks: a shape and a hue, so a unit never depends on color alone. */
 export const unitMark: Record<Unit, { glyph: string; label: string; short: string }> = {
   offense: { glyph: "●", label: "Offense", short: "OFF" },
   defense: { glyph: "■", label: "Defense", short: "DEF" },
   special_teams: { glyph: "◆", label: "Special teams", short: "ST" },
+};
+
+/** Unit hues (globals.css, `--unit-*`), stepped per theme. */
+export const UNIT_COLOR: Record<Unit, string> = {
+  offense: "var(--unit-off)",
+  defense: "var(--unit-def)",
+  special_teams: "var(--unit-st)",
 };
 
 /** Units in display order. */

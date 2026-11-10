@@ -70,7 +70,9 @@ def test_projection_to_the_coming_week(rosters_df, injuries_df):
     status = rosters.player_week_status(rosters_df, report, 2026, through_week=10)
     wk10 = {r["gsis_id"]: r for r in status.filter(pl.col("week") == 10).iter_rows(named=True)}
     assert all(r["projected"] for r in wk10.values())
-    # Last week's gameday inactive is back on the active roster for the new week.
+    # Last week's gameday inactive is back on the active roster for the new week, but
+    # he was ruled Out for that game and the team's statuses are out (the QB is
+    # Doubtful) without him on it: he was cleared.
     assert wk10["00-WR1"]["roster_status"] == "ACT"
     assert wk10["00-WR1"]["gameday_flag"] == "active"
     # IR carries over; the new report attaches to the projected row.
@@ -78,6 +80,82 @@ def test_projection_to_the_coming_week(rosters_df, injuries_df):
     assert wk10["00-QB"]["gameday_flag"] == "inactive"
     assert wk10["00-QB"]["inactive_reason"] == "doubtful"
     assert wk10["00-QB"]["absence"] == "week"
+
+
+def _report(week, gsis, status, practice="Did Not Participate"):
+    return {
+        "season": 2026,
+        "week": week,
+        "game_type": "REG",
+        "gsis_id": gsis,
+        "position": "WR",
+        "report_status": status,
+        "practice_status": practice,
+        "report_primary_injury": "Knee",
+    }
+
+
+def _wr1_week10(rosters_df, injuries_df, extra, games=None):
+    report = (
+        injuries_df.vstack(pl.DataFrame(extra, schema=injuries_df.schema)) if extra else injuries_df
+    )
+    status = rosters.player_week_status(rosters_df, report, 2026, games=games, through_week=10)
+    return status.filter((pl.col("week") == 10) & (pl.col("gsis_id") == "00-WR1")).row(
+        0, named=True
+    )
+
+
+def test_out_last_game_stays_out_until_the_new_report(rosters_df, injuries_df):
+    # WR1 was ruled Out for week 9 (not on IR). Before week 10's report he stays out.
+    games = _games([(8, "GB", "NE", 20), (9, "NE", "DET", 17), (10, "NE", "MIA", None)])
+    p = _wr1_week10(rosters_df, injuries_df, [], games)
+    assert p["gameday_flag"] == "inactive"
+    assert p["inactive_reason"] == "out_last_game"
+    assert p["absence"] == "week"
+    # Mid-week, on the practice report with no game status yet: still out.
+    p = _wr1_week10(rosters_df, injuries_df, [_report(10, "00-WR1", None, "Limited")], games)
+    assert p["inactive_reason"] == "out_last_game"
+    # The new report lists him Questionable: he moves there.
+    p = _wr1_week10(rosters_df, injuries_df, [_report(10, "00-WR1", "Questionable")], games)
+    assert p["gameday_flag"] == "questionable" and p["inactive_reason"] is None
+    # Ruled Out again: out, now for this week's report.
+    p = _wr1_week10(rosters_df, injuries_df, [_report(10, "00-WR1", "Out")], games)
+    assert p["gameday_flag"] == "inactive" and p["inactive_reason"] == "out"
+    # The team's game statuses are out and he has none: cleared, active.
+    p = _wr1_week10(rosters_df, injuries_df, [_report(10, "00-QB", "Questionable")], games)
+    assert p["gameday_flag"] == "active" and p["inactive_reason"] is None
+    # Once week 10 is played, the gameday inactive list decides.
+    final = _games([(8, "GB", "NE", 20), (9, "NE", "DET", 17), (10, "NE", "MIA", 3)])
+    assert _wr1_week10(rosters_df, injuries_df, [], final)["gameday_flag"] == "active"
+
+
+def test_out_last_game_carries_over_a_bye(rosters_df, injuries_df):
+    # Week 10 is NE's bye; week 11 still remembers he was ruled Out in week 9.
+    games = _games([(8, "GB", "NE", 20), (9, "NE", "DET", 17), (11, "NE", "MIA", None)])
+    status = rosters.player_week_status(rosters_df, injuries_df, 2026, games=games, through_week=10)
+    wk10 = status.filter((pl.col("week") == 10) & (pl.col("gsis_id") == "00-WR1")).row(
+        0, named=True
+    )
+    assert wk10["inactive_reason"] == "out_last_game"
+    bye = rosters_df.filter(pl.col("week") == 9).with_columns(
+        pl.lit(10, dtype=pl.Int64).alias("week"), pl.lit("ACT").alias("status")
+    )
+    status = rosters.player_week_status(
+        pl.concat([rosters_df, bye]), injuries_df, 2026, games=games, through_week=11
+    )
+    wk11 = status.filter((pl.col("week") == 11) & (pl.col("gsis_id") == "00-WR1")).row(
+        0, named=True
+    )
+    assert wk11["gameday_flag"] == "inactive" and wk11["inactive_reason"] == "out_last_game"
+
+
+def test_only_ruled_out_carries_over(rosters_df, injuries_df):
+    # The kicker was Questionable in week 8 and the WR2 is on IR: neither is "out last game".
+    games = _games([(8, "GB", "NE", 20), (9, "NE", "DET", None)])
+    status = rosters.player_week_status(rosters_df, injuries_df, 2026, games=games)
+    wk9 = {r["gsis_id"]: r for r in status.filter(pl.col("week") == 9).iter_rows(named=True)}
+    assert wk9["00-K"]["gameday_flag"] == "active"
+    assert wk9["00-WR2"]["inactive_reason"] == "injured_reserve"
 
 
 def test_rollup_splits_inactive_money(contracts_df, teams_map, players_df, rosters_df, injuries_df):

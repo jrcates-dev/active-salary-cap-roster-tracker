@@ -7,8 +7,9 @@ import type { Player } from "./types";
 
 /**
  * Availability states, in bar order. `inactive` ("Out") is money out for this game
- * but not for good: ruled out, doubtful, a gameday inactive, or a reserve list (IR,
- * PUP, NFI, suspension) the player can come back from this season. Which of those it
+ * but not for good: ruled out (or still out from last game), doubtful, a gameday
+ * inactive, or a reserve list (IR, PUP, NFI, suspension) the player can come back from
+ * this season. Which of those it
  * is shows as a tag on each player (`outTag`) and a line in the tooltip, not as its
  * own band. `year` is reserve-list money done for the season.
  */
@@ -45,7 +46,7 @@ export const SLICE_SHORT: Record<SliceKey, string> = {
 
 /** One line on what counts as out, for chips and filters. */
 export const OUT_NOTE =
-  "Out for this game: ruled out, doubtful, gameday inactive, or on a reserve list (IR, PUP, NFI, suspension) with a way back this season.";
+  "Out for this game: ruled out (or out last game, with no status yet), doubtful, gameday inactive, or on a reserve list (IR, PUP, NFI, suspension) with a way back this season.";
 
 /** One line on how the site decides a reserve-list player is done for the season. */
 export const YEAR_NOTE =
@@ -105,6 +106,7 @@ export function outTag(
   if (p.flag !== "inactive") return null;
   if (p.absence !== "season" && p.absence !== "year") {
     if (p.reason === "out") return "Ruled out this week";
+    if (p.reason === "out_last_game") return "Out last game, no status yet";
     if (p.reason === "doubtful") return "Doubtful this week";
     return "Inactive this week";
   }

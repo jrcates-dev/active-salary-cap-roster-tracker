@@ -45,7 +45,7 @@ const MEANING: Record<string, string> = {
   active: "Cap money on players active for this week's game.",
   questionable: "Cap money on players listed questionable for this week's game.",
   inactive:
-    "Cap money out for this week's game but not for good: ruled out, doubtful, a gameday inactive, or on a reserve list (IR, PUP, NFI, suspension) with a way back this season.",
+    "Cap money out for this week's game but not for good: ruled out (or out last game, with no status yet), doubtful, a gameday inactive, or on a reserve list (IR, PUP, NFI, suspension) with a way back this season.",
   year: "Cap money on a reserve list that is done for the season.",
   unknown: "Cap money on the practice squad and anyone without a game status.",
   dead: "Dead money: this year's cap charges for players no longer on the team. The same figure every week.",

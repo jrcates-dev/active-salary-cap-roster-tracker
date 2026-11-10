@@ -21,6 +21,7 @@ export function WeekGames({
   more,
   id,
   cols = "grid-cols-2 lg:grid-cols-4",
+  ticker = false,
 }: {
   slates: WeekSlate[];
   teams: CardTeams;
@@ -33,6 +34,11 @@ export function WeekGames({
   id?: string;
   /** Grid columns for the game cards, for when the list shares its row with something else. */
   cols?: string;
+  /**
+   * The league page's score ticker: one row that swipes sideways on a phone, and a
+   * tight five-across grid on a desktop, so the whole week sits above the fold.
+   */
+  ticker?: boolean;
 }) {
   const [week, setWeek] = useState(initialWeek);
   const [nowWeek, setNowWeek] = useState(initialWeek);
@@ -124,11 +130,21 @@ export function WeekGames({
           {slate.byes.length > 0 && <>Bye: {slate.byes.join(", ")}.</>}
         </p>
       )}
-      <div className={`grid gap-3 ${cols}`}>
-        {slate.games.map((g) => (
-          <GameCard key={g.id} game={g} teams={teams} />
-        ))}
-      </div>
+      {ticker ? (
+        <ul className="strip -mx-4 flex snap-x gap-2.5 px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0 lg:grid-cols-5" aria-label={`Week ${slate.week} games`}>
+          {slate.games.map((g) => (
+            <li key={g.id} className="w-[13.5rem] shrink-0 snap-start scroll-ml-4 sm:w-auto">
+              <GameCard game={g} teams={teams} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className={`grid gap-3 ${cols}`}>
+          {slate.games.map((g) => (
+            <GameCard key={g.id} game={g} teams={teams} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

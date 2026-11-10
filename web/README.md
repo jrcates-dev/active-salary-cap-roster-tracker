@@ -42,7 +42,7 @@ publishing fake numbers.
 | `/` | League: counted cap and money out as stat tiles and one league-wide availability bar, this week's games with their biggest edge, money out by team with a week picker, most expensive players out, the 32 × 13 heatmap, offense/defense split |
 | `/matchups` | Any week of the season: scores for played games, an early look at future ones |
 | `/team/[abbr]` | Team: team strip for stepping sideways, last result and this week's game, counted cap and cap space with a $ / % toggle, the same six availability tiles as the league page, availability bar, position groups against the league median, player treemap, week-by-week money out, sortable roster |
-| `/matchup/[week-away-home]` | Matchup: strip of the week's games, both teams' availability, the two biggest edges, mirrored bars per position matchup (on the field or full investment) with league ranks, key absences |
+| `/matchup/[week-away-home]` | Matchup: strip of the week's games, both teams' availability on one dollar scale (each segment opens that roster), the two biggest edges, mirrored bars per position matchup (on the field or full investment) with league ranks, key absences |
 | `/methodology` | Sources and attribution, accounting rules, matchups, estimates, reconciliation table |
 
 ## Layout
@@ -50,7 +50,7 @@ publishing fake numbers.
 | Path | What |
 | --- | --- |
 | `src/app/globals.css` | Design tokens: surfaces and inks for the light and dark themes (dark follows the system setting), the amber intensity ramp, radii, motion, the `.tc` team-color scope and the `.s-*` availability fills |
-| `src/design/tokens.ts` | Per-team color math: `teamVars` writes a light and a dark team color (each clearing 3:1 on its surface) and the ink that reads on it; unit marks; ramp step |
+| `src/design/tokens.ts` | Per-team color math: `teamVars` writes a light and a dark team color (each clearing 3:1 on its surface) and the ink that reads on it; `matchupVars` picks two teams' colors as a pair so they never look alike; unit marks; ramp step |
 | `src/lib/types.ts` | Shapes of the snapshot JSON |
 | `src/lib/data.ts` | Snapshot loader and per-team and league helpers |
 | `src/lib/format.ts` | Money, percent, date and label formatting |

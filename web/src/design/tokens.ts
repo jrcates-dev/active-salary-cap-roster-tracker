@@ -169,3 +169,72 @@ export function teamVars(t: TeamColors): CSSProperties {
     "--tc-d-ink": textOn(dark),
   } as CSSProperties;
 }
+
+/** CIE Lab for a hex color (D65), for telling two colors apart. */
+function lab(hex: string): [number, number, number] {
+  const [r, g, b] = rgb(hex).map((v) => {
+    const c = v / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  const xyz = [
+    (0.4124 * r + 0.3576 * g + 0.1805 * b) / 0.95047,
+    0.2126 * r + 0.7152 * g + 0.0722 * b,
+    (0.0193 * r + 0.1192 * g + 0.9505 * b) / 1.08883,
+  ].map((t) => (t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116));
+  return [116 * xyz[1] - 16, 500 * (xyz[0] - xyz[1]), 200 * (xyz[1] - xyz[2])];
+}
+
+/** Perceptual distance between two colors (CIE76 ΔE). */
+function deltaE(a: string, b: string): number {
+  const [x, y] = [lab(a), lab(b)];
+  return Math.hypot(x[0] - y[0], x[1] - y[1], x[2] - y[2]);
+}
+
+/** Two team colors closer than this read as one team when they share a chart. */
+const MIN_TEAM_DISTANCE = 25;
+
+/**
+ * A color for `t` on `theme` that reads on the surface and stands apart from
+ * `other`: its usual display color when that is already far enough, else its
+ * other hues (each lightened or darkened until it clears 3:1), the first that is.
+ */
+function distinctColor(t: TeamColors, theme: Theme, other: string): string {
+  const usual = displayColor(t, theme);
+  if (deltaE(usual, other) >= MIN_TEAM_DISTANCE) return usual;
+  const surface = SURFACE[theme];
+  const dir = theme === "dark" ? 1 : -1;
+  const hued = [t.color_primary, t.color_secondary, t.color_3, t.color_4].filter(
+    (c): c is string => !!c && HEX.test(c) && saturation(c) >= 0.25,
+  );
+  for (const c of hued) {
+    for (let step = 0; step <= 20; step++) {
+      const v = shade(c, dir * step * 0.05);
+      if (contrast(v, surface) >= MIN_CONTRAST) {
+        if (deltaE(v, other) >= MIN_TEAM_DISTANCE) return v;
+        break;
+      }
+    }
+  }
+  return usual;
+}
+
+/**
+ * Team variables for the two teams of a matchup, where every chart wears both
+ * colors. Some pairs land on nearly the same color in a theme (in dark mode the
+ * Jaguars and Ravens both fall back to their gold), so the home team takes its
+ * next hue that stands apart, per theme. Elsewhere teams keep `teamVars`.
+ */
+export function matchupVars(away: TeamColors, home: TeamColors): [CSSProperties, CSSProperties] {
+  const a = teamVars(away);
+  const light = distinctColor(home, "light", displayColor(away, "light"));
+  const dark = distinctColor(home, "dark", displayColor(away, "dark"));
+  return [
+    a,
+    {
+      "--tc": light,
+      "--tc-ink": textOn(light),
+      "--tc-d": dark,
+      "--tc-d-ink": textOn(dark),
+    } as CSSProperties,
+  ];
+}

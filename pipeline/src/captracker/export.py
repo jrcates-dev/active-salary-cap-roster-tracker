@@ -159,6 +159,7 @@ def build_export(
     history: list[dict] | None = None,
     history_players: list[dict] | None = None,
     depth_roles: pl.DataFrame | None = None,
+    dead_charges: list[dict] | None = None,
 ) -> dict:
     players = player_records(fact, season, depth_roles)
     return {
@@ -179,6 +180,7 @@ def build_export(
         "freshness": freshness,
         "history": history or [],
         "history_players": history_players or [],
+        "dead_charges": dead_charges or [],
     }
 
 
@@ -320,7 +322,28 @@ def build_fixture(real: dict, seed: int = 7) -> dict:
         "reconcile": None,
         "history": history,
         "history_players": history_players,
+        "dead_charges": _fixture_dead_charges(real["teams"], 20_000_000, rng),
     }
+
+
+def _fixture_dead_charges(teams: list[dict], total: int, rng: random.Random) -> list[dict]:
+    """Synthetic dead money charges: a few big ones and a tail of small ones per team,
+    listed to about 95% of `total` so the site's "not listed" line shows too."""
+    positions = ["QB", "WR", "CB", "ED", "IDL", "LB", "S", "RB", "TE", "LT"]
+    out: list[dict] = []
+    for t in teams:
+        weights = sorted((rng.random() ** 3 for _ in range(rng.randint(6, 14))), reverse=True)
+        scale = total * 0.95 / sum(weights)
+        for i, w in enumerate(weights):
+            out.append(
+                {
+                    "team": t["team"],
+                    "name": f"{t['team']} former {i + 1}",
+                    "pos": rng.choice(positions),
+                    "amount": int(w * scale) // 1000 * 1000,
+                }
+            )
+    return out
 
 
 def _fixture_history(

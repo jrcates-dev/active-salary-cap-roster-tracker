@@ -153,14 +153,14 @@ export function AvailabilityBar({
                 <div>
                   {title && <TipTitle>{title}</TipTitle>}
                   <TipRow label={SLICE_LABEL[k]} value={`${money(v)} · ${pct(v / total)}`} swatch={<Swatch k={k} team={team} />} />
-                  {href && <TipHint />}
+                  {href && <TipHint>{k === "dead" ? "see these charges" : undefined}</TipHint>}
                 </div>
               }
             >
               {href && (
                 <ChartLink
                   href={href}
-                  label={`${subject ? `${subject}, ` : ""}${SLICE_LABEL[k]} ${money(v)}: show these players`}
+                  label={`${subject ? `${subject}, ` : ""}${SLICE_LABEL[k]} ${money(v)}: show these ${k === "dead" ? "charges" : "players"}`}
                   className={SEGMENT_LINK}
                 />
               )}

@@ -6,6 +6,7 @@ import { ChartLink } from "@/components/ChartLink";
 import { Logo } from "@/components/Logo";
 import { Strip } from "@/components/site/Strip";
 import { TeamChip } from "@/components/TeamChip";
+import { DeadMoney } from "@/components/team/DeadMoney";
 import { GroupBreakdown, type GroupLine } from "@/components/team/GroupBreakdown";
 import { Amount, MoneyModeProvider, MoneyToggle } from "@/components/team/MoneyMode";
 import { PlayerTable } from "@/components/team/PlayerTable";
@@ -16,7 +17,7 @@ import { STATUS_COLOR, teamVars, UNITS } from "@/design/tokens";
 import { slicesOf } from "@/lib/availability";
 import { getSnapshot, groupLeagueStats, kickoffLabel, matchupHref, teamGame, teamView } from "@/lib/data";
 import { dayLabel, money, pct } from "@/lib/format";
-import { rosterHref, statusHrefs, type RosterStatus } from "@/lib/rosterLink";
+import { deadHref, rosterHref, statusHrefs, type RosterStatus } from "@/lib/rosterLink";
 import type { Snapshot, StatusSource } from "@/lib/types";
 
 /** Every team is prerendered; a static export has no server to render any other. */
@@ -112,7 +113,7 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
               <Kpi label="Out for season" k="year" team={team.team}>
                 <Amount value={summary.cap_inactive_year ?? 0} />
               </Kpi>
-              <Kpi label="Dead money" k="dead" note={asOf}>
+              <Kpi label="Dead money" k="dead" note={asOf} team={team.team}>
                 {summary.dead_money === null ? "–" : money(summary.dead_money)}
               </Kpi>
               <Kpi label="Cap space" note={asOf}>
@@ -126,7 +127,7 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
                 title={team.name}
                 subject={team.name}
                 slices={{ ...slicesOf(summary), dead: summary.dead_money ?? 0 }}
-                hrefs={statusHrefs(team.team)}
+                hrefs={{ ...statusHrefs(team.team), dead: deadHref(team.team) }}
               />
               <AvailabilityLegend keys={["active", "questionable", "inactive", "season", "year", "unknown", "dead"]} short />
             </div>
@@ -153,6 +154,12 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
           )}
 
           <PlayerTable players={players} pastOut={pastOut} weeks={weeks} groups={s.groups} week={s.week} />
+
+          <DeadMoney
+            charges={s.dead_charges.filter((c) => c.team === team.team)}
+            total={summary.dead_money}
+            asOf={asOf}
+          />
         </main>
       </div>
     </MoneyModeProvider>
@@ -185,7 +192,7 @@ function Kpi({
   );
   const tone = k ? ({ "--s": STATUS_COLOR[k] } as React.CSSProperties) : undefined;
   const toned = k ? "tone pt-4" : "";
-  if (!team || !k || k === "dead")
+  if (!team || !k)
     return (
       <div className={`card px-4 py-3 ${toned}`} style={tone}>
         {body}
@@ -193,7 +200,7 @@ function Kpi({
     );
   return (
     <ChartLink
-      href={rosterHref(team, { status: k as RosterStatus })}
+      href={k === "dead" ? deadHref(team) : rosterHref(team, { status: k as RosterStatus })}
       tapPreview={false}
       style={tone}
       className={`card block px-4 py-3 transition-shadow duration-(--dur-1) hover:shadow-[0_0_0_1px_var(--s)] ${toned}`}

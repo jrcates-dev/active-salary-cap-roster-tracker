@@ -25,7 +25,7 @@ export default async function MethodologyPage() {
             Contract data in nflverse comes from <A href="https://overthecap.com">OverTheCap</A>.
           </li>
           <li>
-            Dead money, cap space and reconciliation targets: read by hand from OverTheCap&apos;s public team cap page
+            Dead money (each team&apos;s total and its charges of $100K and up), cap space and reconciliation targets: read by hand from OverTheCap&apos;s public team cap pages
             {s.freshness?.reference_as_of && s.freshness.reference_as_of !== "fixture" ? ` (last read ${s.freshness.reference_as_of})` : ""}, refreshed at least
             monthly. Nothing here scrapes OverTheCap or Spotrac.
           </li>

@@ -11,6 +11,14 @@ import type { Unit } from "./types";
 /** The id on the team page's roster section, the scroll target of every link. */
 export const ROSTER_ID = "roster";
 
+/** The id on the team page's dead money list, where every dead money mark links. */
+export const DEAD_ID = "dead-money";
+
+/** A link to a team's dead money charges. */
+export function deadHref(team: string): string {
+  return `/team/${team}/#${DEAD_ID}`;
+}
+
 /** Status filters the roster offers: every availability state except dead money. */
 export type RosterStatus = "active" | "questionable" | "inactive" | "season" | "year" | "unknown";
 export const ROSTER_STATUSES: RosterStatus[] = ["active", "questionable", "inactive", "season", "year", "unknown"];
@@ -81,11 +89,11 @@ export function parseRosterFilter(search: string): RosterFilter | null {
 export const ROSTER_EVENT = "roster:filter";
 
 /**
- * Scrolls the roster section to just below the sticky site header (whose height
+ * Scrolls the roster section (or another team page section, by id) to just below the sticky site header (whose height
  * changes with the fixture-data banner), smoothly unless the reader asked for less motion.
  */
-export function scrollToRoster() {
-  const el = document.getElementById(ROSTER_ID);
+export function scrollToRoster(id: string = ROSTER_ID) {
+  const el = document.getElementById(id);
   if (!el) return;
   const header = document.querySelector("header.sticky");
   const offset = (header?.getBoundingClientRect().bottom ?? 0) + 16;

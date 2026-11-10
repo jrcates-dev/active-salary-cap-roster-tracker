@@ -7,6 +7,7 @@ import { UNIT_LABEL, money } from "@/lib/format";
 import type { Group, HistoryPlayer, Player, Unit } from "@/lib/types";
 import { playerSlice, SLICE_SHORT, Swatch, type SliceKey } from "../Availability";
 import { ariaSort, SortHeader, type SortDir } from "../Sort";
+import { NameWithStar, StarterKey } from "../Starter";
 import { SectionHead } from "../ui";
 import { Chip, SearchInput, Select, StepButton } from "../ui/controls";
 import { useMoneyMode } from "./MoneyMode";
@@ -54,6 +55,9 @@ function pastRow(h: HistoryPlayer, now: Player | undefined): Player {
     headshot: null,
     ...now,
     ...h,
+    // That week's place on the depth chart, never today's.
+    starter: h.starter ?? null,
+    depth_role: h.depth_role ?? null,
     contract_cap: now && now.cap === h.cap ? now.contract_cap : h.cap,
   };
 }
@@ -285,6 +289,7 @@ export function PlayerTable({
           </button>
         </p>
       )}
+      <StarterKey className="mb-2" />
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="tbl w-full min-w-[640px] text-sm">
@@ -302,7 +307,9 @@ export function PlayerTable({
                 <tr key={p.key}>
                   <td>
                     <span className="flex items-center gap-2">
-                      <span className="font-medium">{p.name}</span>
+                      <span className="font-medium">
+                        <NameWithStar player={p} />
+                      </span>
                       {p.source !== "contract" && (
                         <span
                           className="rounded border border-line px-1 text-[10px] leading-4 text-ink-3 uppercase"

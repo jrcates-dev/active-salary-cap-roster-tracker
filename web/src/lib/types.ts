@@ -101,6 +101,14 @@ export interface Player {
   years_left: number | null;
   contract_apy: number | null;
   headshot: string | null;
+  /**
+   * A starter on the team's depth chart (top of a slot: the 11 on offense, the base
+   * defense plus the nickel, K, P and LS). A player who is out carries the role he had
+   * before he went out. Null when the chart does not list him; older snapshots lack it.
+   */
+  starter?: boolean | null;
+  /** His main spot on the chart with its rank: "LT1", "QB2", "WR4". */
+  depth_role?: string | null;
 }
 
 export interface Game {
@@ -163,6 +171,8 @@ export type HistoryPlayer = Pick<
   | "outlook_note"
   | "report_status"
   | "injury"
+  | "starter"
+  | "depth_role"
 > & { week: number };
 
 export interface Freshness {

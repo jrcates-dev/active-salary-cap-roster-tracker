@@ -76,6 +76,7 @@ injury news (a public IR tracker plus team announcements; never OverTheCap or Sp
 | `estimates.py` | minimum-salary estimates for rostered players with no contract row |
 | `crosswalk.py` | player id crosswalk (gsis, otc, espn, pfr, sleeper), plus name matching for contracts without a `gsis_id` |
 | `rosters.py` | weekly roster status + injury report + schedule -> `player_week_status` with the active / inactive / questionable flag and the absence type (this week, long-term, or out for the season); resolves Questionable once a game is final; projects rosters to the coming week |
+| `depth.py` | starters from the daily nflverse (ESPN) depth chart: top of each slot on offense, defense, K, P and LS; a player out keeps the role he had before he went out |
 | `rollup.py` | team -> unit -> position group totals: active, questionable, out this week, out long-term, out for season |
 | `data/season_outlook_<season>.csv` | hand-kept table of reserve-list players done for the season (or confirmed coming back), with the injury and a news source; see "Out for season" below |
 | `summary.py` | one row per team: availability totals, estimates, dead money and cap space |

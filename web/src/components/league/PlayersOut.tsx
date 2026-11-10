@@ -6,6 +6,7 @@ import { money, reasonLabel } from "@/lib/format";
 import { YEAR_NOTE } from "@/lib/availability";
 import type { Player } from "@/lib/types";
 import { Swatch } from "../Availability";
+import { StarterKey, StarterMark } from "../Starter";
 import { Empty } from "../ui";
 import { Segmented } from "../ui/controls";
 
@@ -67,7 +68,10 @@ export function PlayersOut({
             <li key={p.key} className="tc flex items-center gap-3 px-3.5 py-2" style={vars}>
               <Swatch k={tab === "week" ? "inactive" : tab} size={14} />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{p.name}</p>
+                <p className="flex items-center gap-1 text-sm font-medium">
+                  <span className="truncate">{p.name}</span>
+                  <StarterMark player={p} />
+                </p>
                 <p className="truncate text-xs text-ink-3">
                   <Link href={`/team/${p.team}`} className="text-ink-2 underline decoration-line-2 underline-offset-2 hover:decoration-ink">
                     {nick}
@@ -83,15 +87,20 @@ export function PlayersOut({
           ))}
         </ol>
       )}
-      {list.length > SHOWN && (
-        <button
-          type="button"
-          onClick={() => setAll(!all)}
-          aria-expanded={all}
-          className="mt-2 text-[13px] font-medium text-ink-2 underline decoration-line-2 underline-offset-2 hover:text-ink hover:decoration-ink"
-        >
-          {all ? "Show fewer" : `Show ${list.length - SHOWN} more`}
-        </button>
+      {(list.length > SHOWN || list.some((r) => r.player.starter)) && (
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+          {list.length > SHOWN && (
+            <button
+              type="button"
+              onClick={() => setAll(!all)}
+              aria-expanded={all}
+              className="text-[13px] font-medium text-ink-2 underline decoration-line-2 underline-offset-2 hover:text-ink hover:decoration-ink"
+            >
+              {all ? "Show fewer" : `Show ${list.length - SHOWN} more`}
+            </button>
+          )}
+          {list.some((r) => r.player.starter) && <StarterKey out />}
+        </div>
       )}
     </div>
   );

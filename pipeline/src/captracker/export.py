@@ -74,14 +74,29 @@ HISTORY_PLAYER_FIELDS = [
     "outlook_note",
     "report_status",
     "injury",
+    "starter",
+    "depth_role",
 ]
 
 
-def player_records(fact: pl.DataFrame, season: int) -> pl.DataFrame:
-    """One row per player counting against a team's cap, in the shape the site reads."""
+def player_records(
+    fact: pl.DataFrame, season: int, depth_roles: pl.DataFrame | None = None
+) -> pl.DataFrame:
+    """One row per player counting against a team's cap, in the shape the site reads.
+
+    `depth_roles` (`depth.week_roles`) adds starter and depth_role; without it they are
+    left blank.
+    """
+    fact = fact.filter(pl.col("counts_against_cap"))
+    if depth_roles is not None:
+        fact = fact.join(depth_roles, on=["team", "gsis_id"], how="left")
+    else:
+        fact = fact.with_columns(
+            pl.lit(None, dtype=pl.Boolean).alias("starter"),
+            pl.lit(None, dtype=pl.String).alias("depth_role"),
+        )
     return (
-        fact.filter(pl.col("counts_against_cap"))
-        .with_columns(
+        fact.with_columns(
             pl.when(pl.col("year_signed").is_not_null() & pl.col("contract_years").is_not_null())
             .then(pl.col("year_signed") + pl.col("contract_years") - season)
             .otherwise(None)
@@ -109,18 +124,24 @@ def player_records(fact: pl.DataFrame, season: int) -> pl.DataFrame:
             "years_left",
             "contract_apy",
             "headshot",
+            "starter",
+            "depth_role",
         )
         .sort(["team", "cap"], descending=[False, True])
     )
 
 
-def week_out_players(fact: pl.DataFrame, season: int) -> list[dict]:
+def week_out_players(
+    fact: pl.DataFrame, season: int, depth_roles: pl.DataFrame | None = None
+) -> list[dict]:
     """The players behind one week's money out: everyone out or questionable that week.
 
     These are the rows the "Money out by week" chart sums, so a week's bar on the
     site always matches the list it opens.
     """
-    rows = player_records(fact, season).filter(pl.col("flag").is_in(["inactive", "questionable"]))
+    rows = player_records(fact, season, depth_roles).filter(
+        pl.col("flag").is_in(["inactive", "questionable"])
+    )
     return _records(rows.select(HISTORY_PLAYER_FIELDS))
 
 
@@ -137,8 +158,9 @@ def build_export(
     freshness: dict | None = None,
     history: list[dict] | None = None,
     history_players: list[dict] | None = None,
+    depth_roles: pl.DataFrame | None = None,
 ) -> dict:
-    players = player_records(fact, season)
+    players = player_records(fact, season, depth_roles)
     return {
         "season": season,
         "week": week,
@@ -179,6 +201,11 @@ def build_fixture(real: dict, seed: int = 7) -> dict:
     weights = {
         "QB": 3, "RB": 4, "WR": 6, "TE": 3, "OL": 9, "IDL": 6, "EDGE": 5,
         "LB": 5, "CB": 6, "S": 4, "K": 1, "P": 1, "LS": 1,
+    }  # fmt: skip
+    # The first n of each group start: 11 on offense, a base defense plus the nickel.
+    starters = {
+        "QB": 1, "RB": 1, "WR": 3, "TE": 1, "OL": 5, "IDL": 2, "EDGE": 2,
+        "LB": 3, "CB": 3, "S": 2, "K": 1, "P": 1, "LS": 1,
     }  # fmt: skip
     group_unit = {g["code"]: g["unit"] for g in real["groups"]}
     players: list[dict] = []
@@ -223,6 +250,8 @@ def build_fixture(real: dict, seed: int = 7) -> dict:
                         "years_left": rng.randint(0, 4),
                         "contract_apy": cap,
                         "headshot": None,
+                        "starter": i < starters[code],
+                        "depth_role": f"{code}{i + 1}",
                     }
                 )
     pdf = pl.DataFrame(players)

@@ -134,6 +134,8 @@ Four pages carry the product. Each one answers a single question and leads with 
 
 ## Design direction
 
+> **As built (2026-11-10):** every page now opens on "the board", a dark band in both themes with condensed upper-case display type (Barlow Condensed), and phones get the sections as a bottom tab bar. The brief is in [docs/design-brief-v3.md](docs/design-brief-v3.md). Color jobs are unchanged.
+>
 > **As built (2026-11-09):** the site ships on a restrained neutral base, light by default and dark when the system asks for it, with one typeface (Inter), tokens for type, spacing, radius, color and motion in `web/src/app/globals.css`, and the color jobs below kept as written: team color for identity, one amber ramp for intensity, a fixed money-status palette for availability (see the Availability row below), and a single orange accent only where it carries meaning. The dark broadcast look described next was the Phase 1 starting point.
 
 The look is a dark broadcast-graphics dashboard: near-black background, dense but orderly type, and color used only where it carries meaning. The reference points are NFL Next Gen Stats overlays and a Bloomberg terminal, not a generic admin template. Every page should be screenshot-worthy, because screenshots are how a stats site spreads.

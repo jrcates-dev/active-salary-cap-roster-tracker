@@ -40,6 +40,7 @@ publishing fake numbers.
 | Route | What |
 | --- | --- |
 | `/` | League: counted cap and money out as stat tiles and one league-wide availability bar, this week's games with their biggest edge, money out by team with a week picker, most expensive players out, the 32 × 13 heatmap, offense/defense split |
+| `/teams` | All 32 teams by division: counted cap and the availability bar on one dollar scale, each segment opening that roster |
 | `/matchups` | Any week of the season: scores for played games, an early look at future ones |
 | `/team/[abbr]` | Team: team strip for stepping sideways, last result and this week's game, counted cap and cap space with a $ / % toggle, the same six availability tiles as the league page, availability bar, position groups against the league median, player treemap, week-by-week money out, sortable roster |
 | `/matchup/[week-away-home]` | Matchup: strip of the week's games, both teams' availability on one dollar scale (each segment opens that roster), the two biggest edges, mirrored bars per position matchup (on the field or full investment) with league ranks, key absences |
@@ -49,7 +50,7 @@ publishing fake numbers.
 
 | Path | What |
 | --- | --- |
-| `src/app/globals.css` | Design tokens: surfaces and inks for the light and dark themes (dark follows the system setting), the amber intensity ramp, radii, motion, the `.tc` team-color scope and the `.s-*` availability fills |
+| `src/app/globals.css` | Design tokens: surfaces and inks for the light and dark themes (dark follows the system setting), the `.board` scope (the dark band at the top of every page, which carries the dark tokens in both themes), the display face, the amber intensity ramp, radii, motion, the `.tc` team-color scope and the `.s-*` availability fills |
 | `src/design/tokens.ts` | Per-team color math: `teamVars` writes a light and a dark team color (each clearing 3:1 on its surface) and the ink that reads on it; `matchupVars` picks two teams' colors as a pair so they never look alike; unit marks; ramp step |
 | `src/lib/types.ts` | Shapes of the snapshot JSON |
 | `src/lib/data.ts` | Snapshot loader and per-team and league helpers |
@@ -57,8 +58,8 @@ publishing fake numbers.
 | `src/lib/viewState.ts` | `useViewState`: a toggle, tab, sort or zoomed group remembered for the visit (sessionStorage, per page), so Back returns to the same view |
 | `src/lib/availability.ts` | Availability states (active, questionable, out this week, out long-term, out for season, practice squad, dead) and per-player helpers, usable from server pages |
 | `src/lib/matchup.ts` | Position matchup pairs, group money, league ranks and edge picks |
-| `src/components/site/` | Header with section links and the team switcher, footer, the strip used to step between teams or games, the scroll memory that puts each page back where it was left on Back and Forward, and the sticky section bar (breadcrumb plus a link to each section, the one in view marked) on the league, team and matchup pages |
-| `src/components/ui/` | Page and section heads, stat tile, segmented control, chips, step buttons |
+| `src/components/site/` | Header with section links and the team switcher (the links move to `BottomTabs`, a tab bar at the bottom of a phone screen), footer, the strip used to step between teams or games, the scroll memory that puts each page back where it was left on Back and Forward, and the sticky section bar (breadcrumb plus a link to each section, the one in view marked) on the league, team and matchup pages |
+| `src/components/ui/` | The hero band that opens every page (`Hero`, on the dark `.board` scope from globals.css), section heads, stat tile, segmented control, chips, step buttons |
 | `src/components/Availability.tsx` | The segmented availability bar (thin in rows, tall with shares printed inside), swatches and legend |
 | `src/components/Tip.tsx` | Tooltip: follows the mouse, opens on tap, and on keyboard focus |
 | `src/components/Sort.tsx` | One sort pattern for every ranked list: column headers and legend chips |

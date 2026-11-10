@@ -5,7 +5,7 @@ import { OffenseShare } from "@/components/league/OffenseShare";
 import { PlayersOut, type OutRow } from "@/components/league/PlayersOut";
 import { WeekGames } from "@/components/WeekGames";
 import { SectionNav } from "@/components/site/SectionNav";
-import { PageHead, SectionHead, Stat, WRAP } from "@/components/ui";
+import { Hero, SectionHead, Stat, WRAP } from "@/components/ui";
 import { STATUS_COLOR, teamVars, UNITS } from "@/design/tokens";
 import { cardTeams, getSnapshot, weekSlates } from "@/lib/data";
 import { defaultWeek } from "@/lib/schedule";
@@ -63,9 +63,7 @@ export default async function LeaguePage() {
 
   return (
     <>
-      <div className={`${WRAP} pt-8 pb-5 sm:pt-10`}>
-        <PageHead eyebrow={`${s.season} season · Week ${s.week}`} title="League" />
-      </div>
+      <Hero eyebrow={`${s.season} season · Week ${s.week}`} title="League" />
       <SectionNav
         crumbs={[{ label: "League" }]}
         items={[

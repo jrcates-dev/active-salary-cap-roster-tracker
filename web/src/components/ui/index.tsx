@@ -3,31 +3,48 @@ import type { CSSProperties, ReactNode } from "react";
 /** Page width and gutters, the same on every page. */
 export const WRAP = "mx-auto w-full max-w-[1200px] px-4 sm:px-6";
 
-/** Page title block: eyebrow, short noun, and whatever sits beside it. */
-export function PageHead({
+/**
+ * The band that opens every page: part of the board, dark in both themes, holding
+ * the page's title and the one thing the page is for. `team` (a team's `teamVars()`)
+ * washes it in that team's color. Whatever goes in `children` sits under the title,
+ * still on the band.
+ */
+export function Hero({
   eyebrow,
   title,
   aside,
+  before,
   children,
+  team,
 }: {
   eyebrow?: ReactNode;
-  title: ReactNode;
+  title?: ReactNode;
   aside?: ReactNode;
+  /** A row above the title, such as the strip for stepping between teams or games. */
+  before?: ReactNode;
   children?: ReactNode;
+  team?: CSSProperties;
 }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-      <div className="min-w-0">
-        {eyebrow && <p className="eyebrow mb-1.5">{eyebrow}</p>}
-        <h1 className="text-[28px] leading-none font-semibold tracking-tight sm:text-[34px]">{title}</h1>
+    <div className={`board board-band ${team ? "tc" : ""}`} style={team}>
+      <div className={`${WRAP} pt-5 pb-7 sm:pb-9`}>
+        {before && <div className="mb-6">{before}</div>}
+        {(title || aside) && (
+          <div className={`flex flex-wrap items-end justify-between gap-x-6 gap-y-4 ${before ? "" : "pt-3 sm:pt-5"}`}>
+            <div className="min-w-0">
+              {eyebrow && <p className="eyebrow mb-1.5">{eyebrow}</p>}
+              <h1 className="display text-[44px] leading-[0.92] sm:text-[64px]">{title}</h1>
+            </div>
+            {aside && <div className="flex flex-wrap items-center gap-2">{aside}</div>}
+          </div>
+        )}
         {children}
       </div>
-      {aside && <div className="flex flex-wrap items-center gap-2">{aside}</div>}
     </div>
   );
 }
 
-/** Section title with room for a legend or a control on the right. */
+/** Section title on a ledger rule, with room for a legend or a control on the right. */
 export function SectionHead({
   title,
   count,
@@ -43,10 +60,10 @@ export function SectionHead({
   asideClassName?: string;
 }) {
   return (
-    <div className="mb-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
-      <h2 id={id} className="flex items-baseline gap-2 text-lg font-semibold tracking-tight">
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t-2 border-ink pt-2.5">
+      <h2 id={id} className="display flex items-baseline gap-2 text-[24px] leading-none">
         {title}
-        {count !== undefined && <span className="num text-sm font-normal text-ink-3">{count}</span>}
+        {count !== undefined && <span className="num font-sans text-sm font-normal tracking-normal text-ink-3 normal-case">{count}</span>}
       </h2>
       {aside && <div className={`flex min-w-0 flex-wrap items-center gap-2 text-[13px] text-ink-2 ${asideClassName}`}>{aside}</div>}
     </div>

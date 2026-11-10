@@ -70,38 +70,6 @@ export function SectionHead({
   );
 }
 
-/**
- * Stat tile: label, value, one line of context. The value uses proportional
- * figures; tabular figures are for columns. `tone` (a money status hue from
- * STATUS_COLOR) tops the tile with a band of that hue and a faint wash.
- */
-export function Stat({
-  label,
-  value,
-  sub,
-  swatch,
-  tone,
-  size = "md",
-}: {
-  label: ReactNode;
-  value: ReactNode;
-  sub?: ReactNode;
-  swatch?: ReactNode;
-  tone?: string;
-  size?: "md" | "lg";
-}) {
-  return (
-    <div className={`card px-4 py-3.5 ${tone ? "tone pt-4" : ""}`} style={tone ? ({ "--s": tone } as CSSProperties) : undefined}>
-      <p className="flex items-center gap-2 text-[13px] text-ink-2">
-        {swatch}
-        <span className="truncate">{label}</span>
-      </p>
-      <p className={`fig mt-1.5 leading-none ${size === "lg" ? "text-[34px]" : "text-[26px] sm:text-[28px]"}`}>{value}</p>
-      {sub && <p className="num mt-1.5 truncate text-xs text-ink-3">{sub}</p>}
-    </div>
-  );
-}
-
 /** A quiet line of context under a chart. */
 export function Note({ children }: { children: ReactNode }) {
   return <p className="mt-3 text-xs text-ink-3">{children}</p>;

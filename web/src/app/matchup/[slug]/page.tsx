@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AvailabilityBar, AvailabilityLegend, Swatch } from "@/components/Availability";
@@ -8,10 +9,11 @@ import { StarterKey, StarterMark } from "@/components/Starter";
 import { SectionNav } from "@/components/site/SectionNav";
 import { Strip } from "@/components/site/Strip";
 import { SectionHead, WRAP } from "@/components/ui";
-import { teamVars } from "@/design/tokens";
+import { matchupVars } from "@/design/tokens";
 import { playerSlice, slicesOf, statusText } from "@/lib/availability";
 import { getSnapshot, kickoffLabel, matchupHref, weekGames } from "@/lib/data";
 import { money, ordinal } from "@/lib/format";
+import { statusHrefs } from "@/lib/rosterLink";
 import { biggestEdges, edgeSides, gameEdges, groupMoney, leagueRanks, PAIRS } from "@/lib/matchup";
 import type { Game, Snapshot } from "@/lib/types";
 
@@ -54,6 +56,9 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
   const away = team(g.away_team);
   const home = team(g.home_team);
   if (!away || !home) notFound();
+  // Both teams share every chart here, so their colors are picked as a pair.
+  const [awayVars, homeVars] = matchupVars(away, home);
+  const varsOf = (abbr: string) => (abbr === away.team ? awayVars : homeVars);
   const nick = (abbr: string) => team(abbr)?.nick ?? abbr;
   const final = g.away_score !== null && g.home_score !== null;
   const future = g.week > s.week;
@@ -84,8 +89,8 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
     }));
     return {
       title: `${off.nick} offense vs ${def.nick} defense`,
-      offTeam: { abbr: offAbbr, nick: off.nick, vars: teamVars(off) },
-      defTeam: { abbr: defAbbr, nick: def.nick, vars: teamVars(def) },
+      offTeam: { abbr: offAbbr, nick: off.nick, vars: varsOf(offAbbr) },
+      defTeam: { abbr: defAbbr, nick: def.nick, vars: varsOf(defAbbr) },
       rows,
     };
   };
@@ -120,9 +125,9 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
             </p>
           )}
           <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 sm:gap-6">
-            <TeamHead s={s} abbr={away.team} score={final ? g.away_score : null} won={final && g.away_score! > g.home_score!} align="right" />
+            <TeamHead s={s} abbr={away.team} vars={awayVars} score={final ? g.away_score : null} won={final && g.away_score! > g.home_score!} align="right" />
             <span className="text-sm text-ink-3">at</span>
-            <TeamHead s={s} abbr={home.team} score={final ? g.home_score : null} won={final && g.home_score! > g.away_score!} align="left" />
+            <TeamHead s={s} abbr={home.team} vars={homeVars} score={final ? g.home_score : null} won={final && g.home_score! > g.away_score!} align="left" />
           </div>
         </header>
       </div>
@@ -142,6 +147,46 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
 
       <main className={`${WRAP} space-y-12 pt-6 pb-5 sm:pb-6`}>
         <div id="overview" className="scroll-mt-28 space-y-12">
+          {/* Tale of the tape: both teams' bars on one dollar scale, so the bigger
+              payroll draws the longer bar and the two compare at a glance. */}
+          <section aria-label="Money on each side" className="space-y-3">
+            <div className="grid gap-3 md:grid-cols-2 [&>*]:min-w-0">
+              {[away, home].map((t) => {
+                const sum = s.summary.find((x) => x.team === t.team)!;
+                const rival = s.summary.find((x) => x.team === (t.team === away.team ? home.team : away.team))!;
+                return (
+                  <div key={t.team} className="tc card px-4 py-4" style={varsOf(t.team)}>
+                    <div className="mb-3 flex items-baseline justify-between gap-3">
+                      <Link href={`/team/${t.team}`} className="flex items-center gap-2 text-[15px] font-semibold hover:underline">
+                        <span aria-hidden className="h-3 w-3 rounded-[3px]" style={{ background: "var(--team)" }} />
+                        {t.name}
+                      </Link>
+                      <span className="num text-[15px] font-semibold">{money(sum.cap_total)}</span>
+                    </div>
+                    <AvailabilityBar
+                      height={20}
+                      labels
+                      title={t.name}
+                      slices={slicesOf(sum)}
+                      team={varsOf(t.team)}
+                      scale={Math.max(sum.cap_total, rival.cap_total)}
+                      hrefs={statusHrefs(t.team)}
+                      subject={t.name}
+                    />
+                    <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 sm:grid-cols-4">
+                      <StatPair label="On the field" value={money(sum.cap_active + sum.cap_questionable)} />
+                      <StatPair label="Out this week" value={money(sum.cap_inactive_week)} />
+                      <StatPair label="Out long-term" value={money(sum.cap_inactive_season)} />
+                      <StatPair label="Out for season" value={money(sum.cap_inactive_year ?? 0)} />
+                    </dl>
+                  </div>
+                );
+              })}
+            </div>
+            <div>
+              <AvailabilityLegend keys={["active", "questionable", "inactive", "season", "year"]} short palette="team" extra={<span className="text-ink-3">Bars wear each team&apos;s color, on one dollar scale</span>} />
+            </div>
+          </section>
           {edges.length > 0 && (
             <section aria-label="Biggest edges" className="grid gap-3 md:grid-cols-2">
               {edges.map((e) => {
@@ -169,34 +214,6 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
             </section>
           )}
 
-          <section className="space-y-3">
-            <div className="grid gap-3 md:grid-cols-2 [&>*]:min-w-0">
-              {[away, home].map((t) => {
-                const sum = s.summary.find((x) => x.team === t.team)!;
-                return (
-                  <div key={t.team} className="tc card px-4 py-4" style={teamVars(t)}>
-                    <div className="mb-3 flex items-baseline justify-between gap-3">
-                      <Link href={`/team/${t.team}`} className="flex items-center gap-2 text-[15px] font-semibold hover:underline">
-                        <span aria-hidden className="h-3 w-3 rounded-[3px]" style={{ background: "var(--team)" }} />
-                        {t.name}
-                      </Link>
-                      <span className="num text-[15px] font-semibold">{money(sum.cap_total)}</span>
-                    </div>
-                    <AvailabilityBar height={20} labels title={t.name} slices={slicesOf(sum)} team={teamVars(t)} />
-                    <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 sm:grid-cols-4">
-                      <StatPair label="On the field" value={money(sum.cap_active + sum.cap_questionable)} />
-                      <StatPair label="Out this week" value={money(sum.cap_inactive_week)} />
-                      <StatPair label="Out long-term" value={money(sum.cap_inactive_season)} />
-                      <StatPair label="Out for season" value={money(sum.cap_inactive_year ?? 0)} />
-                    </dl>
-                  </div>
-                );
-              })}
-            </div>
-            <div>
-              <AvailabilityLegend keys={["active", "questionable", "inactive", "season", "year"]} short palette="team" extra={<span className="text-ink-3">Bars wear each team&apos;s color</span>} />
-            </div>
-          </section>
         </div>
 
         <div id="positions" className="scroll-mt-28">
@@ -205,7 +222,7 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
 
         <section id="out" aria-label="Who's out" className="grid scroll-mt-28 gap-6 md:grid-cols-2 [&>*]:min-w-0">
           {[away, home].map((t) => (
-            <KeyAbsences key={t.team} s={s} abbr={t.team} />
+            <KeyAbsences key={t.team} s={s} abbr={t.team} vars={varsOf(t.team)} />
           ))}
         </section>
       </main>
@@ -213,14 +230,28 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
   );
 }
 
-function TeamHead({ s, abbr, score, won, align }: { s: Snapshot; abbr: string; score: number | null; won: boolean; align: "left" | "right" }) {
+function TeamHead({
+  s,
+  abbr,
+  vars,
+  score,
+  won,
+  align,
+}: {
+  s: Snapshot;
+  abbr: string;
+  vars: CSSProperties;
+  score: number | null;
+  won: boolean;
+  align: "left" | "right";
+}) {
   const t = s.teams.find((x) => x.team === abbr)!;
   const dim = score !== null && !won;
   return (
     <Link
       href={`/team/${abbr}`}
       className={`tc flex items-center gap-3 rounded-md sm:gap-4 ${align === "right" ? "flex-row-reverse text-right" : ""}`}
-      style={teamVars(t)}
+      style={vars}
     >
       <span className="hidden sm:block">
         <Logo src={t.logo_url} size={60} fallback={abbr} />
@@ -244,7 +275,7 @@ function StatPair({ label, value }: { label: string; value: string }) {
 }
 
 /** The biggest names out or in doubt for this game, by cap number. */
-function KeyAbsences({ s, abbr }: { s: Snapshot; abbr: string }) {
+function KeyAbsences({ s, abbr, vars }: { s: Snapshot; abbr: string; vars: CSSProperties }) {
   const t = s.teams.find((x) => x.team === abbr)!;
   const rows = s.players
     .filter((p) => p.team === abbr && (p.flag === "inactive" || p.flag === "questionable"))
@@ -254,7 +285,7 @@ function KeyAbsences({ s, abbr }: { s: Snapshot; abbr: string }) {
     })
     .slice(0, 8);
   return (
-    <div className="tc" style={teamVars(t)}>
+    <div className="tc" style={vars}>
       <SectionHead title={`${t.nick} out`} count={rows.length || undefined} />
       {rows.length === 0 ? (
         <p className="card px-4 py-5 text-center text-sm text-ink-3">Everyone available</p>
@@ -262,7 +293,7 @@ function KeyAbsences({ s, abbr }: { s: Snapshot; abbr: string }) {
         <ol className="card divide-y divide-line text-sm">
           {rows.map((p) => (
             <li key={p.key} className="flex items-center gap-3 px-3.5 py-2">
-              <Swatch k={playerSlice(p)} team={teamVars(t)} />
+              <Swatch k={playerSlice(p)} team={vars} />
               <span className="flex min-w-0 flex-1 items-center gap-1">
                 <span className="truncate font-medium">{p.name}</span>
                 <StarterMark player={p} />

@@ -15,7 +15,10 @@ export default async function LeaguePage() {
   const s = await getSnapshot();
   type Col = "cap_total" | "cap_active" | "cap_inactive_week" | "cap_inactive_season" | "cap_inactive_year" | "cap_questionable" | "cap_unknown";
   const sum = (k: Col) => s.summary.reduce((acc, t) => acc + (t[k] ?? 0), 0);
-  const total = sum("cap_total");
+  const dead = s.summary.reduce((acc, t) => acc + (t.dead_money ?? 0), 0);
+  const deadByTeam = Object.fromEntries(s.summary.map((t) => [t.team, t.dead_money ?? 0]));
+  // Player cap plus the year's dead money: the whole league bar, and every share below.
+  const total = sum("cap_total") + dead;
   const active = sum("cap_active");
   const outWeek = sum("cap_inactive_week");
   const outSeason = sum("cap_inactive_season");
@@ -48,21 +51,27 @@ export default async function LeaguePage() {
       .sort((a, b) => b.cap - a.cap)
       .slice(0, 40)
       .map((p) => ({ player: p, nick: teamsById[p.team].nick, vars: teamVars(teamsById[p.team]) }));
-  const boardTeams = s.teams.map((t) => ({ team: t.team, nick: t.nick, name: t.name, vars: teamVars(t) }));
+  const boardTeams = s.teams.map((t) => ({
+    team: t.team,
+    nick: t.nick,
+    name: t.name,
+    vars: teamVars(t),
+    dead: deadByTeam[t.team] ?? 0,
+  }));
   const history = s.history.length ? s.history : s.summary.map((t) => ({ ...t, week: s.week, unit: "all" as const }));
 
   return (
     <main className={`${WRAP} space-y-14 py-8 sm:py-10`}>
       <section className="space-y-5">
         <PageHead eyebrow={`${s.season} season · Week ${s.week}`} title="League" />
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-          <div className="col-span-2 lg:col-span-1">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <div>
             <Stat
               label="Active"
               swatch={<Swatch k="active" />}
               tone={STATUS_COLOR.active}
               value={money(active, 2)}
-              sub={`${pct(active / total)} of ${money(total, 2)} counted`}
+              sub={`${pct(active / total)} of ${money(total, 2)}`}
             />
           </div>
           <Stat
@@ -93,6 +102,13 @@ export default async function LeaguePage() {
             value={money(outYear)}
             sub={`${pct(outYear / total)} · ${count("year")} players`}
           />
+          <Stat
+            label="Dead money"
+            swatch={<Swatch k="dead" />}
+            tone={STATUS_COLOR.dead}
+            value={money(dead)}
+            sub={`${pct(dead / total)} · for the year`}
+          />
         </div>
         <div className="card space-y-3 px-4 py-4">
           <AvailabilityBar
@@ -106,9 +122,10 @@ export default async function LeaguePage() {
               season: outSeason,
               year: outYear,
               unknown: sum("cap_unknown"),
+              dead,
             }}
           />
-          <AvailabilityLegend short />
+          <AvailabilityLegend keys={["active", "questionable", "inactive", "season", "year", "unknown", "dead"]} short />
         </div>
       </section>
 

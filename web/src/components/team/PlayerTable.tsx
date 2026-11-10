@@ -12,8 +12,9 @@ import { NameWithStar, StarterKey } from "../Starter";
 import { SectionHead } from "../ui";
 import { Chip, SearchInput, Select, StepButton } from "../ui/controls";
 import { useMoneyMode } from "./MoneyMode";
+import { ContractCell, PerYearCell, StripKey } from "./PerYear";
 
-type SortKey = "name" | "group" | "cap" | "flag" | "years_left";
+type SortKey = "name" | "group" | "cap" | "per_year" | "flag" | "years_left";
 
 type Filter = Exclude<SliceKey, "dead">;
 const SLICE_RANK: Record<Filter, number> = { inactive: 0, year: 1, questionable: 2, active: 3, unknown: 4 };
@@ -182,10 +183,12 @@ export function PlayerTable({
           return groupOrder[p.group ?? ""] ?? 99;
         case "cap":
           return p.cap;
+        case "per_year":
+          return p.per_year ?? -1;
         case "flag":
           return SLICE_RANK[playerSlice(p) as Filter];
         case "years_left":
-          return p.years_left ?? -1;
+          return p.deal_thru ?? (p.years_left != null ? 2000 + p.years_left : -1);
       }
     };
     return [...filtered].sort((a, b) => {
@@ -293,14 +296,15 @@ export function PlayerTable({
       <StarterKey className="mb-2" />
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="tbl w-full min-w-[640px] text-sm">
+          <table className="tbl w-full min-w-[760px] text-sm">
             <thead className="bg-surface-2">
               <tr>
                 {header("name", "Player")}
                 {header("group", "Group")}
                 {header("cap", "Cap", "right", "desc")}
+                {header("per_year", "Per year", "right", "desc")}
                 {header("flag", "Status")}
-                {header("years_left", "Years", "right", "desc")}
+                {header("years_left", "Contract", "left", "desc")}
               </tr>
             </thead>
             <tbody>
@@ -337,6 +341,7 @@ export function PlayerTable({
                       </span>
                     )}
                   </td>
+                  <PerYearCell p={p} fmt={fmt} />
                   <td>
                     <span className="inline-flex items-center gap-2">
                       <Swatch k={playerSlice(p)} />
@@ -344,7 +349,7 @@ export function PlayerTable({
                       {(p.outlook_note ?? p.injury) && <span className="text-ink-3">{p.outlook_note ?? p.injury}</span>}
                     </span>
                   </td>
-                  <td className="num text-right text-ink-2">{p.years_left ?? "–"}</td>
+                  <ContractCell p={p} />
                 </tr>
               ))}
             </tbody>
@@ -354,7 +359,7 @@ export function PlayerTable({
                   {rows.length} players{filtered ? " match" : ""}
                 </td>
                 <td className="num text-right font-semibold text-ink">{fmt(total)}</td>
-                <td colSpan={2} className="text-right">
+                <td colSpan={3} className="text-right">
                   {rows.length > PAGE && (
                     <button type="button" onClick={() => setShowAll((v) => !v)} className="font-medium text-ink underline-offset-4 hover:underline">
                       {showAll ? `Show top ${PAGE}` : `Show all ${rows.length}`}
@@ -366,6 +371,7 @@ export function PlayerTable({
           </table>
         </div>
       </div>
+      <StripKey className="mt-2" />
     </section>
   );
 }

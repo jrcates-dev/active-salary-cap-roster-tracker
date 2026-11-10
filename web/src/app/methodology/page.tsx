@@ -112,6 +112,22 @@ export default async function MethodologyPage() {
           </li>
         </Section>
 
+        <Section title="Per year and contract">
+          <li>
+            A cap number can sit far from what a player is paid: a signing bonus is charged a slice at a time, often into void years added only to spread
+            it. <B>Per year</B> in the roster table is his average cash a season from this one to the last season of the deal he is paid for.
+          </li>
+          <li>
+            The <B>Contract</B> strip has one bar per season left, as tall as that season&apos;s cash: this season, then later seasons that are
+            guaranteed (solid) or not (hollow, the team can still cut him). Its hover lists each season&apos;s cap and cash and the dead cap if he is
+            released after this season: bonus proration still to come plus guaranteed salary still owed, before any offset.
+          </li>
+          <li>
+            A placeholder season at the end of a deal (under a fifth of the average before it) is listed but left out of the average. A deal with no
+            year-by-year breakdown in the free data, most new rookie deals, shows its average per year instead. Practice squad players show none.
+          </li>
+        </Section>
+
         <Section title="Estimates">
           <li>
             <B>Rookie scale</B> ({derived} players): {s.season} draft picks without a cap line. Rounds 1 to 3 take 8/11 of the contract&apos;s average per

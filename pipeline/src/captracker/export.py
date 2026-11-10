@@ -15,6 +15,7 @@ from pathlib import Path
 
 import polars as pl
 
+from . import contracts
 from .positions import POSITION_GROUPS
 
 ROLLUP_FIELDS = [
@@ -79,15 +80,58 @@ HISTORY_PLAYER_FIELDS = [
 ]
 
 
+def _with_outlook(fact: pl.DataFrame, season: int, outlook: pl.DataFrame | None) -> pl.DataFrame:
+    """Attach what each player is paid from here on (`contracts.contract_outlook`).
+
+    A contract with no year-by-year breakdown (a 2026 rookie, cap derived from the
+    wage scale) falls back to its APY, which is the per-year figure of a brand-new
+    deal; `per_year_basis` says which. Estimated minimum rows and practice squad
+    players (paid practice squad wages, not their contract) get none.
+    """
+    if outlook is None:
+        outlook = pl.DataFrame(schema=contracts.OUTLOOK_SCHEMA)
+    df = fact.join(outlook, on=["otc_id", "team"], how="left")
+    contract_row = pl.col("cap_source").is_in(["contract", "derived_rookie_scale"]) & (
+        pl.col("roster_status").fill_null("") != "DEV"
+    )
+    fallback = pl.col("per_year").is_null() & pl.col("contract_apy").is_not_null()
+    return df.with_columns(
+        pl.when(~contract_row)
+        .then(None)
+        .when(fallback)
+        .then(pl.lit("apy"))
+        .when(pl.col("per_year").is_not_null())
+        .then(pl.lit("cash"))
+        .alias("per_year_basis"),
+        pl.when(contract_row).then(pl.coalesce("per_year", "contract_apy")).alias("per_year"),
+        pl.when(~contract_row)
+        .then(None)
+        .when(fallback & pl.col("year_signed").is_not_null())
+        .then(
+            (pl.col("year_signed") + pl.col("contract_years").fill_null(1) - 1)
+            .clip(lower_bound=season)
+            .cast(pl.Int32)
+        )
+        .otherwise(pl.col("deal_thru"))
+        .alias("deal_thru"),
+        *[pl.when(contract_row).then(pl.col(c)).alias(c) for c in ("gtd_thru", "dead_if_cut")],
+        pl.when(contract_row).then(pl.col("money_years")).alias("money_years"),
+    )
+
+
 def player_records(
-    fact: pl.DataFrame, season: int, depth_roles: pl.DataFrame | None = None
+    fact: pl.DataFrame,
+    season: int,
+    depth_roles: pl.DataFrame | None = None,
+    outlook: pl.DataFrame | None = None,
 ) -> pl.DataFrame:
     """One row per player counting against a team's cap, in the shape the site reads.
 
     `depth_roles` (`depth.week_roles`) adds starter and depth_role; without it they are
-    left blank.
+    left blank. `outlook` (`contracts.contract_outlook`) adds the per-year average and
+    guarantee years; without it every contract falls back to APY.
     """
-    fact = fact.filter(pl.col("counts_against_cap"))
+    fact = _with_outlook(fact.filter(pl.col("counts_against_cap")), season, outlook)
     if depth_roles is not None:
         fact = fact.join(depth_roles, on=["team", "gsis_id"], how="left")
     else:
@@ -123,6 +167,16 @@ def player_records(
             "injury",
             "years_left",
             "contract_apy",
+            "per_year",
+            "per_year_basis",
+            "deal_thru",
+            "gtd_thru",
+            "dead_if_cut",
+            "money_years",
+            "year_signed",
+            "contract_years",
+            "contract_value",
+            "contract_guaranteed",
             "headshot",
             "starter",
             "depth_role",
@@ -160,8 +214,9 @@ def build_export(
     history_players: list[dict] | None = None,
     depth_roles: pl.DataFrame | None = None,
     dead_charges: list[dict] | None = None,
+    outlook: pl.DataFrame | None = None,
 ) -> dict:
-    players = player_records(fact, season, depth_roles)
+    players = player_records(fact, season, depth_roles, outlook)
     return {
         "season": season,
         "week": week,
@@ -228,6 +283,8 @@ def build_fixture(real: dict, seed: int = 7) -> dict:
                     if absence in ("season", "year")
                     else None
                 )
+                years_left = rng.randint(0, 4)
+                outlook = _fixture_outlook(cap, real["season"], years_left, rng)
                 players.append(
                     {
                         "team": abbr,
@@ -249,8 +306,9 @@ def build_fixture(real: dict, seed: int = 7) -> dict:
                         "roster_status": "ACT",
                         "report_status": None,
                         "injury": None,
-                        "years_left": rng.randint(0, 4),
+                        "years_left": years_left,
                         "contract_apy": cap,
+                        **outlook,
                         "headshot": None,
                         "starter": i < starters[code],
                         "depth_role": f"{code}{i + 1}",
@@ -323,6 +381,55 @@ def build_fixture(real: dict, seed: int = 7) -> dict:
         "history": history,
         "history_players": history_players,
         "dead_charges": _fixture_dead_charges(real["teams"], 20_000_000, rng),
+    }
+
+
+def _fixture_outlook(cap: int, season: int, years_left: int, rng: random.Random) -> dict:
+    """Synthetic forward money: cash near the cap number, a raise most years, the
+    first few seasons guaranteed, sometimes a signing bonus that pushes the cap
+    number below this year's cash, and sometimes void years at the end."""
+    seasons = list(range(season, season + max(years_left, 1)))
+    bonus = rng.random() < 0.35 and cap > 3_000_000
+    cash_now = int(cap * (rng.uniform(1.6, 3.2) if bonus else rng.uniform(0.9, 1.1)))
+    rows = []
+    for i, y in enumerate(seasons):
+        cash = cash_now if i == 0 else int(cap * rng.uniform(0.9, 1.4))
+        rows.append(
+            {
+                "season": y,
+                "cap": cap if i == 0 else int(cash * rng.uniform(1.0, 1.2)),
+                "cash": cash // 1000 * 1000,
+                "gtd": i == 0 or (i <= 1 and rng.random() < 0.6),
+                "kind": "counted",
+            }
+        )
+    voids = rng.randint(1, 2) if bonus else 0
+    for j in range(voids):
+        rows.append(
+            {
+                "season": seasons[-1] + 1 + j,
+                "cap": int(cap * 0.3) if j == 0 else 0,
+                "cash": 0,
+                "gtd": False,
+                "kind": "void",
+            }
+        )
+    counted = [r for r in rows if r["kind"] == "counted"]
+    gtd_future = [r["season"] for r in counted if r["season"] > season and r["gtd"]]
+    future = [r for r in rows if r["season"] > season]
+    value = sum(r["cash"] for r in counted)
+    return {
+        "per_year": round(value / len(counted)),
+        "per_year_basis": "cash",
+        "deal_thru": seasons[-1],
+        "gtd_thru": max(gtd_future) if gtd_future else None,
+        "dead_if_cut": sum(r["cap"] - r["cash"] for r in future if r["kind"] == "void")
+        + sum(r["cash"] for r in future if r["gtd"]),
+        "money_years": rows,
+        "year_signed": season - rng.randint(0, 2),
+        "contract_years": len(seasons) + rng.randint(0, 2),
+        "contract_value": value,
+        "contract_guaranteed": sum(r["cash"] for r in counted if r["gtd"]),
     }
 
 

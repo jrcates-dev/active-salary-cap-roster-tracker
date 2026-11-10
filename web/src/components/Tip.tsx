@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 /**
@@ -26,6 +26,13 @@ export function Tip({
   const ref = useRef<HTMLElement | null>(null);
   const touched = useRef(false);
   const [touch, setTouch] = useState(false);
+  // The open tip's height, so a tall one is kept inside the window.
+  const tipRef = useRef<HTMLDivElement | null>(null);
+  const [tipH, setTipH] = useState(164);
+  const open = pos !== null;
+  useLayoutEffect(() => {
+    if (open && tipRef.current) setTipH(tipRef.current.offsetHeight);
+  }, [open]);
 
   useEffect(() => {
     if (!pos) return;
@@ -71,11 +78,12 @@ export function Tip({
       {pos &&
         createPortal(
           <div
+            ref={tipRef}
             role="tooltip"
             className="pointer-events-none fixed z-50 max-w-[280px] rounded-md bg-surface px-3 py-2 text-[13px] leading-snug text-ink shadow-pop"
             style={{
               left: Math.max(8, Math.min(pos.x + 14, window.innerWidth - 292)),
-              top: Math.min(pos.y + 16, window.innerHeight - 180),
+              top: Math.max(8, Math.min(pos.y + 16, window.innerHeight - tipH - 16)),
             }}
           >
             <TouchContext.Provider value={touch}>{content}</TouchContext.Provider>

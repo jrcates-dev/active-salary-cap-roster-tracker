@@ -44,7 +44,7 @@ async function readSnapshot(): Promise<Snapshot> {
 
 /** Fill fields an older snapshot may lack, so pages never branch on them. */
 function normalize(s: Snapshot): Snapshot {
-  return { ...s, history: s.history ?? [], freshness: s.freshness ?? null };
+  return { ...s, history: s.history ?? [], history_players: s.history_players ?? [], freshness: s.freshness ?? null };
 }
 
 export interface TeamView {

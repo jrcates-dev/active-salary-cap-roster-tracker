@@ -81,6 +81,6 @@ injury news (a public IR tracker plus team announcements; never OverTheCap or Sp
 | `summary.py` | one row per team: availability totals, estimates, dead money and cap space |
 | `reconcile.py` | the 1% gate against the hand-entered OTC team totals, with per-team allowances for known gaps |
 | `health.py` | stale-source, reconciliation, drift and reference-age checks after each export |
-| `export.py` | the compact JSON the site reads (current week, plus week-by-week team history), and the synthetic fixture |
+| `export.py` | the compact JSON the site reads (current week, week-by-week team history, and who was out or questionable in each earlier week), and the synthetic fixture |
 | `snapshot.py` | write the week's snapshot to `data/out/` |
 | `cli.py` | command-line entry point |

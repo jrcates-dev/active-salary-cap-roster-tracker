@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type CSSProperties } from "react";
 import { money } from "@/lib/format";
-import { statusHrefs } from "@/lib/rosterLink";
+import { weekStatusHrefs } from "@/lib/rosterLink";
 import type { HistoryRow } from "@/lib/types";
 import { AvailabilityBar, SLICE_SHORT, slicesOf, Swatch, type SliceKey } from "../Availability";
 import { byDir, SortChip, useFocusSort } from "../Sort";
@@ -46,9 +46,9 @@ export interface BoardTeam {
  * the reader picks a legend entry. Clicking an entry ranks teams by that money;
  * a second click flips the order and a third clears the focus, back to this
  * default view. While an entry is picked, its band is outlined and the rest fade.
- * A week picker replays past weeks and keeps the chosen order. In the current
- * week each segment links to that team's roster filtered to those players; past
- * weeks have no roster to show.
+ * A week picker replays past weeks and keeps the chosen order. Each segment links
+ * to that team's roster filtered to those players: the live roster in the current
+ * week, and that week's list of who was out in an earlier one.
  */
 export function InactiveBoard({
   title,
@@ -141,7 +141,7 @@ export function InactiveBoard({
                 emphasis={sort.focused ? sort.key : undefined}
                 animate={animate}
                 subject={t.name}
-                hrefs={shown === week ? statusHrefs(t.team) : undefined}
+                hrefs={weekStatusHrefs(t.team, shown, week)}
               />
               <span className="num text-right leading-tight whitespace-nowrap">
                 <span className="block text-sm font-medium">{money(value(r))}</span>

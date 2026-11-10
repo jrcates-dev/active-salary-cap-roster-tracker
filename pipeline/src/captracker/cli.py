@@ -154,19 +154,30 @@ def _reconcile(f: dict) -> reconcile.ReconcileReport | None:
     )
 
 
-def _history(f: dict) -> list[dict]:
-    """Team and unit totals for every week of the season up to the current one.
+def _history(f: dict) -> tuple[list[dict], list[dict]]:
+    """Every week of the season up to the current one: team and unit totals, and the
+    players who were out or questionable in each earlier week.
 
     Past weeks are rebuilt from the nflverse files, which keep every week's roster and
-    injury report, so nothing has to be stored between runs. Cap numbers are today's.
+    injury report, so nothing has to be stored between runs and each daily run adds
+    the week just played. Cap numbers are today's. The current week's players are
+    already in the snapshot's `players`, so they are not repeated here.
     """
+    from . import export
+
     rows: list[pl.DataFrame] = []
+    out_players: list[dict] = []
     for week in range(1, f["week"] + 1):
-        roll = f["rollup"] if week == f["week"] else _week_frames(f, week)["rollup"]
+        if week == f["week"]:
+            roll = f["rollup"]
+        else:
+            w = _week_frames(f, week)
+            roll = w["rollup"]
+            out_players.extend(export.week_out_players(w["fact"], f["season"]))
         rows.append(roll.filter(pl.col("level").is_in(["team", "unit"])))
     if not rows:
-        return []
-    return (
+        return [], []
+    totals = (
         pl.concat(rows)
         .select(
             "week",
@@ -183,6 +194,7 @@ def _history(f: dict) -> list[dict]:
         .sort(["week", "team", "unit"])
         .to_dicts()
     )
+    return totals, out_players
 
 
 def _team_totals(roll: pl.DataFrame) -> pl.DataFrame:
@@ -229,6 +241,7 @@ def cmd_export(args: argparse.Namespace) -> int:
     f = _build_frames(args.season, args.week)
     rep = _reconcile(f)
     report = rep.to_dict() if rep is not None else None
+    history, history_players = ([], []) if args.fixture else _history(f)
     freshness = {
         "schedule_week": f["week"],
         "roster_week": _max_week(f["roster_raw"], f["season"]),
@@ -245,7 +258,8 @@ def cmd_export(args: argparse.Namespace) -> int:
         games=f["games"],
         reconcile_report=report,
         freshness=freshness,
-        history=[] if args.fixture else _history(f),
+        history=history,
+        history_players=history_players,
     )
     out = Path(args.out)
     if args.fixture:

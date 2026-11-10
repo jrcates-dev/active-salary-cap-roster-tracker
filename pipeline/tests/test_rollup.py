@@ -76,3 +76,25 @@ def test_player_without_roster_row_is_unknown(
     assert set(fact["gameday_flag"].to_list()) == {"unknown"}
     team = roll.filter(pl.col("level") == "team").row(0, named=True)
     assert team["cap_unknown"] == 74_000_000
+
+
+def test_week_out_players_match_the_week_totals(
+    contracts_df, players_df, rosters_df, injuries_df, teams_map
+):
+    from captracker import export
+
+    for week, expected in ((8, {"00-K"}), (9, {"00-WR1", "00-WR2"})):
+        cy, cw, status, _, _ = _frames(
+            contracts_df, players_df, rosters_df, injuries_df, teams_map, week
+        )
+        fact = rollup.player_week_cap(
+            rollup.assign_groups(contracts.with_player_key(cy), cw), status, week
+        )
+        out = export.week_out_players(fact, 2026)
+        team = rollup.rollup(fact).filter(pl.col("level") == "team").row(0, named=True)
+        assert {r["key"] for r in out} == {
+            k for k in fact.filter(pl.col("gsis_id").is_in(list(expected)))["player_key"]
+        }
+        assert all(r["week"] == week for r in out)
+        assert sum(r["cap"] for r in out) == team["cap_inactive"] + team["cap_questionable"]
+        assert set(out[0]) == set(export.HISTORY_PLAYER_FIELDS)

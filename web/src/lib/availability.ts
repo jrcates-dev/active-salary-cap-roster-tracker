@@ -46,7 +46,7 @@ export const SLICE_SHORT: Record<SliceKey, string> = {
 
 /** One line on what counts as out, for chips and filters. */
 export const OUT_NOTE =
-  "Out for this game: ruled out (or out last game, with no status yet), doubtful, gameday inactive, or on a reserve list (IR, PUP, NFI, suspension) with a way back this season.";
+  "Out for this game: ruled out (or out last game, with no status yet), doubtful, an injured gameday inactive, or on a reserve list (IR, PUP, NFI, suspension) with a way back this season.";
 
 /** One line on how the site decides a reserve-list player is done for the season. */
 export const YEAR_NOTE =

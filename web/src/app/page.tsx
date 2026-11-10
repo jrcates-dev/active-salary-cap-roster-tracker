@@ -4,6 +4,7 @@ import { InactiveBoard } from "@/components/league/InactiveBoard";
 import { OffenseShare } from "@/components/league/OffenseShare";
 import { PlayersOut, type OutRow } from "@/components/league/PlayersOut";
 import { WeekGames } from "@/components/WeekGames";
+import { SectionNav } from "@/components/site/SectionNav";
 import { PageHead, SectionHead, Stat, WRAP } from "@/components/ui";
 import { STATUS_COLOR, teamVars, UNITS } from "@/design/tokens";
 import { cardTeams, getSnapshot, weekSlates } from "@/lib/data";
@@ -61,107 +62,122 @@ export default async function LeaguePage() {
   const history = s.history.length ? s.history : s.summary.map((t) => ({ ...t, week: s.week, unit: "all" as const }));
 
   return (
-    <main className={`${WRAP} space-y-14 py-8 sm:py-10`}>
-      <section className="space-y-5">
+    <>
+      <div className={`${WRAP} pt-8 pb-5 sm:pt-10`}>
         <PageHead eyebrow={`${s.season} season · Week ${s.week}`} title="League" />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          <div>
+      </div>
+      <SectionNav
+        crumbs={[{ label: "League" }]}
+        items={[
+          { id: "overview", label: "Overview" },
+          { id: "money-out", label: "Money out" },
+          ...(slates.length > 0 ? [{ id: "games", label: "Games" }] : []),
+          { id: "players-out", label: "Players out" },
+          { id: "groups", label: "Position groups" },
+          { id: "offense-defense", label: "Offense vs defense" },
+        ]}
+      />
+      <main className={`${WRAP} space-y-14 pt-6 pb-8 sm:pb-10`}>
+        <section id="overview" aria-label="League overview" className="scroll-mt-28 space-y-5">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            <div>
+              <Stat
+                label="Active"
+                swatch={<Swatch k="active" />}
+                tone={STATUS_COLOR.active}
+                value={money(active, 2)}
+                sub={`${pct(active / total)} of ${money(total, 2)}`}
+              />
+            </div>
             <Stat
-              label="Active"
-              swatch={<Swatch k="active" />}
-              tone={STATUS_COLOR.active}
-              value={money(active, 2)}
-              sub={`${pct(active / total)} of ${money(total, 2)}`}
+              label="Questionable"
+              swatch={<Swatch k="questionable" />}
+              tone={STATUS_COLOR.questionable}
+              value={money(questionable)}
+              sub={`${pct(questionable / total)} · ${nQuestionable} players`}
+            />
+            <Stat
+              label="Out this week"
+              swatch={<Swatch k="inactive" />}
+              tone={STATUS_COLOR.inactive}
+              value={money(outWeek)}
+              sub={`${pct(outWeek / total)} · ${count("week")} players`}
+            />
+            <Stat
+              label="Out long-term"
+              swatch={<Swatch k="season" />}
+              tone={STATUS_COLOR.season}
+              value={money(outSeason)}
+              sub={`${pct(outSeason / total)} · ${count("season")} players`}
+            />
+            <Stat
+              label="Out for season"
+              swatch={<Swatch k="year" />}
+              tone={STATUS_COLOR.year}
+              value={money(outYear)}
+              sub={`${pct(outYear / total)} · ${count("year")} players`}
+            />
+            <Stat
+              label="Dead money"
+              swatch={<Swatch k="dead" />}
+              tone={STATUS_COLOR.dead}
+              value={money(dead)}
+              sub={`${pct(dead / total)} · for the year`}
             />
           </div>
-          <Stat
-            label="Questionable"
-            swatch={<Swatch k="questionable" />}
-            tone={STATUS_COLOR.questionable}
-            value={money(questionable)}
-            sub={`${pct(questionable / total)} · ${nQuestionable} players`}
-          />
-          <Stat
-            label="Out this week"
-            swatch={<Swatch k="inactive" />}
-            tone={STATUS_COLOR.inactive}
-            value={money(outWeek)}
-            sub={`${pct(outWeek / total)} · ${count("week")} players`}
-          />
-          <Stat
-            label="Out long-term"
-            swatch={<Swatch k="season" />}
-            tone={STATUS_COLOR.season}
-            value={money(outSeason)}
-            sub={`${pct(outSeason / total)} · ${count("season")} players`}
-          />
-          <Stat
-            label="Out for season"
-            swatch={<Swatch k="year" />}
-            tone={STATUS_COLOR.year}
-            value={money(outYear)}
-            sub={`${pct(outYear / total)} · ${count("year")} players`}
-          />
-          <Stat
-            label="Dead money"
-            swatch={<Swatch k="dead" />}
-            tone={STATUS_COLOR.dead}
-            value={money(dead)}
-            sub={`${pct(dead / total)} · for the year`}
-          />
-        </div>
-        <div className="card space-y-3 px-4 py-4">
-          <AvailabilityBar
-            height={32}
-            labels
-            title="All 32 teams"
-            slices={{
-              active,
-              questionable,
-              inactive: outWeek,
-              season: outSeason,
-              year: outYear,
-              unknown: sum("cap_unknown"),
-              dead,
-            }}
-          />
-          <AvailabilityLegend keys={["active", "questionable", "inactive", "season", "year", "unknown", "dead"]} short />
-        </div>
-      </section>
+          <div className="card space-y-3 px-4 py-4">
+            <AvailabilityBar
+              height={32}
+              labels
+              title="All 32 teams"
+              slices={{
+                active,
+                questionable,
+                inactive: outWeek,
+                season: outSeason,
+                year: outYear,
+                unknown: sum("cap_unknown"),
+                dead,
+              }}
+            />
+            <AvailabilityLegend keys={["active", "questionable", "inactive", "season", "year", "unknown", "dead"]} short />
+          </div>
+        </section>
 
-      <section>
-        <InactiveBoard title="Money out by team" teams={boardTeams} history={history} week={s.week} />
-      </section>
+        <section id="money-out" className="scroll-mt-28">
+          <InactiveBoard title="Money out by team" teams={boardTeams} history={history} week={s.week} />
+        </section>
 
-      <section
-        id="games"
-        className="grid scroll-mt-20 grid-cols-[minmax(0,1fr)] gap-12 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"
-      >
-        {slates.length > 0 && (
-          <WeekGames
-            slates={slates}
-            teams={cardTeams(s)}
-            dataWeek={s.week}
-            initialWeek={defaultWeek(slates, new Date())}
-            more={{ href: "/matchups/", label: "All matchups" }}
-            cols="grid-cols-2"
-          />
-        )}
-        <div>
-          <SectionHead title="Players out" />
-          <PlayersOut week={s.week} thisWeek={outRows("week")} longTerm={outRows("season")} forSeason={outRows("year")} />
-        </div>
-      </section>
+        <section
+          id="games"
+          className="grid scroll-mt-28 grid-cols-[minmax(0,1fr)] gap-12 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"
+        >
+          {slates.length > 0 && (
+            <WeekGames
+              slates={slates}
+              teams={cardTeams(s)}
+              dataWeek={s.week}
+              initialWeek={defaultWeek(slates, new Date())}
+              more={{ href: "/matchups/", label: "All matchups" }}
+              cols="grid-cols-2"
+            />
+          )}
+          <div id="players-out" className="scroll-mt-28">
+            <SectionHead title="Players out" />
+            <PlayersOut week={s.week} thisWeek={outRows("week")} longTerm={outRows("season")} forSeason={outRows("year")} />
+          </div>
+        </section>
 
-      <section>
-        <SectionHead title="Cap by position group" />
-        <Heatmap groups={groupsOrdered} rows={heatRows} />
-      </section>
+        <section id="groups" className="scroll-mt-28">
+          <SectionHead title="Cap by position group" />
+          <Heatmap groups={groupsOrdered} rows={heatRows} />
+        </section>
 
-      <section className="max-w-3xl">
-        <SectionHead title="Offense vs defense" />
-        <OffenseShare s={s} />
-      </section>
+        <section id="offense-defense" className="max-w-3xl scroll-mt-28">
+          <SectionHead title="Offense vs defense" />
+          <OffenseShare s={s} />
+        </section>
     </main>
+    </>
   );
 }

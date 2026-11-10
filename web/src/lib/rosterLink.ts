@@ -89,14 +89,28 @@ export function parseRosterFilter(search: string): RosterFilter | null {
 export const ROSTER_EVENT = "roster:filter";
 
 /**
- * Scrolls the roster section (or another team page section, by id) to just below the sticky site header (whose height
- * changes with the fixture-data banner), smoothly unless the reader asked for less motion.
+ * How far down the page the sticky bars reach: the site header, plus the section
+ * bar on pages that have one. Anything scrolled into view lands below this line.
+ */
+export function stickyOffset(): number {
+  let bottom = 0;
+  // Where each bar sits once stuck, not where it is now: a section bar still in
+  // the flow (near the top of the page) sticks as soon as the page scrolls.
+  for (const el of document.querySelectorAll<HTMLElement>("[data-sticky]")) {
+    const top = parseFloat(getComputedStyle(el).top) || 0;
+    bottom = Math.max(bottom, top + el.offsetHeight);
+  }
+  return bottom;
+}
+
+/**
+ * Scrolls the roster section (or another section, by id) to just below the sticky
+ * bars, smoothly unless the reader asked for less motion.
  */
 export function scrollToRoster(id: string = ROSTER_ID) {
   const el = document.getElementById(id);
   if (!el) return;
-  const header = document.querySelector("header.sticky");
-  const offset = (header?.getBoundingClientRect().bottom ?? 0) + 16;
+  const offset = stickyOffset() + 16;
   const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - offset, behavior: still ? "auto" : "smooth" });
 }

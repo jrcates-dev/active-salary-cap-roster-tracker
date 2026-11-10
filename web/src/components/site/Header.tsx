@@ -10,26 +10,29 @@ export function Header({ snapshot: s }: { snapshot: Snapshot }) {
     .sort((a, b) => a.division.localeCompare(b.division) || a.nick.localeCompare(b.nick))
     .map((t) => ({ team: t.team, nick: t.nick, name: t.name, division: t.division, vars: teamVars(t) }));
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-surface/85 backdrop-blur-md">
-      <div className="mx-auto flex h-14 w-full max-w-[1200px] items-center gap-1.5 px-4 sm:gap-5 sm:px-6">
-        <Link href="/" className="flex shrink-0 items-center gap-2.5 rounded-md" aria-label="Cap Tracker, league overview">
-          <Mark />
-          <span className="hidden text-[15px] font-semibold tracking-tight sm:inline">Cap Tracker</span>
-        </Link>
-        <NavLinks />
-        <div className="ml-auto flex shrink-0 items-center gap-2">
-          <span className="num hidden rounded-md bg-surface-2 px-2.5 py-1 text-xs font-medium text-ink-2 md:inline-block">
-            {s.season} · Week {s.week}
-          </span>
-          <TeamSwitcher teams={teams} />
+    <>
+      <header data-sticky className="sticky top-0 z-40 border-b border-line bg-surface/85 backdrop-blur-md">
+        <div className="mx-auto flex h-14 w-full max-w-[1200px] items-center gap-1.5 px-4 sm:gap-5 sm:px-6">
+          <Link href="/" className="flex shrink-0 items-center gap-2.5 rounded-md" aria-label="Cap Tracker, league overview">
+            <Mark />
+            <span className="hidden text-[15px] font-semibold tracking-tight sm:inline">Cap Tracker</span>
+          </Link>
+          <NavLinks />
+          <div className="ml-auto flex shrink-0 items-center gap-2">
+            <span className="num hidden rounded-md bg-surface-2 px-2.5 py-1 text-xs font-medium text-ink-2 md:inline-block">
+              {s.season} · Week {s.week}
+            </span>
+            <TeamSwitcher teams={teams} />
+          </div>
         </div>
-      </div>
+      </header>
+      {/* Outside the sticky bar, so the bar is always one height and the notice scrolls away. */}
       {s.fixture && (
-        <p className="border-t border-line bg-accent-soft px-4 py-1.5 text-center text-xs text-ink-2">
+        <p className="border-b border-line bg-accent-soft px-4 py-1.5 text-center text-xs text-ink-2">
           Synthetic fixture data. Real names and dollars come from <code>captracker export</code>.
         </p>
       )}
-    </header>
+    </>
   );
 }
 

@@ -67,7 +67,7 @@ export function TeamSwitcher({ teams }: { teams: SwitcherTeam[] }) {
         aria-expanded={open}
         aria-label={current ? `${current.nick}: switch team` : "Teams: switch team"}
         onClick={toggle}
-        className={`flex h-8 max-w-[7.5rem] items-center gap-1.5 rounded-md border px-2 text-[13px] transition-colors duration-(--dur-1) sm:max-w-none sm:gap-2 sm:px-2.5 sm:text-sm ${
+        className={`hit flex h-8 max-w-[7.5rem] items-center gap-1.5 rounded-md border px-2 text-[13px] transition-colors duration-(--dur-1) sm:max-w-none sm:gap-2 sm:px-2.5 sm:text-sm ${
           current || open
             ? "border-line-2 bg-surface text-ink"
             : "border-line bg-surface text-ink-2 hover:border-line-2 hover:text-ink"

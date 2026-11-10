@@ -5,7 +5,7 @@ import { money } from "@/lib/format";
 import { statusHrefs } from "@/lib/rosterLink";
 import type { HistoryRow } from "@/lib/types";
 import { AvailabilityBar, SLICE_SHORT, slicesOf, Swatch, type SliceKey } from "../Availability";
-import { byDir, SortChip, useSort } from "../Sort";
+import { byDir, SortChip, useFocusSort } from "../Sort";
 import { TeamChip } from "../TeamChip";
 import { SectionHead } from "../ui";
 import { Select, StepButton } from "../ui/controls";
@@ -43,11 +43,12 @@ export interface BoardTeam {
 
 /**
  * All 32 teams on one shared axis, ranked by money out for this week's game until
- * the reader picks another legend entry. Clicking an entry ranks teams by that
- * money; clicking it again flips the order. Once the reader has picked, the
- * ranked band is drawn at full strength and the rest fade. A week picker replays
- * past weeks and keeps the chosen order. In the current week each segment links to
- * that team's roster filtered to those players; past weeks have no roster to show.
+ * the reader picks a legend entry. Clicking an entry ranks teams by that money;
+ * a second click flips the order and a third clears the focus, back to this
+ * default view. While an entry is picked, its band is outlined and the rest fade.
+ * A week picker replays past weeks and keeps the chosen order. In the current
+ * week each segment links to that team's roster filtered to those players; past
+ * weeks have no roster to show.
  */
 export function InactiveBoard({
   title,
@@ -62,8 +63,7 @@ export function InactiveBoard({
 }) {
   const weeks = useMemo(() => [...new Set(history.map((h) => h.week))].sort((a, b) => a - b), [history]);
   const [shown, setShown] = useState(week);
-  const [sort, toggleSort] = useSort<SliceKey>("inactive");
-  const [picked, setPicked] = useState(false);
+  const [sort, toggleSort] = useFocusSort<SliceKey>("inactive");
   // Bars grow once on first paint; a re-sort moves rows, which must not replay it.
   const [animate, setAnimate] = useState(true);
   const byTeam = Object.fromEntries(teams.map((t) => [t.team, t]));
@@ -109,12 +109,11 @@ export function InactiveBoard({
         {SORT_KEYS.map((k) => (
           <SortChip
             key={k}
-            active={sort.key === k}
+            active={sort.focused && sort.key === k}
             dir={sort.dir}
             onClick={() => {
               setAnimate(false);
               toggleSort(k);
-              setPicked(true);
             }}
             label={SLICE_SHORT[k]}
             swatch={<Swatch k={k} />}
@@ -139,7 +138,7 @@ export function InactiveBoard({
                 height={10}
                 title={`${t.name} · Week ${shown}`}
                 slices={slicesOf(r)}
-                emphasis={picked ? sort.key : undefined}
+                emphasis={sort.focused ? sort.key : undefined}
                 animate={animate}
                 subject={t.name}
                 hrefs={shown === week ? statusHrefs(t.team) : undefined}

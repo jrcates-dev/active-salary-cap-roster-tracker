@@ -7,7 +7,7 @@ import { rosterHref } from "@/lib/rosterLink";
 import type { Unit } from "@/lib/types";
 import { SEGMENT_LINK } from "../Availability";
 import { ChartLink } from "../ChartLink";
-import { byDir, SortChip, useSort } from "../Sort";
+import { byDir, SortChip, useFocusSort } from "../Sort";
 import { TeamChip } from "../TeamChip";
 import { Tip, TipHint, TipRow, TipTitle } from "../Tip";
 
@@ -22,15 +22,15 @@ export interface UnitRow {
 
 /**
  * Each team's counted cap split by unit, ranked from most offense-heavy until the
- * reader picks another unit. Clicking a unit ranks teams by that unit's share;
- * clicking it again flips the order. The ranked unit always sits at the left edge
- * of every bar, so its segments line up and compare directly; once the reader has
- * picked one, the other units fade back. Each segment links to that team's roster
- * filtered to the unit; the legend above only sorts.
+ * reader picks a unit. Clicking a unit ranks teams by that unit's share;
+ * a second click flips the order and a third clears the focus, back to this
+ * default view. The ranked unit always sits at the left edge of every bar, so its
+ * segments line up and compare directly; while a unit is picked, the others fade.
+ * Each segment links to that team's roster filtered to the unit; the legend above
+ * only sorts.
  */
 export function OffenseShareBoard({ rows }: { rows: UnitRow[] }) {
-  const [sort, toggleSort] = useSort<Unit>("offense");
-  const [picked, setPicked] = useState(false);
+  const [sort, toggleSort] = useFocusSort<Unit>("offense");
   const [animate, setAnimate] = useState(true);
   const share = (r: UnitRow, u: Unit) => (r.total ? r.unitCap[u] / r.total : 0);
   const order = [sort.key, ...UNITS.filter((u) => u !== sort.key)];
@@ -56,12 +56,11 @@ export function OffenseShareBoard({ rows }: { rows: UnitRow[] }) {
           {UNITS.map((u) => (
             <SortChip
               key={u}
-              active={sort.key === u}
+              active={sort.focused && sort.key === u}
               dir={sort.dir}
               onClick={() => {
                 setAnimate(false);
                 toggleSort(u);
-                setPicked(true);
               }}
               label={unitMark[u].label}
               tone={UNIT_COLOR[u]}
@@ -107,7 +106,7 @@ export function OffenseShareBoard({ rows }: { rows: UnitRow[] }) {
                       flexGrow: r.unitCap[u],
                       flexBasis: 0,
                       background: UNIT_COLOR[u],
-                      opacity: picked && sort.key !== u ? 0.3 : undefined,
+                      opacity: sort.focused && sort.key !== u ? 0.3 : undefined,
                     }}
                     content={
                       <div>

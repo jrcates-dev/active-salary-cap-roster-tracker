@@ -182,6 +182,15 @@ export interface Freshness {
   reference_as_of: string | null;
 }
 
+/** One dead money charge on a team's cap this season (hand-entered from OverTheCap). */
+export interface DeadCharge {
+  team: string;
+  name: string;
+  /** OverTheCap's position code (ED, LT, ...), when known. */
+  pos: string | null;
+  amount: number;
+}
+
 export interface Snapshot {
   season: number;
   week: number;
@@ -197,6 +206,8 @@ export interface Snapshot {
   history: HistoryRow[];
   /** Who was out or questionable in each earlier week. Older snapshots lack it. */
   history_players: HistoryPlayer[];
+  /** Each team's dead money, charge by charge. Older snapshots lack it. */
+  dead_charges: DeadCharge[];
   reconcile: {
     season: number;
     tolerance: number;

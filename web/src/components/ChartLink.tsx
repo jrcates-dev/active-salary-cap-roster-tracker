@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
-import { parseRosterFilter, ROSTER_EVENT } from "@/lib/rosterLink";
+import { parseRosterFilter, ROSTER_EVENT, scrollToRoster } from "@/lib/rosterLink";
 
 const trimSlash = (p: string) => p.replace(/\/+$/, "") || "/";
 
@@ -44,7 +44,8 @@ export function ChartLink({
   };
   useEffect(() => stopListening, []);
 
-  const [path, search = ""] = href.split("?");
+  const [target, hash] = href.split("#");
+  const [path, search = ""] = target.split("?");
   const samePage = trimSlash(path) === trimSlash(pathname ?? "");
 
   return (
@@ -77,6 +78,8 @@ export function ChartLink({
         if (!samePage) return;
         e.preventDefault();
         router.push(href, { scroll: false });
+        // A link to a section of this page (the dead money list) scrolls to it.
+        if (hash) return scrollToRoster(hash);
         window.dispatchEvent(new CustomEvent(ROSTER_EVENT, { detail: parseRosterFilter(search) ?? {} }));
       }}
     >

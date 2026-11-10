@@ -266,6 +266,7 @@ def cmd_export(args: argparse.Namespace) -> int:
         depth_roles=depth.roles_for(
             f["depth_chart"], f["status"], f["games"], f["season"], f["week"]
         ),
+        dead_charges=reconcile.load_dead_charges(f["season"]),
     )
     out = Path(args.out)
     if args.fixture:

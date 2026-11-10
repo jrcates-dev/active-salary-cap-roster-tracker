@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type CSSProperties } from "react";
 import { money } from "@/lib/format";
-import { weekStatusHrefs } from "@/lib/rosterLink";
+import { deadHref, weekStatusHrefs } from "@/lib/rosterLink";
 import type { HistoryRow } from "@/lib/types";
 import { AvailabilityBar, SLICE_SHORT, slicesOf, Swatch, type SliceKey } from "../Availability";
 import { byDir, SortChip, useFocusSort } from "../Sort";
@@ -166,7 +166,7 @@ export function InactiveBoard({
                 emphasis={sort.focused ? sort.key : undefined}
                 animate={animate}
                 subject={t.name}
-                hrefs={weekStatusHrefs(t.team, shown, week)}
+                hrefs={{ ...weekStatusHrefs(t.team, shown, week), dead: deadHref(t.team) }}
               />
               <Tip
                 as="span"

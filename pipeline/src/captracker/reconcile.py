@@ -62,6 +62,30 @@ def load_reference(season: int) -> pl.DataFrame:
     return pl.read_csv(path)
 
 
+def load_dead_charges(season: int) -> list[dict]:
+    """Each team's dead money, one row per charge, largest first within a team.
+
+    Hand-entered from OverTheCap's team pages into
+    data/reference/otc_dead_money_<season>.csv. OverTheCap lists charges of $100K and
+    up, so a team's rows can sum to a little less than its dead money total; the site
+    shows the rest as one line. An empty list when the season has no file.
+    """
+    path = PACKAGE_DATA / "reference" / f"otc_dead_money_{season}.csv"
+    if not path.exists():
+        return []
+    df = pl.read_csv(path, schema_overrides={"position": pl.String})
+    return (
+        df.select(
+            "team",
+            pl.col("player").alias("name"),
+            pl.col("position").alias("pos"),
+            pl.col("dead_money").cast(pl.Int64).alias("amount"),
+        )
+        .sort(["team", "amount"], descending=[False, True])
+        .to_dicts()
+    )
+
+
 def load_known_gaps(season: int) -> dict[str, tuple[float, str]]:
     """team -> (allowance, note) for gaps that are understood and disclosed.
 

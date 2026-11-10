@@ -47,19 +47,22 @@ export default async function MethodologyPage() {
 
         <Section title="Availability">
           <li>
-            <B>Out this week</B>: ruled out or doubtful before the game, or on the official inactive list once it is played. This is the money that
-            changes a matchup.
+            <B>Out</B>: money missing from this game but not for good. That is anyone ruled out or doubtful before the game, on the official inactive
+            list once it is played, or on injured reserve, PUP, NFI, suspension or another reserve list with a way back this season.
           </li>
           <li>
-            <B>Out long-term</B>: injured reserve, PUP, NFI, suspension or another reserve list, with a way back this season. Drawn as a faint band; it
-            does not set the order of the league board.
+            Each player who is out carries a tag that says which: &ldquo;Inactive this week&rdquo; (or ruled out, or doubtful) for this game only, or the
+            reserve list with when he can come back, like &ldquo;IR, eligible week 12&rdquo;. IR, PUP and NFI hold a player out at least four games, so
+            the eligible week is the fifth game after the first week he showed up on the list. The free data has no placement date, so that week is an
+            estimate. A player designated to return, with his practice window open, says so. Tooltips on the out band split it the same way: how much
+            is on a reserve list and how much is out for this game only.
           </li>
           <li>
             <B>Out for season</B>: reserve-list money that will not play again this year, drawn as a pinstriped band. No free feed says an injury ends
             a season, so two signals decide: a hand-kept table of reported season-ending injuries (torn ACL, patellar tendon, Achilles and the like),
             checked by date, and the roster codes, since a player whose 21-day return window closes without activation must stay on reserve all
             season. Everyone else on a reserve list counts as able to return. The table can lag the news by a few days, so a player shut down quietly
-            stays in &ldquo;Out long-term&rdquo; until it is updated.
+            stays in &ldquo;Out&rdquo; until it is updated.
           </li>
           <li>
             <B>Questionable</B>: listed questionable on the latest report for a game not yet played. Counts as on the field until ruled out. Once a

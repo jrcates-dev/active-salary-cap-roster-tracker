@@ -5,7 +5,8 @@ export type Flag = "active" | "inactive" | "questionable" | "unknown";
 /**
  * Why an inactive player is out: this game only (`week`), a reserve list he can come
  * back from this season (`season`: IR, PUP, NFI, suspension), or a reserve list he is
- * done for the year on (`year`).
+ * done for the year on (`year`). The site draws `week` and `season` as one "Out" band
+ * and tells them apart with a tag on each player (`out_tag`).
  */
 export type Absence = "week" | "season" | "year";
 /** What decided `season` vs `year`: the hand-kept table, or a roster code. */
@@ -109,6 +110,11 @@ export interface Player {
   starter?: boolean | null;
   /** His main spot on the chart with its rank: "LT1", "QB2", "WR4". */
   depth_role?: string | null;
+  /**
+   * Why he is out, in a few words ("Inactive this week", "IR, eligible week 12").
+   * Filled in when the snapshot is read (data.ts), not by the pipeline.
+   */
+  out_tag?: string | null;
 }
 
 export interface Game {
@@ -173,6 +179,7 @@ export type HistoryPlayer = Pick<
   | "injury"
   | "starter"
   | "depth_role"
+  | "out_tag"
 > & { week: number };
 
 export interface Freshness {

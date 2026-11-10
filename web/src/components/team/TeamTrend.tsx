@@ -1,5 +1,6 @@
 "use client";
 
+import { outOf, reserveLine } from "@/lib/availability";
 import { money } from "@/lib/format";
 import { rosterHref, type RosterStatus } from "@/lib/rosterLink";
 import type { HistoryRow } from "@/lib/types";
@@ -7,24 +8,23 @@ import { SEGMENT_LINK, sliceClass, Swatch, type SliceKey } from "../Availability
 import { ChartLink } from "../ChartLink";
 import { Tip, TipHint, TipRow, TipTitle } from "../Tip";
 
-const STACK: { k: SliceKey; field: keyof HistoryRow; label: string }[] = [
-  { k: "year", field: "cap_inactive_year", label: "Out for season" },
-  { k: "season", field: "cap_inactive_season", label: "Out long-term" },
-  { k: "inactive", field: "cap_inactive_week", label: "Out that week" },
-  { k: "questionable", field: "cap_questionable", label: "Questionable" },
+const STACK: { k: SliceKey; value: (r: HistoryRow) => number; label: string }[] = [
+  { k: "year", value: (r) => r.cap_inactive_year ?? 0, label: "Out for season" },
+  { k: "inactive", value: outOf, label: "Out" },
+  { k: "questionable", value: (r) => r.cap_questionable, label: "Questionable" },
 ];
 
 /**
  * Money out, week by week: one column per week, money out for the season at the
- * bottom, other reserve-list money above it and that week's absences on top, all on
- * one axis. Each band links to the roster list of the players behind it in that
+ * bottom, the rest of that week's money out above it and questionable money on top,
+ * all on one axis. Each band links to the roster list of the players behind it in that
  * week, and the rest of the column (and its week number) to everyone out that week.
  */
 export function TeamTrend({ team, rows, week }: { team: string; rows: HistoryRow[]; week: number }) {
   /** The roster as it stood in a week: the live one for the current week. */
   const href = (w: number, status?: RosterStatus) => rosterHref(team, { week: w === week ? undefined : w, status });
   const data = [...rows].sort((a, b) => a.week - b.week);
-  const totals = data.map((r) => STACK.reduce((acc, s) => acc + Number(r[s.field] ?? 0), 0));
+  const totals = data.map((r) => STACK.reduce((acc, s) => acc + s.value(r), 0));
   const max = Math.max(1, ...totals);
   const height = 132;
   return (
@@ -42,7 +42,12 @@ export function TeamTrend({ team, rows, week }: { team: string; rows: HistoryRow
                 <div>
                   <TipTitle>Week {r.week}</TipTitle>
                   {[...STACK].reverse().map((s) => (
-                    <TipRow key={s.k} label={s.label} value={money(Number(r[s.field] ?? 0))} swatch={<Swatch k={s.k} />} />
+                    <div key={s.k}>
+                      <TipRow label={s.label} value={money(s.value(r))} swatch={<Swatch k={s.k} />} />
+                      {s.k === "inactive" && reserveLine(outOf(r), r.cap_inactive_season) && (
+                        <p className="mb-0.5 text-ink-3">{reserveLine(outOf(r), r.cap_inactive_season)}</p>
+                      )}
+                    </div>
                   ))}
                   {totals[i] > 0 && <TipHint>see who was out</TipHint>}
                 </div>
@@ -56,7 +61,7 @@ export function TeamTrend({ team, rows, week }: { team: string; rows: HistoryRow
               />
               <div className="bar-grow-up pointer-events-none relative flex flex-col-reverse gap-[2px]" style={{ height: `${(totals[i] / max) * 100}%` }}>
                 {STACK.map((s) => {
-                  const v = Number(r[s.field] ?? 0);
+                  const v = s.value(r);
                   if (v <= 0) return null;
                   return (
                     <div key={s.k} className={`${sliceClass(s.k)} pointer-events-auto relative min-h-[2px] rounded-[3px]`} style={{ flexGrow: v, flexBasis: 0 }}>

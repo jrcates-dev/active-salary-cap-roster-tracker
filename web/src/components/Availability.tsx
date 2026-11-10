@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { money, pct } from "@/lib/format";
-import { SLICE_LABEL, SLICE_ORDER, SLICE_SHORT, type SliceKey, type Slices } from "@/lib/availability";
+import { reserveLine, SLICE_LABEL, SLICE_ORDER, SLICE_SHORT, type SliceKey, type Slices } from "@/lib/availability";
 import { ChartLink } from "./ChartLink";
 import { Tip, TipHint, TipRow, TipTitle } from "./Tip";
 
@@ -12,12 +12,12 @@ export { playerSlice, SLICE_LABEL, SLICE_SHORT, slicesOf, type SliceKey, type Sl
  * How a chart paints availability. `status` (every page but the matchup) gives each
  * state its own money status hue. `team` (the matchup page, where two teams share a
  * chart) paints every state in the team's own color and tells them apart by
- * pattern: solid, dots, stripes, bars, hollow (globals.css, `.t-*`).
+ * pattern: solid, dots, stripes, hollow (globals.css, `.t-*`).
  */
 export type Palette = "status" | "team";
 
 /** States with a team-color pattern; practice squad and dead money stay neutral. */
-const TEAM_PATTERNED = new Set<SliceKey>(["active", "questionable", "inactive", "season", "year"]);
+const TEAM_PATTERNED = new Set<SliceKey>(["active", "questionable", "inactive", "year"]);
 
 /** The CSS class that paints one availability state in the given palette. */
 export const sliceClass = (k: SliceKey, palette: Palette = "status") =>
@@ -25,7 +25,7 @@ export const sliceClass = (k: SliceKey, palette: Palette = "status") =>
 
 /** States drawn with a texture; a share printed on them sits on a solid chip of the hue. */
 const TEXTURED = new Set<SliceKey>(["inactive", "year", "unknown"]);
-const TEXTURED_TEAM = new Set<SliceKey>(["questionable", "inactive", "season", "year", "unknown"]);
+const TEXTURED_TEAM = new Set<SliceKey>(["questionable", "inactive", "year", "unknown"]);
 
 /**
  * The small key of one state. `team` paints it in that team's pattern (pass the
@@ -138,6 +138,7 @@ export function AvailabilityBar({
           const px = width * (v / full);
           const share = pct(v / total, 0);
           const href = hrefs?.[k] ?? null;
+          const detail = k === "inactive" ? reserveLine(v, slices.reserve ?? 0) : null;
           return (
             <Tip
               key={k}
@@ -153,6 +154,7 @@ export function AvailabilityBar({
                 <div>
                   {title && <TipTitle>{title}</TipTitle>}
                   <TipRow label={SLICE_LABEL[k]} value={`${money(v)} · ${pct(v / total)}`} swatch={<Swatch k={k} team={team} />} />
+                  {detail && <p className="mt-0.5 text-ink-3">{detail}</p>}
                   {href && <TipHint>{k === "dead" ? "see these charges" : undefined}</TipHint>}
                 </div>
               }
@@ -199,7 +201,7 @@ export const SEGMENT_LINK =
   "absolute inset-0 rounded-[inherit] transition-[box-shadow,background-color] duration-(--dur-1) hover:bg-surface/25 hover:shadow-[inset_0_0_0_2px_var(--ink)] focus-visible:shadow-[inset_0_0_0_2px_var(--ink)]";
 
 export function AvailabilityLegend({
-  keys = ["active", "questionable", "inactive", "season", "year", "unknown"],
+  keys = ["active", "questionable", "inactive", "year", "unknown"],
   extra,
   short = false,
   palette = "status",

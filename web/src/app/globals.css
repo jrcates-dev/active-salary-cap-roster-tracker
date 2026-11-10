@@ -5,9 +5,9 @@
  *   surfaces and ink      neutral, one scale per theme
  *   team color            identity (set per element by the .tc class, see tokens.ts)
  *   money status          one fixed hue per availability state (--st-*), the same on
- *                         every page: green active, amber questionable, red out this
- *                         week, berry out long-term, violet out for season, neutral
- *                         practice squad and dead money (.s-*)
+ *                         every page: green active, amber questionable, red out,
+ *                         violet out for season, neutral practice squad and dead
+ *                         money (.s-*)
  *   intensity ramp        one amber hue for "share of cap" in the league heatmap
  *   accent                one orange, only where it carries meaning (a real edge, focus)
  *   unit                  blue offense, green defense, gold special teams, only where a
@@ -48,10 +48,8 @@
   --st-active-ink: #111827; /* 5.2:1 */
   --st-questionable: #efab00;
   --st-questionable-ink: #111827; /* 8.9:1 */
-  --st-week: #e33b3b;
-  --st-week-ink: #ffffff; /* 4.2:1 */
-  --st-long: #b32d8a;
-  --st-long-ink: #ffffff; /* 5.7:1 */
+  --st-out: #e33b3b;
+  --st-out-ink: #ffffff; /* 4.2:1 */
   --st-year: #6a3ec2;
   --st-year-ink: #ffffff; /* 6.8:1 */
   --st-dead-ink: #111827;
@@ -93,10 +91,8 @@
     --st-active-ink: #111827; /* 5.8:1 */
     --st-questionable: #f2b318;
     --st-questionable-ink: #111827; /* 9.5:1 */
-    --st-week: #f4543e;
-    --st-week-ink: #111827; /* 5.2:1 */
-    --st-long: #cf47a6;
-    --st-long-ink: #111827; /* 4.3:1 */
+    --st-out: #f4543e;
+    --st-out-ink: #111827; /* 5.2:1 */
     --st-year: #8f6be6;
     --st-year-ink: #111827; /* 4.6:1 */
     --st-dead-ink: #eef1f5;
@@ -138,10 +134,8 @@
   --st-active-ink: #111827; /* 5.8:1 */
   --st-questionable: #f2b318;
   --st-questionable-ink: #111827; /* 9.5:1 */
-  --st-week: #f4543e;
-  --st-week-ink: #111827; /* 5.2:1 */
-  --st-long: #cf47a6;
-  --st-long-ink: #111827; /* 4.3:1 */
+  --st-out: #f4543e;
+  --st-out-ink: #111827; /* 5.2:1 */
   --st-year: #8f6be6;
   --st-year-ink: #111827; /* 4.6:1 */
   --st-dead-ink: #eef1f5;
@@ -303,8 +297,8 @@ body {
  * that are not a plain fill keep a texture too, so none depends on color alone:
  *   active         solid green
  *   questionable   solid amber in a dashed ring
- *   inactive       red with a darker 135deg hatch (out for this game)
- *   season         solid berry (reserve list, can return)
+ *   inactive       red with a darker 135deg hatch (out: this game, or a reserve list
+ *                  he can come back from this season)
  *   year           violet with a darker 45deg pinstripe (reserve list, done for the year)
  *   unknown        neutral dots (practice squad)
  *   dead           flat neutral
@@ -323,18 +317,13 @@ body {
   outline-offset: -1.5px;
 }
 .s-inactive {
-  --s: var(--st-week);
-  --s-ink: var(--st-week-ink);
+  --s: var(--st-out);
+  --s-ink: var(--st-out-ink);
   background: repeating-linear-gradient(
     135deg,
     color-mix(in srgb, var(--s) 72%, #000) 0 2px,
     var(--s) 2px 6px
   );
-}
-.s-season {
-  --s: var(--st-long);
-  --s-ink: var(--st-long-ink);
-  background: var(--s);
 }
 .s-year {
   --s: var(--st-year);
@@ -364,8 +353,8 @@ body {
  * reads from a pattern alone, one per state and unlike the others at bar size:
  *   active         solid team color
  *   questionable   team-color dots on a light wash
- *   inactive       wide 135deg team-color stripes (out for this game)
- *   season         horizontal team-color stripes (reserve list, can return)
+ *   inactive       wide 135deg team-color stripes (out: this game, or a reserve list
+ *                  he can come back from this season)
  *   year           hollow: a team-color outline around a faint wash (done for the year)
  * Practice squad and dead money keep their neutral .s-* fills. A legend that
  * covers both teams sets --team to ink so the key shows the pattern, not a team.
@@ -373,7 +362,6 @@ body {
 .t-active,
 .t-questionable,
 .t-inactive,
-.t-season,
 .t-year {
   --s: var(--team, var(--ink-2));
   --s-ink: var(--team-ink, var(--surface));
@@ -390,10 +378,6 @@ body {
 }
 .t-inactive {
   background: repeating-linear-gradient(135deg, var(--s) 0 2.5px, var(--t-wash) 2.5px 6px);
-}
-.t-season {
-  background: repeating-linear-gradient(180deg, var(--s) 0 2px, var(--t-wash) 2px 4.5px);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--s) 45%, transparent);
 }
 .t-year {
   background: color-mix(in srgb, var(--s) 6%, var(--surface));

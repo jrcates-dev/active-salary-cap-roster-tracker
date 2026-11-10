@@ -11,7 +11,7 @@ import { STATUS_COLOR, teamVars, UNITS } from "@/design/tokens";
 import { cardTeams, getSnapshot, weekSlates } from "@/lib/data";
 import { defaultWeek } from "@/lib/schedule";
 import { money, pct } from "@/lib/format";
-import type { Absence } from "@/lib/types";
+import { outOf } from "@/lib/availability";
 
 export default async function LeaguePage() {
   const s = await getSnapshot();
@@ -22,14 +22,16 @@ export default async function LeaguePage() {
   // Player cap plus the year's dead money: the whole league bar, and every share below.
   const total = sum("cap_total") + dead;
   const active = sum("cap_active");
-  const outWeek = sum("cap_inactive_week");
-  const outSeason = sum("cap_inactive_season");
+  const out = sum("cap_inactive_week") + sum("cap_inactive_season");
+  const reserve = sum("cap_inactive_season");
   const outYear = sum("cap_inactive_year");
   const questionable = sum("cap_questionable");
   const unknown = sum("cap_unknown");
-  const isOut = (kind: Absence) => (p: (typeof s.players)[number]) =>
-    p.flag === "inactive" && (p.absence ?? "week") === kind;
-  const count = (kind: Absence) => s.players.filter(isOut(kind)).length;
+  /** Out (this week's absences and reserve lists with a way back), or out for the season. */
+  type OutKind = "out" | "year";
+  const isOut = (kind: OutKind) => (p: (typeof s.players)[number]) =>
+    p.flag === "inactive" && (p.absence === "year") === (kind === "year");
+  const count = (kind: OutKind) => s.players.filter(isOut(kind)).length;
   const nQuestionable = s.players.filter((p) => p.flag === "questionable").length;
   const teamsById = Object.fromEntries(s.teams.map((t) => [t.team, t]));
   const slates = weekSlates(s);
@@ -42,13 +44,13 @@ export default async function LeaguePage() {
     const cells: HeatRow["cells"] = {};
     for (const r of s.rollup) {
       if (r.team === t.team && r.level === "group") {
-        cells[r.position_group] = { cap: r.cap_total, inactive: r.cap_inactive_week ?? 0 };
+        cells[r.position_group] = { cap: r.cap_total, inactive: outOf(r) };
       }
     }
     return { team: t.team, nick: team.nick, name: team.name, vars: teamVars(team), total: t.cap_total, cells };
   });
 
-  const outRows = (kind: Absence): OutRow[] =>
+  const outRows = (kind: OutKind): OutRow[] =>
     s.players
       .filter(isOut(kind))
       .sort((a, b) => b.cap - a.cap)
@@ -83,8 +85,8 @@ export default async function LeaguePage() {
                 slices={{
                   active,
                   questionable,
-                  inactive: outWeek,
-                  season: outSeason,
+                  inactive: out,
+                  reserve,
                   year: outYear,
                   unknown,
                   dead,
@@ -94,8 +96,7 @@ export default async function LeaguePage() {
             cells={[
               { k: "active", label: "Active", value: money(active, 2), sub: `${pct(active / total)} of ${money(total, 2)}` },
               { k: "questionable", label: "Questionable", value: money(questionable), sub: `${pct(questionable / total)} · ${nQuestionable} players` },
-              { k: "inactive", label: "Out this week", value: money(outWeek), sub: `${pct(outWeek / total)} · ${count("week")} players` },
-              { k: "season", label: "Out long-term", value: money(outSeason), sub: `${pct(outSeason / total)} · ${count("season")} players` },
+              { k: "inactive", label: "Out", value: money(out), sub: `${pct(out / total)} · ${count("out")} players` },
               { k: "year", label: "Out for season", value: money(outYear), sub: `${pct(outYear / total)} · ${count("year")} players` },
               { k: "unknown", label: "Practice squad", value: money(unknown), sub: pct(unknown / total) },
               { k: "dead", label: "Dead money", value: money(dead), sub: `${pct(dead / total)} · for the year` },
@@ -134,7 +135,7 @@ export default async function LeaguePage() {
           </section>
           <section id="players-out" className="scroll-mt-28">
             <SectionHead title="Players out" />
-            <PlayersOut week={s.week} thisWeek={outRows("week")} longTerm={outRows("season")} forSeason={outRows("year")} />
+            <PlayersOut week={s.week} out={outRows("out")} forSeason={outRows("year")} />
           </section>
         </div>
 

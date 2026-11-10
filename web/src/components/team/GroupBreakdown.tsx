@@ -4,6 +4,7 @@ import { UNIT_COLOR, unitMark } from "@/design/tokens";
 import { money, ordinal } from "@/lib/format";
 import { rosterHref, statusHrefs } from "@/lib/rosterLink";
 import type { Group, RollupRow, Unit } from "@/lib/types";
+import { outOf } from "@/lib/availability";
 import { AvailabilityBar, slicesOf } from "../Availability";
 import { ChartLink } from "../ChartLink";
 import { useMoneyMode } from "./MoneyMode";
@@ -15,7 +16,7 @@ export interface GroupLine {
   rank: number;
 }
 
-const EMPTY = { active: 0, questionable: 0, inactive: 0, season: 0, year: 0, unknown: 0 };
+const EMPTY = { active: 0, questionable: 0, inactive: 0, year: 0, unknown: 0 };
 
 /**
  * Every position group on one shared axis, by unit: offense beside defense, five
@@ -51,7 +52,7 @@ function UnitBlock({
   scale: number;
 }) {
   const { fmt } = useMoneyMode();
-  const out = total ? total.cap_inactive_week + total.cap_inactive_season + (total.cap_inactive_year ?? 0) : 0;
+  const out = total ? outOf(total) + (total.cap_inactive_year ?? 0) : 0;
   return (
     <section>
       <div className="mb-3 flex items-baseline justify-between gap-3 border-b border-line pb-2">
@@ -77,8 +78,8 @@ function UnitBlock({
         {lines.map((l) => {
           const r = l.row;
           const cap = r?.cap_total ?? 0;
-          const outWeek = r?.cap_inactive_week ?? 0;
-          const reserve = (r?.cap_inactive_season ?? 0) + (r?.cap_inactive_year ?? 0);
+          // Everything out, for the season included, as in the unit's total above.
+          const out = r ? outOf(r) + (r.cap_inactive_year ?? 0) : 0;
           return (
             <div key={l.group.code} className="grid min-h-9 grid-cols-[2.75rem_minmax(0,1fr)_4.5rem_2.5rem] items-center gap-x-3 sm:grid-cols-[6.5rem_minmax(0,1fr)_5rem_2.75rem]">
               <ChartLink
@@ -102,13 +103,7 @@ function UnitBlock({
               />
               <div className="num text-right text-sm leading-none">
                 <span className="font-medium">{fmt(cap)}</span>
-                {outWeek + reserve > 0 && (
-                  <div className="mt-0.5 text-[11px] text-ink-3">
-                    {outWeek > 0 && `${fmt(outWeek)} out`}
-                    {outWeek > 0 && reserve > 0 && " · "}
-                    {reserve > 0 && `${fmt(reserve)} reserve`}
-                  </div>
-                )}
+                {out > 0 && <div className="mt-0.5 text-[11px] text-ink-3">{fmt(out)} out</div>}
               </div>
               <div className="num text-right text-xs text-ink-3" title={`${ordinal(l.rank)} highest ${l.group.code} spend of 32`}>
                 <span className="text-sm font-medium text-ink-2">{ordinal(l.rank)}</span>

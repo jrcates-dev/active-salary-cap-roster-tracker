@@ -2,13 +2,15 @@
 
 Gameday flag rules (from the accounting rules in PLAN.md):
   inactive     roster status RES / PUP / NFI / SUS / INA, or (before the game) report
-               status Out / Doubtful
+               status Out / Doubtful, or (before the game) ruled Out for his team's last
+               game with no game status yet on this week's report (`out_last_game`)
   questionable report status Questionable with an ACT roster status, before the game
   active       ACT roster status with no limiting designation, or any ACT player once
                the team's game is final (he dressed; INA marks the ones who did not)
   unknown      anything else (practice squad, cut, retired) - not counted toward a unit
 Each inactive row carries a reason so the UI can say why, and an absence type:
-  week         this game only: ruled Out, Doubtful, or on the gameday inactive list
+  week         this game only: ruled Out, Doubtful, on the gameday inactive list, or
+               still out from last game
   season       a reserve list (IR, PUP, NFI, suspension, other reserve): out for weeks,
                but able to come back this season
   year         a reserve list, and done for the season (see `season_outlook`)
@@ -28,6 +30,12 @@ adds the gameday inactives (INA) after the game. When the schedule has moved on 
 week the roster file does not have yet, `player_week_status(..., through_week=W)`
 projects each team's latest roster forward to week W so that week's injury report
 has something to attach to.
+
+Between games a player ruled Out for his team's last game stays out (`out_last_game`)
+rather than turning active while the new week's report is still to come. That ends when
+the new report gives him a game status (Questionable, Doubtful, Out), when his team's
+game-status report is out and he is not on it with one (cleared), or once the game is
+played (the gameday inactive list decides).
 """
 
 from __future__ import annotations
@@ -51,6 +59,8 @@ ACTIVE_ROSTER = {"ACT"}
 # Practice squad (DEV), cut, retired, exempt and trade codes never count toward a unit.
 
 REPORT_INACTIVE = {"Out": "out", "Doubtful": "doubtful"}
+# Ruled Out for the team's last game, and the new week's report has no game status yet.
+OUT_LAST_GAME = "out_last_game"
 
 # Reserve lists: the player is out for weeks, not just this game.
 SEASON_LONG_ROSTER = {"RES", "PUP", "NFI", "SUS", "RSN", "RSR"}
@@ -185,17 +195,27 @@ def player_week_status(
         r = r.with_columns(pl.lit(False).alias("projected"))
     df = r.join(i, on=["season", "week", "gsis_id"], how="left")
     if games is not None:
-        tg = team_games(games, season).select("team", "week", "game_final")
+        tg = team_games(games, season).select(
+            "team", "week", "game_final", pl.lit(True).alias("_has_game")
+        )
         df = df.join(tg, on=["team", "week"], how="left")
     else:
-        df = df.with_columns(pl.lit(None, dtype=pl.Boolean).alias("game_final"))
-    df = df.with_columns(pl.col("game_final").fill_null(False))
+        # No schedule: treat every roster week as a game week.
+        df = df.with_columns(
+            pl.lit(None, dtype=pl.Boolean).alias("game_final"), pl.lit(True).alias("_has_game")
+        )
+    df = df.with_columns(
+        pl.col("game_final").fill_null(False), pl.col("_has_game").fill_null(False)
+    )
+    df = _out_last_game(df)
 
     roster_reason = pl.col("roster_status").replace_strict(INACTIVE_ROSTER, default=None)
     # Once the game is final the report no longer decides anything.
     report_reason = (
         pl.when(pl.col("game_final"))
         .then(pl.lit(None, dtype=pl.String))
+        .when(pl.col("_out_last_game"))
+        .then(pl.lit(OUT_LAST_GAME))
         .otherwise(pl.col("report_status").replace_strict(REPORT_INACTIVE, default=None))
     )
     on_active = pl.col("roster_status").is_in(list(ACTIVE_ROSTER))
@@ -220,8 +240,36 @@ def player_week_status(
         .then(pl.lit("season"))
         .otherwise(pl.lit("week"))
         .alias("absence")
-    )
+    ).drop("_has_game", "_out_last_game")
     return season_outlook(out, outlook).sort(["week", "team", "player_name"])
+
+
+def _out_last_game(df: pl.DataFrame) -> pl.DataFrame:
+    """Flag (`_out_last_game`) players still out from their team's last game.
+
+    True on a row whose game is still to come when the player was ruled Out on the
+    report for his team's most recent earlier game (a bye in between does not reset
+    it) and this week's report has no game status for him yet. Once his team's
+    game-status report is out (anyone on the team has a status), no status means he
+    was cleared, and he is back to the roster's word.
+    """
+    by_player = {"partition_by": "gsis_id", "order_by": "week"}
+    # Each game week's report status ("" when he was not on it); null on a bye.
+    game_report = (
+        pl.when(pl.col("_has_game")).then(pl.col("report_status").fill_null("")).otherwise(None)
+    )
+    last_game_report = game_report.shift(1).over(**by_player).forward_fill().over(**by_player)
+    statuses_posted = pl.col("report_status").is_not_null().any().over("team", "week")
+    return df.with_columns(
+        (
+            ~pl.col("game_final")
+            & (last_game_report == "Out")
+            & pl.col("report_status").is_null()
+            & ~statuses_posted
+        )
+        .fill_null(False)
+        .alias("_out_last_game")
+    )
 
 
 def _return_window_closed() -> pl.Expr:

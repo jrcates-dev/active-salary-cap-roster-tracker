@@ -26,6 +26,7 @@ const REASONS: Record<string, string> = {
   inactive_list: "Gameday inactive",
   reserve_other: "Reserve list",
   out: "Ruled out",
+  out_last_game: "Out last game",
   doubtful: "Doubtful",
 };
 

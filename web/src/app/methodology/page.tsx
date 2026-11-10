@@ -51,6 +51,11 @@ export default async function MethodologyPage() {
             list once it is played, or on injured reserve, PUP, NFI, suspension or another reserve list with a way back this season.
           </li>
           <li>
+            A player ruled out for his team&apos;s last game stays out between games, tagged &ldquo;Out last game&rdquo;, until the new week&apos;s
+            report says otherwise: listed questionable moves him to Questionable, ruled out or doubtful keeps him out, and a game-status report
+            without him on it means he was cleared and counts as active. A bye in between does not reset it.
+          </li>
+          <li>
             Each player who is out carries a tag that says which: &ldquo;Inactive this week&rdquo; (or ruled out, or doubtful) for this game only, or the
             reserve list with when he can come back, like &ldquo;IR, eligible week 12&rdquo;. IR, PUP and NFI hold a player out at least four games, so
             the eligible week is the fifth game after the first week he showed up on the list. The free data has no placement date, so that week is an

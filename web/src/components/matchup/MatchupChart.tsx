@@ -46,9 +46,10 @@ const SLICES: { k: SliceKey; f: keyof GroupMoney; label: string }[] = [
 /**
  * Mirrored bars: the offense's group runs left from the spine, the defense it faces
  * runs right, one shared scale for the whole game. The ratio badge sits between
- * them and points at the side with more money; it turns accent at 1.5x. Out and
- * reserve money stay visible as patterned segments so a reader sees what an
- * injury took away. Each segment links to the team's roster filtered to the
+ * them and points at the side with more money; it turns accent at 1.5x. Every
+ * segment wears its own team's color, and the status reads from its pattern
+ * (solid active, dotted questionable, striped out), so out and reserve money stay
+ * visible and a reader sees what an injury took away. Each segment links to the team's roster filtered to the
  * groups and that status.
  */
 export function MatchupChart({ halves }: { halves: MatchupHalf[] }) {
@@ -179,7 +180,7 @@ function Bar({
         <div>
           <TipTitle>{title}</TipTitle>
           {SLICES.map((s) =>
-            (m[s.f] as number) > 0 ? <TipRow key={s.k} label={s.label} value={money(m[s.f] as number)} swatch={<Swatch k={s.k} />} /> : null,
+            (m[s.f] as number) > 0 ? <TipRow key={s.k} label={s.label} value={money(m[s.f] as number)} swatch={<Swatch k={s.k} team={vars} />} /> : null,
           )}
           {total > 0 && <TipHint />}
         </div>
@@ -193,7 +194,7 @@ function Bar({
           const val = m[s.f] as number;
           if (val <= 0) return null;
           return (
-            <div key={s.k} className={`${sliceClass(s.k)} relative h-full min-w-[2px] rounded-[3px]`} style={{ flexGrow: val, flexBasis: 0 }}>
+            <div key={s.k} className={`${sliceClass(s.k, "team")} relative h-full min-w-[2px] rounded-[3px]`} style={{ flexGrow: val, flexBasis: 0 }}>
               <ChartLink
                 href={hrefs[s.k as RosterStatus]}
                 label={`${title}, ${s.label} ${money(val)}: show these players`}

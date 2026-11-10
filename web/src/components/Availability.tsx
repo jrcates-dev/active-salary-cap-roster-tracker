@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { money, pct } from "@/lib/format";
 import { SLICE_LABEL, SLICE_ORDER, SLICE_SHORT, type SliceKey, type Slices } from "@/lib/availability";
 import { ChartLink } from "./ChartLink";
@@ -8,14 +8,55 @@ import { Tip, TipHint, TipRow, TipTitle } from "./Tip";
 
 export { playerSlice, SLICE_LABEL, SLICE_SHORT, slicesOf, type SliceKey, type Slices } from "@/lib/availability";
 
-/** The CSS class that paints one availability state in its money status hue. */
-export const sliceClass = (k: SliceKey) => `s-${k}`;
+/**
+ * How a chart paints availability. `status` (every page but the matchup) gives each
+ * state its own money status hue. `team` (the matchup page, where two teams share a
+ * chart) paints every state in the team's own color and tells them apart by
+ * pattern: solid, dots, stripes, bars, hollow (globals.css, `.t-*`).
+ */
+export type Palette = "status" | "team";
+
+/** States with a team-color pattern; practice squad and dead money stay neutral. */
+const TEAM_PATTERNED = new Set<SliceKey>(["active", "questionable", "inactive", "season", "year"]);
+
+/** The CSS class that paints one availability state in the given palette. */
+export const sliceClass = (k: SliceKey, palette: Palette = "status") =>
+  palette === "team" && TEAM_PATTERNED.has(k) ? `t-${k}` : `s-${k}`;
 
 /** States drawn with a texture; a share printed on them sits on a solid chip of the hue. */
 const TEXTURED = new Set<SliceKey>(["inactive", "year", "unknown"]);
+const TEXTURED_TEAM = new Set<SliceKey>(["questionable", "inactive", "season", "year", "unknown"]);
 
-export function Swatch({ k, size = 12, className = "" }: { k: SliceKey; size?: number; className?: string }) {
-  return <span aria-hidden className={`sw ${sliceClass(k)} ${className}`} style={{ width: size, height: size }} />;
+/**
+ * The small key of one state. `team` paints it in that team's pattern (pass the
+ * team's `teamVars()`; a swatch in a tooltip sits outside the team's element).
+ * `palette="team"` with no `team` draws the pattern in ink, for a legend that
+ * covers two teams.
+ */
+export function Swatch({
+  k,
+  size = 12,
+  width,
+  className = "",
+  palette,
+  team,
+}: {
+  k: SliceKey;
+  size?: number;
+  /** Wider than tall, so a pattern shows more of itself. Defaults to `size`. */
+  width?: number;
+  className?: string;
+  palette?: Palette;
+  team?: CSSProperties;
+}) {
+  const p = palette ?? (team ? "team" : "status");
+  return (
+    <span
+      aria-hidden
+      className={`sw ${team ? "tc" : ""} ${sliceClass(k, p)} ${className}`}
+      style={{ ...team, width: width ?? size, height: size }}
+    />
+  );
 }
 
 /** Width of an element, updated as it resizes; 0 until mounted. */
@@ -35,7 +76,8 @@ function useWidth<T extends HTMLElement>() {
 /**
  * The segmented availability bar used at every level. Thin (8 to 12px) beside a
  * row's figures, tall (28px) with its shares printed inside when it stands alone.
- * Each state wears its money status hue (globals.css, `.s-*`). `scale` sets the full
+ * Each state wears its money status hue (globals.css, `.s-*`), or with `team` the
+ * team's color in a pattern per state (`.t-*`). `scale` sets the full
  * width in dollars so bars in a list share one axis; `marker` draws a tick.
  */
 export function AvailabilityBar({
@@ -50,6 +92,7 @@ export function AvailabilityBar({
   animate = true,
   hrefs,
   subject,
+  team,
 }: {
   slices: Slices;
   scale?: number;
@@ -66,13 +109,17 @@ export function AvailabilityBar({
   hrefs?: Partial<Record<SliceKey, string>>;
   /** Who the bar is about, for screen readers: "Seattle Seahawks". Goes with `hrefs`. */
   subject?: string;
+  /** The team's `teamVars()`: paint the bar in its color with a pattern per state (matchup page). */
+  team?: CSSProperties;
 }) {
+  const palette: Palette = team ? "team" : "status";
+  const textured = team ? TEXTURED_TEAM : TEXTURED;
   const [ref, width] = useWidth<HTMLDivElement>();
   const total = SLICE_ORDER.reduce((acc, k) => acc + (slices[k] ?? 0), 0);
   const full = Math.max(scale ?? total, total, 1);
   const radius = height >= 20 ? 4 : 3;
   return (
-    <div ref={ref} className="relative w-full" style={{ height }}>
+    <div ref={ref} className={`relative w-full ${team ? "tc" : ""}`} style={{ ...team, height }}>
       <div
         className={`flex h-full gap-[2px] ${animate ? "bar-grow" : ""}`}
         style={{ width: `${(total / full) * 100}%` }}
@@ -94,7 +141,7 @@ export function AvailabilityBar({
           return (
             <Tip
               key={k}
-              className={`${sliceClass(k)} relative h-full min-w-[2px] overflow-hidden transition-opacity duration-(--dur-2)`}
+              className={`${sliceClass(k, palette)} relative h-full min-w-[2px] overflow-hidden transition-opacity duration-(--dur-2)`}
               style={{
                 flexGrow: v,
                 flexBasis: 0,
@@ -105,7 +152,7 @@ export function AvailabilityBar({
               content={
                 <div>
                   {title && <TipTitle>{title}</TipTitle>}
-                  <TipRow label={SLICE_LABEL[k]} value={`${money(v)} · ${pct(v / total)}`} swatch={<Swatch k={k} />} />
+                  <TipRow label={SLICE_LABEL[k]} value={`${money(v)} · ${pct(v / total)}`} swatch={<Swatch k={k} team={team} />} />
                   {href && <TipHint />}
                 </div>
               }
@@ -120,8 +167,8 @@ export function AvailabilityBar({
               {labels && px >= 40 && (
                 <span className="pointer-events-none absolute inset-y-0 left-1.5 flex items-center">
                   <span
-                    className={`num rounded-[3px] text-xs font-semibold ${TEXTURED.has(k) ? "px-1" : ""}`}
-                    style={{ color: "var(--s-ink)", background: TEXTURED.has(k) ? "var(--s)" : undefined }}
+                    className={`num rounded-[3px] text-xs font-semibold ${textured.has(k) ? "px-1" : ""}`}
+                    style={{ color: "var(--s-ink)", background: textured.has(k) ? "var(--s)" : undefined }}
                   >
                     {share}
                   </span>
@@ -155,16 +202,19 @@ export function AvailabilityLegend({
   keys = ["active", "questionable", "inactive", "season", "year", "unknown"],
   extra,
   short = false,
+  palette = "status",
 }: {
   keys?: SliceKey[];
   extra?: ReactNode;
   short?: boolean;
+  /** `team`: key each state by its pattern, drawn in ink, for bars in team colors. */
+  palette?: Palette;
 }) {
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[13px] text-ink-2">
       {keys.map((k) => (
         <span key={k} className="flex items-center gap-1.5 whitespace-nowrap">
-          <Swatch k={k} />
+          {palette === "team" ? <Swatch k={k} palette="team" size={12} width={22} /> : <Swatch k={k} />}
           {short ? SLICE_SHORT[k] : SLICE_LABEL[k]}
         </span>
       ))}

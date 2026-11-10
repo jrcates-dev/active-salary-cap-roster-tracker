@@ -19,13 +19,30 @@ const STACK: { k: SliceKey; field: keyof HistoryRow; label: string }[] = [
  * bottom, other reserve-list money above it and that week's absences on top, all on
  * one axis. Each band links to the roster list of the players behind it in that
  * week, and the rest of the column (and its week number) to everyone out that week.
+ * `league` is the average team's rows (`leagueHistoryAverage`): a tick across each
+ * column marks the league average of the same stacked total that week.
  */
-export function TeamTrend({ team, rows, week }: { team: string; rows: HistoryRow[]; week: number }) {
+export function TeamTrend({
+  team,
+  rows,
+  week,
+  league = [],
+}: {
+  team: string;
+  rows: HistoryRow[];
+  week: number;
+  league?: HistoryRow[];
+}) {
   /** The roster as it stood in a week: the live one for the current week. */
   const href = (w: number, status?: RosterStatus) => rosterHref(team, { week: w === week ? undefined : w, status });
   const data = [...rows].sort((a, b) => a.week - b.week);
-  const totals = data.map((r) => STACK.reduce((acc, s) => acc + Number(r[s.field] ?? 0), 0));
-  const max = Math.max(1, ...totals);
+  const total = (r: HistoryRow) => STACK.reduce((acc, s) => acc + Number(r[s.field] ?? 0), 0);
+  const totals = data.map(total);
+  const avgs = data.map((r) => {
+    const a = league.find((l) => l.week === r.week);
+    return a ? total(a) : null;
+  });
+  const max = Math.max(1, ...totals, ...avgs.map((a) => a ?? 0));
   const height = 132;
   return (
     <div>
@@ -44,6 +61,12 @@ export function TeamTrend({ team, rows, week }: { team: string; rows: HistoryRow
                   {[...STACK].reverse().map((s) => (
                     <TipRow key={s.k} label={s.label} value={money(Number(r[s.field] ?? 0))} swatch={<Swatch k={s.k} />} />
                   ))}
+                  {avgs[i] !== null && (
+                    <div className="mt-1 border-t border-line pt-1">
+                      <TipRow label="Team total" value={money(totals[i])} />
+                      <TipRow label="League average" value={money(avgs[i]!)} swatch={<AverageSwatch />} />
+                    </div>
+                  )}
                   {totals[i] > 0 && <TipHint>see who was out</TipHint>}
                 </div>
               }
@@ -69,6 +92,13 @@ export function TeamTrend({ team, rows, week }: { team: string; rows: HistoryRow
                   );
                 })}
               </div>
+              {avgs[i] !== null && avgs[i]! > 0 && (
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-x-0 h-0.5 translate-y-1/2 rounded-full bg-ink"
+                  style={{ bottom: `${(avgs[i]! / max) * 100}%`, boxShadow: "0 0 0 1.5px var(--surface)" }}
+                />
+              )}
             </Tip>
           ))}
         </div>
@@ -87,5 +117,14 @@ export function TeamTrend({ team, rows, week }: { team: string; rows: HistoryRow
         ))}
       </div>
     </div>
+  );
+}
+
+/** The league-average tick, as drawn over each week's column, for legends and tips. */
+export function AverageSwatch() {
+  return (
+    <span aria-hidden className="flex h-3 w-3.5 items-center">
+      <span className="h-0.5 w-full rounded-full bg-ink" />
+    </span>
   );
 }

@@ -3,7 +3,7 @@ import path from "node:path";
 import { teamVars } from "@/design/tokens";
 import { biggestEdges, edgeShort, gameEdges } from "./matchup";
 import type { CardGame, CardSide, CardTeams, WeekSlate } from "./schedule";
-import type { Game, Player, RollupRow, Snapshot, Team, TeamSummary } from "./types";
+import type { Game, HistoryRow, Player, RollupRow, Snapshot, Team, TeamSummary } from "./types";
 
 /**
  * The site reads one JSON snapshot per build. `data/snapshot.json` is the real one
@@ -102,6 +102,31 @@ export function groupLeagueStats(s: Snapshot): Record<string, GroupLeagueStat> {
     };
   }
   return out;
+}
+
+/**
+ * The average team's money in each week of the history: every dollar field of the
+ * whole-roster rows, averaged over the teams with a row that week. Averaging each
+ * field (rather than one total) lets a chart sum whichever bands it stacks.
+ */
+export function leagueHistoryAverage(s: Snapshot): HistoryRow[] {
+  const byWeek = new Map<number, HistoryRow[]>();
+  for (const r of s.history) {
+    if (r.unit !== "all") continue;
+    byWeek.set(r.week, [...(byWeek.get(r.week) ?? []), r]);
+  }
+  return [...byWeek.entries()]
+    .sort(([a], [b]) => a - b)
+    .map(([week, rows]) => {
+      const sums: Record<string, number> = {};
+      for (const r of rows) {
+        for (const [k, v] of Object.entries(r)) {
+          if (k !== "week" && typeof v === "number") sums[k] = (sums[k] ?? 0) + v;
+        }
+      }
+      const avg = Object.fromEntries(Object.entries(sums).map(([k, v]) => [k, v / rows.length]));
+      return { ...avg, week, team: "NFL", unit: "all" } as unknown as HistoryRow;
+    });
 }
 
 export function teamGame(s: Snapshot, abbr: string, week: number) {

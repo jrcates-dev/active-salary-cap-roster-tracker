@@ -80,6 +80,19 @@ export interface RollupRow {
   cap_inactive_year?: number;
 }
 
+/**
+ * One season of a contract from this one on. `counted` seasons make up the per-year
+ * average; a `token` season is a placeholder year at the end of a deal (listed, not
+ * averaged); a `void` season pays nothing and only carries bonus proration.
+ */
+export interface MoneyYear {
+  season: number;
+  cap: number;
+  cash: number;
+  gtd: boolean;
+  kind: "counted" | "token" | "void";
+}
+
 export interface Player {
   team: string;
   key: string;
@@ -101,6 +114,26 @@ export interface Player {
   injury: string | null;
   years_left: number | null;
   contract_apy: number | null;
+  /**
+   * What he is paid a season from here on: the average cash of this season and the
+   * rest of the deal ("cash"), or the contract's APY when the data has no
+   * year-by-year breakdown, as for most new rookie deals ("apy"). Null for practice
+   * squad players and estimated minimum rows. Older snapshots lack these fields.
+   */
+  per_year?: number | null;
+  per_year_basis?: "cash" | "apy" | null;
+  /** Last season of the deal he is paid for. */
+  deal_thru?: number | null;
+  /** Last season after this one with guaranteed salary; null when none is. */
+  gtd_thru?: number | null;
+  /** Dead cap if released after this season: bonus proration to come plus guaranteed salary owed. */
+  dead_if_cut?: number | null;
+  /** This season and every later one, with what kind of season it is. */
+  money_years?: MoneyYear[] | null;
+  year_signed?: number | null;
+  contract_years?: number | null;
+  contract_value?: number | null;
+  contract_guaranteed?: number | null;
   headshot: string | null;
   /**
    * A starter on the team's depth chart (top of a slot: the 11 on offense, the base

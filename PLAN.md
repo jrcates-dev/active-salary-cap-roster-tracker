@@ -100,7 +100,7 @@ Four pages carry the product. Each one answers a single question and leads with 
 
 - Header: team name and colors, total cap, cap space, dead money, league rank in each.
 - Toggle between dollars and percent of cap, and between this season and next season's committed money.
-- Player table: name, position, group, cap hit, percent of cap, contract years left, this week's status.
+- Player table: name, position, group, cap hit, per year (average cash a season left on the deal), this week's status, and a contract strip of the seasons left marking which are guaranteed. *Per year and strip as built 2026-11-10.*
 
 ### 2. Gameday active vs. inactive money
 

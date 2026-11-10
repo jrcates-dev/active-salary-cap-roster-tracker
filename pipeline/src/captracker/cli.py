@@ -68,6 +68,7 @@ def _shared_frames(season: int, week: int | None) -> dict:
         "roster_raw": roster_raw,
         "injuries": injuries,
         "contract_years_base": cy,
+        "outlook": contracts.load_contract_outlook(season),
         "status": status,
         "depth_chart": depth.load_chart(season),
     }
@@ -267,6 +268,7 @@ def cmd_export(args: argparse.Namespace) -> int:
             f["depth_chart"], f["status"], f["games"], f["season"], f["week"]
         ),
         dead_charges=reconcile.load_dead_charges(f["season"]),
+        outlook=f["outlook"],
     )
     out = Path(args.out)
     if args.fixture:

@@ -194,6 +194,141 @@ def derive_first_year(
     ).filter(pl.col("team").is_not_null())
 
 
+# A trailing season whose cash is under this share of the average of the seasons
+# before it is a placeholder (a token roster bonus the deal is built to never reach,
+# like Stafford's $5M 2028), not a year he will be paid for. It is listed but not
+# counted in the per-year average.
+TOKEN_TAIL_SHARE = 0.2
+
+OUTLOOK_SCHEMA = {
+    "otc_id": pl.Int32,
+    "team": pl.String,
+    "per_year": pl.Int64,
+    "deal_thru": pl.Int32,
+    "gtd_thru": pl.Int32,
+    "dead_if_cut": pl.Int64,
+    "money_years": pl.List(
+        pl.Struct(
+            {
+                "season": pl.Int32,
+                "cap": pl.Int64,
+                "cash": pl.Int64,
+                "gtd": pl.Boolean,
+                "kind": pl.String,
+            }
+        )
+    ),
+}
+
+
+def _dollars(x: float | None) -> int:
+    return round((x or 0.0) * MILLION)
+
+
+def _outlook_row(history: list[dict], season: int) -> dict | None:
+    """Forward money for one contract, from `season` to the end of the deal.
+
+    Each remaining season is tagged by kind: `counted` (a real season he is paid for),
+    `token` (a placeholder tail season, see TOKEN_TAIL_SHARE) or `void` (no cash, only
+    the cap charge of bonus proration accelerating). `per_year` is the average cash of
+    the counted seasons. `gtd_thru` is the last season after this one with guaranteed
+    salary. `dead_if_cut` is what releasing him after this season would leave on the
+    cap: the bonus proration still to come plus the guaranteed salary still owed.
+    """
+    by_year: dict[int, dict] = {}
+    for s in history:
+        y = s.get("year")
+        if y and y.isdigit() and int(y) >= season:
+            by_year[int(y)] = s
+    if season not in by_year:
+        return None
+    years = sorted(by_year)
+    cash = {y: _dollars(by_year[y].get("cash_paid")) for y in years}
+    paid = [y for y in years if y == season or cash[y] > 0]
+    # Real seasons run without a gap from this one; anything after the first unpaid
+    # season is void years (or bookkeeping rows that carry no money).
+    counted: list[int] = []
+    for y in paid:
+        if counted and y != counted[-1] + 1:
+            break
+        counted.append(y)
+    token: list[int] = []
+    while len(counted) > 1:
+        before = counted[:-1]
+        avg = sum(cash[y] for y in before) / len(before)
+        if cash[counted[-1]] < TOKEN_TAIL_SHARE * avg:
+            token.insert(0, counted.pop())
+        else:
+            break
+    last_money = max(counted + token)
+    out_years = []
+    for y in years:
+        cap = _dollars(by_year[y].get("cap_number"))
+        if y in counted:
+            kind = "counted"
+        elif y in token:
+            kind = "token"
+        elif y > last_money and cap > 0:
+            kind = "void"
+        else:
+            continue
+        out_years.append(
+            {
+                "season": y,
+                "cap": cap,
+                "cash": cash[y] if kind != "void" else 0,
+                "gtd": _dollars(by_year[y].get("guaranteed_salary")) > 0,
+                "kind": kind,
+            }
+        )
+    gtd_future = [r["season"] for r in out_years if r["season"] > season and r["gtd"]]
+    future = [by_year[y] for y in years if y > season]
+    dead = sum(
+        _dollars(s.get("prorated_bonus")) + _dollars(s.get("guaranteed_salary")) for s in future
+    )
+    return {
+        "per_year": round(sum(cash[y] for y in counted) / len(counted)),
+        "deal_thru": max(counted),
+        "gtd_thru": max(gtd_future) if gtd_future else None,
+        "dead_if_cut": dead,
+        "money_years": out_years,
+    }
+
+
+def contract_outlook(
+    contracts: pl.DataFrame, season: int, nick_to_abbr: dict[str, str]
+) -> pl.DataFrame:
+    """Per active contract with a priced `season`: what he is paid from here on.
+
+    Keyed by (otc_id, team) like `contract_years`, so it joins straight onto the fact
+    table. Contracts with no season_history (most of this year's rookies) are absent;
+    the export falls back to APY for them, which is the right figure for a new deal.
+    """
+    rows: list[dict] = []
+    seen: set[tuple[int, str]] = set()
+    active = contracts.filter(pl.col("is_active")).select("otc_id", "season_history")
+    for otc_id, history in active.iter_rows():
+        if not history:
+            continue
+        this = next((s for s in history if s.get("year") == str(season)), None)
+        if this is None or this.get("cap_number") is None:
+            continue
+        team = nick_to_abbr.get(this.get("team"))
+        if team is None or (otc_id, team) in seen:
+            continue
+        out = _outlook_row(history, season)
+        if out is None:
+            continue
+        seen.add((otc_id, team))
+        rows.append({"otc_id": otc_id, "team": team, **out})
+    return pl.DataFrame(rows, schema=OUTLOOK_SCHEMA)
+
+
+def load_contract_outlook(season: int) -> pl.DataFrame:
+    contracts = sources.read("contracts")
+    return contract_outlook(contracts, season, teams.nick_to_abbr(teams.load_teams()))
+
+
 def with_player_key(df: pl.DataFrame) -> pl.DataFrame:
     """A stable per-player key: gsis_id when known, else the OTC id."""
     return df.with_columns(

@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, type ReactNode } from "react";
+import { useViewState } from "@/lib/viewState";
 import { money, pct } from "@/lib/format";
 import { Segmented } from "../ui/controls";
 
@@ -18,7 +19,7 @@ const Ctx = createContext<MoneyModeValue | null>(null);
 
 /** Shares one $ / % choice across every number on a team page. */
 export function MoneyModeProvider({ base, children }: { base: number; children: ReactNode }) {
-  const [mode, setMode] = useState<Mode>("dollars");
+  const [mode, setMode] = useViewState<Mode>("money-mode", "dollars", (v) => v === "dollars" || v === "percent");
   const fmt = (d: number) => (mode === "dollars" ? money(d) : pct(base > 0 ? d / base : 0));
   return <Ctx.Provider value={{ mode, setMode, fmt, base }}>{children}</Ctx.Provider>;
 }

@@ -27,7 +27,7 @@ export interface HeatRow {
  * click a cell to see that team's players in the group.
  */
 export function Heatmap({ groups, rows }: { groups: Group[]; rows: HeatRow[] }) {
-  const [sort, toggleSort] = useSort<string>("team", (k) => (k === "team" ? "asc" : "desc"));
+  const [sort, toggleSort] = useSort<string>("heatmap", "team", (k) => (k === "team" ? "asc" : "desc"));
 
   const ranges = useMemo(() => {
     const out: Record<string, { min: number; max: number; ranks: Record<string, number> }> = {};

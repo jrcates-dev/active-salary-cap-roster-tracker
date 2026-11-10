@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
+import { useViewState } from "@/lib/viewState";
 
 /**
  * One sort pattern for every ranked list on the site. Clicking a new key sorts by
  * it in that key's natural direction (biggest money first, team names A to Z);
  * clicking the same key again flips the order. The active key always shows an
- * arrow pointing the way the list runs.
+ * arrow pointing the way the list runs. The sort is remembered for the visit
+ * under `id` (see useViewState), so Back returns to the same order.
  */
 export type SortDir = "asc" | "desc";
 
@@ -16,10 +18,11 @@ export interface SortState<K extends string> {
 }
 
 export function useSort<K extends string>(
+  id: string,
   initial: K,
   naturalDir: (k: K) => SortDir = () => "desc",
 ): [SortState<K>, (k: K) => void] {
-  const [state, setState] = useState<SortState<K>>({ key: initial, dir: naturalDir(initial) });
+  const [state, setState] = useViewState<SortState<K>>(`sort:${id}`, { key: initial, dir: naturalDir(initial) }, isSort);
   const toggle = (k: K) =>
     setState((s) =>
       s.key === k ? { key: k, dir: s.dir === "desc" ? "asc" : "desc" } : { key: k, dir: naturalDir(k) },
@@ -39,11 +42,12 @@ export interface FocusSortState<K extends string> extends SortState<K> {
  * entry starts that one at its natural order.
  */
 export function useFocusSort<K extends string>(
+  id: string,
   initial: K,
   naturalDir: (k: K) => SortDir = () => "desc",
 ): [FocusSortState<K>, (k: K) => void] {
   const unfocused: FocusSortState<K> = { key: initial, dir: naturalDir(initial), focused: false };
-  const [state, setState] = useState<FocusSortState<K>>(unfocused);
+  const [state, setState] = useViewState<FocusSortState<K>>(`sort:${id}`, unfocused, isSort);
   const toggle = (k: K) =>
     setState((s) => {
       const natural = naturalDir(k);
@@ -52,6 +56,12 @@ export function useFocusSort<K extends string>(
       return unfocused;
     });
   return [state, toggle];
+}
+
+/** A saved sort with the right shape. */
+function isSort(v: unknown): boolean {
+  const s = v as SortState<string> | null;
+  return !!s && typeof s.key === "string" && (s.dir === "asc" || s.dir === "desc");
 }
 
 /** Compare two numbers in the given direction. */

@@ -2,6 +2,7 @@
 
 import { hierarchy, treemap, treemapSquarify, type HierarchyRectangularNode } from "d3-hierarchy";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { useViewState } from "@/lib/viewState";
 import { money, pct } from "@/lib/format";
 import type { Group, Player, Unit } from "@/lib/types";
 import { playerSlice, sliceClass, Swatch } from "../Availability";
@@ -40,7 +41,7 @@ export function Treemap({ team, groups, players, teamTotal }: { team: string; gr
   const fontRef = useRef<HTMLSpanElement>(null);
   const [width, setWidth] = useState(0);
   const stripRef = useRef<HTMLDivElement>(null);
-  const [focus, setFocus] = useState<string | null>(null);
+  const [focus, setFocus] = useViewState<string | null>("treemap-group", null, (v) => v === null || groups.some((g) => g.code === v));
   const measure = useDisplayMeasure(fontRef);
 
   useEffect(() => {

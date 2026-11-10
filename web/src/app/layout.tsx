@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Footer } from "@/components/site/Footer";
 import { Header } from "@/components/site/Header";
+import { ScrollMemory } from "@/components/site/ScrollMemory";
 import { getSnapshot } from "@/lib/data";
 import "./globals.css";
 
@@ -18,6 +19,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className={inter.variable}>
       <body className="flex min-h-screen flex-col antialiased">
+        <ScrollMemory />
         <Header snapshot={snapshot} />
         <div className="flex-1">{children}</div>
         <Footer snapshot={snapshot} />

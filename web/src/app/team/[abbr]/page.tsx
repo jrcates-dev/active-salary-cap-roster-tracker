@@ -11,12 +11,12 @@ import { DeadMoney } from "@/components/team/DeadMoney";
 import { GroupBreakdown, type GroupLine } from "@/components/team/GroupBreakdown";
 import { Amount, MoneyModeProvider, MoneyToggle } from "@/components/team/MoneyMode";
 import { PlayerTable } from "@/components/team/PlayerTable";
-import { TeamTrend } from "@/components/team/TeamTrend";
+import { AverageSwatch, TeamTrend } from "@/components/team/TeamTrend";
 import { Treemap } from "@/components/team/Treemap";
 import { Hero, SectionHead, WRAP } from "@/components/ui";
 import { teamVars, UNITS } from "@/design/tokens";
 import { outOf, slicesOf } from "@/lib/availability";
-import { getSnapshot, groupLeagueStats, kickoffLabel, matchupHref, teamGame, teamView } from "@/lib/data";
+import { getSnapshot, groupLeagueStats, kickoffLabel, leagueHistoryAverage, matchupHref, teamGame, teamView } from "@/lib/data";
 import { dayLabel, money, pct } from "@/lib/format";
 import { deadHref, rosterHref, statusHrefs } from "@/lib/rosterLink";
 import type { Snapshot, StatusSource } from "@/lib/types";
@@ -157,9 +157,18 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
           {trend.length > 1 && (
             <section id="by-week" className="max-w-3xl scroll-mt-28">
               <SectionHead title="Money out by week" />
-              <TeamTrend team={team.team} rows={trend} week={s.week} />
+              <TeamTrend team={team.team} rows={trend} week={s.week} league={leagueHistoryAverage(s)} />
               <div className="mt-3">
-                <AvailabilityLegend keys={["questionable", "inactive", "year"]} short />
+                <AvailabilityLegend
+                  keys={["questionable", "inactive", "year"]}
+                  short
+                  extra={
+                    <span className="flex items-center gap-1.5 whitespace-nowrap">
+                      <AverageSwatch />
+                      League average
+                    </span>
+                  }
+                />
               </div>
             </section>
           )}

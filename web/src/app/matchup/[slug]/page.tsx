@@ -223,7 +223,7 @@ function TeamHead({ s, abbr, score, won, align }: { s: Snapshot; abbr: string; s
       style={teamVars(t)}
     >
       <span className="hidden sm:block">
-        <Logo src={t.logo_url} size={60} />
+        <Logo src={t.logo_url} size={60} fallback={abbr} />
       </span>
       <span className="block h-10 w-1.5 rounded-full sm:hidden" style={{ background: "var(--team)" }} aria-hidden />
       <span className="min-w-0">

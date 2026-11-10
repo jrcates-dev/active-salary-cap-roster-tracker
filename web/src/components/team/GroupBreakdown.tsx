@@ -18,9 +18,10 @@ export interface GroupLine {
 const EMPTY = { active: 0, questionable: 0, inactive: 0, season: 0, year: 0, unknown: 0 };
 
 /**
- * Every position group on one shared axis, by unit: offense in one column, defense
- * and special teams in the other. Each bar is split by availability; the tick is
- * the league median for that group; the rank is out of 32 by money spent.
+ * Every position group on one shared axis, by unit: offense beside defense, five
+ * rows each at a fixed height so the two sides line up row for row, and special
+ * teams under offense. Each bar is split by availability; the tick is the league
+ * median for that group; the rank is out of 32 by money spent.
  */
 export function GroupBreakdown({ team, lines, unitRows }: { team: { team: string; name: string }; lines: GroupLine[]; unitRows: RollupRow[] }) {
   const scale = Math.max(1, ...lines.map((l) => Math.max(l.row?.cap_total ?? 0, l.median)));
@@ -29,11 +30,9 @@ export function GroupBreakdown({ team, lines, unitRows }: { team: { team: string
   );
   return (
     <div className="grid gap-x-10 gap-y-8 lg:grid-cols-2">
-      <div>{unit("offense")}</div>
-      <div className="space-y-8">
-        {unit("defense")}
-        {unit("special_teams")}
-      </div>
+      {unit("offense")}
+      {unit("defense")}
+      {unit("special_teams")}
     </div>
   );
 }
@@ -81,7 +80,7 @@ function UnitBlock({
           const outWeek = r?.cap_inactive_week ?? 0;
           const reserve = (r?.cap_inactive_season ?? 0) + (r?.cap_inactive_year ?? 0);
           return (
-            <div key={l.group.code} className="grid grid-cols-[2.75rem_minmax(0,1fr)_4.5rem_2.5rem] items-center gap-x-3 sm:grid-cols-[6.5rem_minmax(0,1fr)_5rem_2.75rem]">
+            <div key={l.group.code} className="grid min-h-9 grid-cols-[2.75rem_minmax(0,1fr)_4.5rem_2.5rem] items-center gap-x-3 sm:grid-cols-[6.5rem_minmax(0,1fr)_5rem_2.75rem]">
               <ChartLink
                 href={rosterHref(team.team, { groups: [l.group.code] })}
                 label={`${l.group.code}, ${l.group.label}: show these players`}

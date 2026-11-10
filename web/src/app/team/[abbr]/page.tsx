@@ -76,7 +76,7 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
           <header className="flex flex-wrap items-center gap-x-6 gap-y-5">
             {/* Logo and name stay on one line; only the game cards wrap below. */}
             <div className="flex min-w-0 items-center gap-4 sm:gap-6">
-              <Logo src={team.logo_url} size={64} />
+              <Logo src={team.logo_url} size={64} fallback={team.team} />
               <div className="min-w-0">
                 <p className="eyebrow mb-1">{team.division}</p>
                 <h1 className="text-[28px] leading-[1.05] font-semibold tracking-tight sm:text-[36px] sm:leading-none">{team.name}</h1>
@@ -100,7 +100,7 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
 
         <main className={`${WRAP} space-y-12 pt-6 pb-5 sm:pb-6`}>
           <section id="summary" aria-label="Cap summary" className="scroll-mt-28 space-y-5">
-            <div className="flex flex-wrap items-end justify-between gap-4">
+            <div className="flex flex-wrap items-end gap-x-10 gap-y-4">
               <div>
                 <p className="text-[13px] text-ink-2">Counted cap</p>
                 <p className="fig text-[44px] leading-none sm:text-[56px]">{money(summary.cap_total)}</p>
@@ -113,9 +113,20 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
                   <StatusWords s={s} source={summary.status_source} onBye={summary.on_bye} />
                 </p>
               </div>
-              <MoneyToggle />
+              <div>
+                <p className="text-[13px] text-ink-2">Cap space</p>
+                <p className="fig text-[28px] leading-none text-ink-2 sm:text-[34px]">{summary.cap_space === null ? "–" : money(summary.cap_space)}</p>
+                {asOf && <p className="num mt-2 text-[13px] text-ink-3">{asOf}</p>}
+              </div>
+              <div className="ml-auto">
+                <MoneyToggle />
+              </div>
             </div>
+            {/* The same six states, in the same order, as the league page's tiles. */}
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+              <Kpi label="Active" k="active" team={team.team}>
+                <Amount value={summary.cap_active} />
+              </Kpi>
               <Kpi label="Questionable" k="questionable" team={team.team}>
                 <Amount value={summary.cap_questionable} />
               </Kpi>
@@ -130,9 +141,6 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
               </Kpi>
               <Kpi label="Dead money" k="dead" note={asOf} team={team.team}>
                 {summary.dead_money === null ? "–" : money(summary.dead_money)}
-              </Kpi>
-              <Kpi label="Cap space" note={asOf}>
-                {summary.cap_space === null ? "–" : money(summary.cap_space)}
               </Kpi>
             </div>
             <div className="space-y-2.5">
@@ -189,7 +197,7 @@ function Kpi({
   children,
 }: {
   label: string;
-  k?: "inactive" | "questionable" | "season" | "year" | "dead";
+  k?: "active" | "inactive" | "questionable" | "season" | "year" | "dead";
   note?: string;
   /** With a status `k`, the card links to those players in the roster below. */
   team?: string;
@@ -255,7 +263,7 @@ function Games({ s, abbr }: { s: Snapshot; abbr: string }) {
   );
   const upcoming = now ?? next;
   return (
-    <div className="flex flex-wrap gap-2 sm:ml-auto">
+    <div className="grid w-full grid-cols-2 gap-2 sm:ml-auto sm:flex sm:w-auto sm:flex-wrap [&>*]:min-w-0">
       {last && last.played && (
         <div className="card px-3.5 py-2">
           <p className="num text-[11px] text-ink-3">Week {last.week}</p>

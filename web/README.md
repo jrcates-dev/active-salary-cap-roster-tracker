@@ -41,7 +41,7 @@ publishing fake numbers.
 | --- | --- |
 | `/` | League: counted cap and money out as stat tiles and one league-wide availability bar, this week's games with their biggest edge, money out by team with a week picker, most expensive players out, the 32 × 13 heatmap, offense/defense split |
 | `/matchups` | Any week of the season: scores for played games, an early look at future ones |
-| `/team/[abbr]` | Team: team strip for stepping sideways, last result and this week's game, counted cap with a $ / % toggle, availability tiles and bar, position groups against the league median, player treemap, week-by-week money out, sortable roster |
+| `/team/[abbr]` | Team: team strip for stepping sideways, last result and this week's game, counted cap and cap space with a $ / % toggle, the same six availability tiles as the league page, availability bar, position groups against the league median, player treemap, week-by-week money out, sortable roster |
 | `/matchup/[week-away-home]` | Matchup: strip of the week's games, both teams' availability, the two biggest edges, mirrored bars per position matchup (on the field or full investment) with league ranks, key absences |
 | `/methodology` | Sources and attribution, accounting rules, matchups, estimates, reconciliation table |
 

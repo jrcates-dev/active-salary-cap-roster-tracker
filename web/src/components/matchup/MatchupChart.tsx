@@ -67,7 +67,7 @@ export function MatchupChart({ halves }: { halves: MatchupHalf[] }) {
           onChange={setMode}
           options={[
             { value: "field", label: "On the field", title: "Active plus questionable money" },
-            { value: "full", label: "Full investment", title: "Every dollar in the group, healthy or not" },
+            { value: "full", label: "Full investment", title: "Every dollar in the group, healthy or not, practice squad aside" },
           ]}
         />
       </div>

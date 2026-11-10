@@ -63,12 +63,14 @@ export const PAIRS: Pair[] = [
 export type MatchupMode = "field" | "full";
 
 export interface GroupMoney {
+  /** Every dollar in the group except the practice squad, which never suits up for the matchup. */
   total: number;
   active: number;
   questionable: number;
   out: number;
   season: number;
   year: number;
+  /** Practice squad money, kept for reference but left out of `total` and the bars. */
   unknown: number;
   /** Money expected on the field: active plus questionable (counted until ruled out). */
   field: number;
@@ -87,7 +89,7 @@ export function groupMoney(s: Snapshot, team: string, codes: string[]): GroupMon
   };
   for (const r of s.rollup) {
     if (r.team !== team || r.level !== "group" || !codes.includes(r.position_group)) continue;
-    m.total += r.cap_total;
+    m.total += r.cap_total - r.cap_unknown;
     m.active += r.cap_active;
     m.questionable += r.cap_questionable;
     m.out += r.cap_inactive_week ?? 0;

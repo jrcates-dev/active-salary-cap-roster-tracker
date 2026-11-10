@@ -154,6 +154,9 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
               {[away, home].map((t) => {
                 const sum = s.summary.find((x) => x.team === t.team)!;
                 const rival = s.summary.find((x) => x.team === (t.team === away.team ? home.team : away.team))!;
+                // The practice squad never suits up, so its money stays off the matchup bars.
+                const rostered = (x: typeof sum) => x.cap_total - x.cap_unknown;
+                const slices = { ...slicesOf(sum), unknown: 0 };
                 return (
                   <div key={t.team} className="tc card px-4 py-4" style={varsOf(t.team)}>
                     <div className="mb-3 flex items-baseline justify-between gap-3">
@@ -161,15 +164,15 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
                         <span aria-hidden className="h-3 w-3 rounded-[3px]" style={{ background: "var(--team)" }} />
                         {t.name}
                       </Link>
-                      <span className="num text-[15px] font-semibold">{money(sum.cap_total)}</span>
+                      <span className="num text-[15px] font-semibold">{money(rostered(sum))}</span>
                     </div>
                     <AvailabilityBar
                       height={20}
                       labels
                       title={t.name}
-                      slices={slicesOf(sum)}
+                      slices={slices}
                       team={varsOf(t.team)}
-                      scale={Math.max(sum.cap_total, rival.cap_total)}
+                      scale={Math.max(rostered(sum), rostered(rival))}
                       hrefs={statusHrefs(t.team)}
                       subject={t.name}
                     />
@@ -184,7 +187,7 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
               })}
             </div>
             <div>
-              <AvailabilityLegend keys={["active", "questionable", "inactive", "season", "year"]} short palette="team" extra={<span className="text-ink-3">Bars wear each team&apos;s color, on one dollar scale</span>} />
+              <AvailabilityLegend keys={["active", "questionable", "inactive", "season", "year"]} short palette="team" extra={<span className="text-ink-3">Bars wear each team&apos;s color, on one dollar scale, practice squad left out</span>} />
             </div>
           </section>
           {edges.length > 0 && (

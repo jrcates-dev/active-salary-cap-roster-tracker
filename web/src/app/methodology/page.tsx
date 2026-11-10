@@ -86,7 +86,7 @@ export default async function MethodologyPage() {
             Each offensive group faces the defense it plays against: offensive line against interior line and edge, receivers and tight ends against the
             secondary, running backs against linebackers, quarterback against pass rush and secondary.
           </li>
-          <li>Bars compare money on the field (active plus questionable) by default, or full investment.</li>
+          <li>Bars compare money on the field (active plus questionable) by default, or full investment. Practice squad money is left out of every matchup bar.</li>
           <li>
             The two biggest edges are the rows with the widest gap in league rank, leaving out the quarterback row. Money measures investment and
             availability, not form.

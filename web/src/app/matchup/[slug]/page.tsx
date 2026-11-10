@@ -10,12 +10,12 @@ import { SectionNav } from "@/components/site/SectionNav";
 import { Strip } from "@/components/site/Strip";
 import { Hero, SectionHead, WRAP } from "@/components/ui";
 import { matchupVars } from "@/design/tokens";
-import { outOf, playerSlice, slicesOf, statusText } from "@/lib/availability";
+import { outOf, playerSlice, slicesOf, statusText, YEAR_NOTE } from "@/lib/availability";
 import { getSnapshot, kickoffLabel, matchupHref, weekGames } from "@/lib/data";
 import { money, ordinal } from "@/lib/format";
 import { statusHrefs } from "@/lib/rosterLink";
 import { biggestEdges, edgeSides, gameEdges, groupMoney, leagueRanks, PAIRS } from "@/lib/matchup";
-import type { Game, Snapshot } from "@/lib/types";
+import type { Game, Player, Snapshot } from "@/lib/types";
 
 /**
  * Every game of the regular season is prerendered, so any week can be previewed.
@@ -281,21 +281,57 @@ function StatPair({ label, value }: { label: string; value: string }) {
   );
 }
 
-/** The biggest names out or in doubt for this game, by cap number. */
+/**
+ * Everyone the team is without: out or in doubt for this game first, then everyone done for the season,
+ * each list by cap number, so the whole year's absences sit in one place.
+ */
 function KeyAbsences({ s, abbr, vars }: { s: Snapshot; abbr: string; vars: CSSProperties }) {
   const t = s.teams.find((x) => x.team === abbr)!;
-  const rows = s.players
-    .filter((p) => p.team === abbr && (p.flag === "inactive" || p.flag === "questionable"))
-    .sort((a, b) => {
-      const rank = (x: typeof a) => (playerSlice(x) === "year" ? 1 : 0);
-      return rank(a) - rank(b) || b.cap - a.cap;
-    })
-    .slice(0, 8);
+  const byCap = (a: Player, b: Player) => b.cap - a.cap;
+  const missing = s.players.filter((p) => p.team === abbr && (p.flag === "inactive" || p.flag === "questionable"));
+  const thisGame = missing.filter((p) => playerSlice(p) !== "year").sort(byCap);
+  const forSeason = missing.filter((p) => playerSlice(p) === "year").sort(byCap);
+  const total = thisGame.length + forSeason.length;
   return (
     <div className="tc" style={vars}>
-      <SectionHead title={`${t.nick} out`} count={rows.length || undefined} />
-      {rows.length === 0 ? (
+      <SectionHead title={`${t.nick} out`} count={total || undefined} />
+      {total === 0 ? (
         <p className="card px-4 py-5 text-center text-sm text-ink-3">Everyone available</p>
+      ) : (
+        <div className="space-y-4">
+          <AbsenceList label="This game" rows={thisGame} vars={vars} empty="No one out or in doubt" />
+          {forSeason.length > 0 && <AbsenceList label="Out for season" title={YEAR_NOTE} rows={forSeason} vars={vars} />}
+        </div>
+      )}
+      {missing.some((p) => p.starter) && <StarterKey className="mt-2" />}
+    </div>
+  );
+}
+
+function AbsenceList({
+  label,
+  title,
+  rows,
+  vars,
+  empty,
+}: {
+  label: string;
+  title?: string;
+  rows: Player[];
+  vars: CSSProperties;
+  empty?: string;
+}) {
+  return (
+    <div>
+      <p className="mb-1.5 flex items-baseline justify-between gap-3 text-xs text-ink-3" title={title}>
+        <span>
+          <span className="font-medium text-ink-2">{label}</span>
+          {rows.length > 0 && <span className="num ml-1.5">{rows.length}</span>}
+        </span>
+        {rows.length > 0 && <span className="num">{money(rows.reduce((n, p) => n + p.cap, 0))}</span>}
+      </p>
+      {rows.length === 0 ? (
+        <p className="card px-4 py-3 text-center text-sm text-ink-3">{empty}</p>
       ) : (
         <ol className="card divide-y divide-line text-sm">
           {rows.map((p) => (
@@ -313,7 +349,6 @@ function KeyAbsences({ s, abbr, vars }: { s: Snapshot; abbr: string; vars: CSSPr
           ))}
         </ol>
       )}
-      {rows.some((p) => p.starter) && <StarterKey className="mt-2" />}
     </div>
   );
 }

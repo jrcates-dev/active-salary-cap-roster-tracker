@@ -17,8 +17,11 @@ export interface OutRow {
 
 type Tab = "week" | "season" | "year";
 
+/** Rows shown before "Show more"; the page passes up to twice as many. */
+const SHOWN = 20;
+
 /**
- * The most expensive players out: this week's absences (the ones that change a
+ * The most expensive players out, top 20 with room to show more: this week's absences (the ones that change a
  * matchup), reserve lists a player can come back from, and players done for the season.
  */
 export function PlayersOut({
@@ -33,7 +36,9 @@ export function PlayersOut({
   forSeason: OutRow[];
 }) {
   const [tab, setTab] = useState<Tab>("week");
-  const rows = tab === "week" ? thisWeek : tab === "season" ? longTerm : forSeason;
+  const [all, setAll] = useState(false);
+  const list = tab === "week" ? thisWeek : tab === "season" ? longTerm : forSeason;
+  const rows = all ? list : list.slice(0, SHOWN);
   return (
     <div>
       <div className="mb-3">
@@ -77,6 +82,16 @@ export function PlayersOut({
             </li>
           ))}
         </ol>
+      )}
+      {list.length > SHOWN && (
+        <button
+          type="button"
+          onClick={() => setAll(!all)}
+          aria-expanded={all}
+          className="mt-2 text-[13px] font-medium text-ink-2 underline decoration-line-2 underline-offset-2 hover:text-ink hover:decoration-ink"
+        >
+          {all ? "Show fewer" : `Show ${list.length - SHOWN} more`}
+        </button>
       )}
     </div>
   );

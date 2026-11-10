@@ -20,6 +20,7 @@ export function WeekGames({
   initialWeek,
   more,
   id,
+  cols = "grid-cols-2 lg:grid-cols-4",
 }: {
   slates: WeekSlate[];
   teams: CardTeams;
@@ -30,6 +31,8 @@ export function WeekGames({
   /** A link onward ("All matchups"), which carries the chosen week. */
   more?: { href: string; label: string };
   id?: string;
+  /** Grid columns for the game cards, for when the list shares its row with something else. */
+  cols?: string;
 }) {
   const [week, setWeek] = useState(initialWeek);
   const [nowWeek, setNowWeek] = useState(initialWeek);
@@ -121,7 +124,7 @@ export function WeekGames({
           {slate.byes.length > 0 && <>Bye: {slate.byes.join(", ")}.</>}
         </p>
       )}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className={`grid gap-3 ${cols}`}>
         {slate.games.map((g) => (
           <GameCard key={g.id} game={g} teams={teams} />
         ))}

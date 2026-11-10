@@ -7,6 +7,7 @@ import { WeekGames } from "@/components/WeekGames";
 import { PageHead, SectionHead, Stat, WRAP } from "@/components/ui";
 import { STATUS_COLOR, teamVars, UNITS } from "@/design/tokens";
 import { cardTeams, getSnapshot, weekSlates } from "@/lib/data";
+import { defaultWeek } from "@/lib/schedule";
 import { money, pct } from "@/lib/format";
 import type { Absence } from "@/lib/types";
 
@@ -45,7 +46,7 @@ export default async function LeaguePage() {
     s.players
       .filter(isOut(kind))
       .sort((a, b) => b.cap - a.cap)
-      .slice(0, 10)
+      .slice(0, 40)
       .map((p) => ({ player: p, nick: teamsById[p.team].nick, vars: teamVars(teamsById[p.team]) }));
   const boardTeams = s.teams.map((t) => ({ team: t.team, nick: t.nick, name: t.name, vars: teamVars(t) }));
   const history = s.history.length ? s.history : s.summary.map((t) => ({ ...t, week: s.week, unit: "all" as const }));
@@ -111,22 +112,24 @@ export default async function LeaguePage() {
         </div>
       </section>
 
-      {slates.length > 0 && (
-        <section id="games" className="scroll-mt-20">
+      <section>
+        <InactiveBoard title="Money out by team" teams={boardTeams} history={history} week={s.week} />
+      </section>
+
+      <section
+        id="games"
+        className="grid scroll-mt-20 grid-cols-[minmax(0,1fr)] gap-12 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"
+      >
+        {slates.length > 0 && (
           <WeekGames
             slates={slates}
             teams={cardTeams(s)}
             dataWeek={s.week}
-            initialWeek={s.week}
+            initialWeek={defaultWeek(slates, new Date())}
             more={{ href: "/matchups/", label: "All matchups" }}
+            cols="grid-cols-2"
           />
-        </section>
-      )}
-
-      <section className="grid grid-cols-[minmax(0,1fr)] gap-12 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <div>
-          <InactiveBoard title="Money out by team" teams={boardTeams} history={history} week={s.week} />
-        </div>
+        )}
         <div>
           <SectionHead title="Players out" />
           <PlayersOut week={s.week} thisWeek={outRows("week")} longTerm={outRows("season")} forSeason={outRows("year")} />

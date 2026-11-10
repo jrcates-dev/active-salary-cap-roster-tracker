@@ -67,8 +67,10 @@ export interface GroupMoney {
   total: number;
   active: number;
   questionable: number;
+  /** Out: this week's absences plus reserve lists with a way back. */
   out: number;
-  season: number;
+  /** The part of `out` on a reserve list. */
+  reserve: number;
   year: number;
   /** Practice squad money, kept for reference but left out of `total` and the bars. */
   unknown: number;
@@ -82,7 +84,7 @@ export function groupMoney(s: Snapshot, team: string, codes: string[]): GroupMon
     active: 0,
     questionable: 0,
     out: 0,
-    season: 0,
+    reserve: 0,
     year: 0,
     unknown: 0,
     field: 0,
@@ -92,8 +94,8 @@ export function groupMoney(s: Snapshot, team: string, codes: string[]): GroupMon
     m.total += r.cap_total - r.cap_unknown;
     m.active += r.cap_active;
     m.questionable += r.cap_questionable;
-    m.out += r.cap_inactive_week ?? 0;
-    m.season += r.cap_inactive_season ?? 0;
+    m.out += (r.cap_inactive_week ?? 0) + (r.cap_inactive_season ?? 0);
+    m.reserve += r.cap_inactive_season ?? 0;
     m.year += r.cap_inactive_year ?? 0;
     m.unknown += r.cap_unknown;
   }

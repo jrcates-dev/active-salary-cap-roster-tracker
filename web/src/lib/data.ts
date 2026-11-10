@@ -3,7 +3,8 @@ import path from "node:path";
 import { teamVars } from "@/design/tokens";
 import { biggestEdges, edgeShort, gameEdges } from "./matchup";
 import type { CardGame, CardSide, CardTeams, WeekSlate } from "./schedule";
-import type { Game, HistoryRow, Player, RollupRow, Snapshot, Team, TeamSummary } from "./types";
+import { outTag } from "./availability";
+import type { Game, HistoryPlayer, HistoryRow, Player, RollupRow, Snapshot, Team, TeamSummary } from "./types";
 
 /**
  * The site reads one JSON snapshot per build. `data/snapshot.json` is the real one
@@ -44,13 +45,57 @@ async function readSnapshot(): Promise<Snapshot> {
 
 /** Fill fields an older snapshot may lack, so pages never branch on them. */
 function normalize(s: Snapshot): Snapshot {
+  const history_players = s.history_players ?? [];
+  const tag = outTagger(s.games, history_players);
   return {
     ...s,
+    players: s.players.map((p) => (p.flag === "inactive" ? { ...p, out_tag: tag(p, s.week) } : p)),
     history: s.history ?? [],
-    history_players: s.history_players ?? [],
+    history_players: history_players.map((h) => (h.flag === "inactive" ? { ...h, out_tag: tag(h, h.week) } : h)),
     dead_charges: s.dead_charges ?? [],
     freshness: s.freshness ?? null,
   };
+}
+
+/** Games a player on IR, PUP or NFI must miss before he can be activated. */
+const GAMES_HELD_OUT = 4;
+
+/**
+ * Tags each player who is out with why (`outTag`). For a reserve list with a way back
+ * it estimates the week he can return: the run of weeks he has been on a reserve list
+ * (a bye does not break it) gives the week he went on, and he can come back for the
+ * fifth game after that. The free data has no placement date, so this is an estimate.
+ */
+function outTagger(games: Game[], history: HistoryPlayer[]) {
+  const gameWeeks = new Map<string, number[]>();
+  for (const g of games) {
+    for (const t of [g.away_team, g.home_team]) {
+      const list = gameWeeks.get(t) ?? [];
+      list.push(g.week);
+      gameWeeks.set(t, list);
+    }
+  }
+  for (const list of gameWeeks.values()) list.sort((a, b) => a - b);
+  /** Weeks each player was on a reserve list, by player key. */
+  const reserveWeeks = new Map<string, Set<number>>();
+  for (const h of history) {
+    if (h.flag !== "inactive" || (h.absence !== "season" && h.absence !== "year")) continue;
+    const set = reserveWeeks.get(h.key) ?? new Set<number>();
+    set.add(h.week);
+    reserveWeeks.set(h.key, set);
+  }
+  const returnWeek = (p: Pick<Player, "key" | "team">, week: number): number | null => {
+    const played = gameWeeks.get(p.team) ?? [];
+    const onList = reserveWeeks.get(p.key);
+    let since = week;
+    for (let w = week - 1; w >= 1; w--) {
+      if (onList?.has(w)) since = w;
+      else if (played.includes(w)) break;
+    }
+    return played.filter((w) => w >= since)[GAMES_HELD_OUT] ?? null;
+  };
+  return (p: Pick<Player, "key" | "team" | "flag" | "absence" | "reason" | "outlook_basis">, week: number) =>
+    outTag(p, week, p.absence === "season" ? returnWeek(p, week) : null);
 }
 
 export interface TeamView {

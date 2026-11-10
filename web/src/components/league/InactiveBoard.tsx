@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, type CSSProperties } from "react";
+import { outOf, reserveLine } from "@/lib/availability";
 import { money } from "@/lib/format";
 import { deadHref, weekStatusHrefs } from "@/lib/rosterLink";
 import type { HistoryRow } from "@/lib/types";
@@ -13,23 +14,21 @@ import { SectionHead } from "../ui";
 import { Select, StepButton } from "../ui/controls";
 
 /** The legend entries, each of which ranks the board by its money when clicked. */
-const SORT_KEYS: SliceKey[] = ["active", "questionable", "inactive", "season", "year", "unknown", "dead"];
+const SORT_KEYS: SliceKey[] = ["active", "questionable", "inactive", "year", "unknown", "dead"];
 
-const COLUMN: Partial<Record<SliceKey, keyof HistoryRow>> = {
-  active: "cap_active",
-  questionable: "cap_questionable",
-  inactive: "cap_inactive_week",
-  season: "cap_inactive_season",
-  year: "cap_inactive_year",
-  unknown: "cap_unknown",
+const COLUMN: Partial<Record<SliceKey, (r: HistoryRow) => number>> = {
+  active: (r) => r.cap_active,
+  questionable: (r) => r.cap_questionable,
+  inactive: outOf,
+  year: (r) => r.cap_inactive_year ?? 0,
+  unknown: (r) => r.cap_unknown,
 };
 
 /** A word or two naming the ranked money under each team's number. */
 const SHORT: Record<string, string> = {
   active: "active",
-  inactive: "this week",
+  inactive: "out",
   questionable: "questionable",
-  season: "long-term",
   year: "for season",
   unknown: "practice squad",
   dead: "dead money",
@@ -39,15 +38,14 @@ const SHORT: Record<string, string> = {
  * Every cap dollar not playing this week: this game's absences, every reserve list,
  * and the team's dead money for the year.
  */
-const totalOut = (r: HistoryRow, dead: number) =>
-  r.cap_inactive_week + r.cap_inactive_season + (r.cap_inactive_year ?? 0) + dead;
+const totalOut = (r: HistoryRow, dead: number) => outOf(r) + (r.cap_inactive_year ?? 0) + dead;
 
 /** What the number beside each bar means, by the legend entry that ranks the board. */
 const MEANING: Record<string, string> = {
   active: "Cap money on players active for this week's game.",
   questionable: "Cap money on players listed questionable for this week's game.",
-  inactive: "Cap money out for this week's game only: ruled out, doubtful or a gameday inactive. Reserve lists are not counted.",
-  season: "Cap money on a reserve list (IR, PUP, NFI, suspension) with a way back this season.",
+  inactive:
+    "Cap money out for this week's game but not for good: ruled out, doubtful, a gameday inactive, or on a reserve list (IR, PUP, NFI, suspension) with a way back this season.",
   year: "Cap money on a reserve list that is done for the season.",
   unknown: "Cap money on the practice squad and anyone without a game status.",
   dead: "Dead money: this year's cap charges for players no longer on the team. The same figure every week.",
@@ -90,7 +88,7 @@ export function InactiveBoard({
   const [animate, setAnimate] = useState(true);
   const byTeam = Object.fromEntries(teams.map((t) => [t.team, t]));
   const deadOf = (r: HistoryRow) => byTeam[r.team]?.dead ?? 0;
-  const amount = (r: HistoryRow, k: SliceKey) => (k === "dead" ? deadOf(r) : Number(r[COLUMN[k]!] ?? 0));
+  const amount = (r: HistoryRow, k: SliceKey) => (k === "dead" ? deadOf(r) : (COLUMN[k]?.(r) ?? 0));
   const outOf = (r: HistoryRow) => totalOut(r, deadOf(r));
   // Unfocused, the board ranks and labels each team by its total money out.
   const value = (r: HistoryRow) => (sort.focused ? amount(r, sort.key) : outOf(r));
@@ -100,7 +98,7 @@ export function InactiveBoard({
       (a, b) =>
         byDir(value(a), value(b), sort.dir) ||
         byDir(outOf(a), outOf(b), "desc") ||
-        byDir(a.cap_inactive_week, b.cap_inactive_week, "desc") ||
+        byDir(outOf(a), outOf(b), "desc") ||
         byTeam[a.team].nick.localeCompare(byTeam[b.team].nick),
     );
   const scale = Math.max(1, ...rows.map((r) => r.cap_total + deadOf(r)));
@@ -187,7 +185,7 @@ export function InactiveBoard({
 
 /**
  * The tooltip on the number beside a bar: what the number counts and, for the
- * default total, the three kinds of absence it adds up.
+ * default total, the kinds of money out it adds up.
  */
 function ValueTip({
   team,
@@ -218,11 +216,13 @@ function ValueTip({
         {team} · Week {week}
       </TipTitle>
       <p className="mb-1.5 text-ink-2">
-        Total out: every cap dollar not on the field this week. Players out for this game, players on a reserve list,
-        and dead money for the year.
+        Total out: every cap dollar not on the field this week. Players out for this game, players done for the
+        season, and dead money for the year.
       </p>
-      <TipRow label="Out this week" value={money(row.cap_inactive_week)} swatch={<Swatch k="inactive" />} />
-      <TipRow label="Out long-term" value={money(row.cap_inactive_season)} swatch={<Swatch k="season" />} />
+      <TipRow label="Out" value={money(outOf(row))} swatch={<Swatch k="inactive" />} />
+      {reserveLine(outOf(row), row.cap_inactive_season) && (
+        <p className="mb-0.5 text-ink-3">{reserveLine(outOf(row), row.cap_inactive_season)}</p>
+      )}
       <TipRow label="Out for season" value={money(row.cap_inactive_year ?? 0)} swatch={<Swatch k="year" />} />
       <TipRow label="Dead money" value={money(dead)} swatch={<Swatch k="dead" />} />
       <div className="mt-1 border-t border-line pt-1">

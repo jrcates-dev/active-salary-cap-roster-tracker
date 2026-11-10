@@ -24,7 +24,7 @@ export function Tape({ bar, cells }: { bar: ReactNode; cells: TapeCell[] }) {
   return (
     <div className="space-y-4">
       {bar}
-      <ul className="grid grid-cols-3 gap-x-4 gap-y-4 sm:grid-cols-4 lg:grid-cols-[1.35fr_repeat(6,minmax(0,1fr))] lg:gap-x-5">
+      <ul className="grid grid-cols-3 gap-x-4 gap-y-4 sm:grid-cols-5 lg:grid-cols-[1.35fr_repeat(5,minmax(0,1fr))] lg:gap-x-5">
         {cells.map((c, i) => {
           const lead = i === 0;
           const body = (
@@ -35,7 +35,7 @@ export function Tape({ bar, cells }: { bar: ReactNode; cells: TapeCell[] }) {
               {c.sub && <p className="num mt-1.5 truncate text-xs text-ink-3">{c.sub}</p>}
             </>
           );
-          const span = lead ? "col-span-3 sm:col-span-4 lg:col-span-1" : "";
+          const span = lead ? "col-span-3 sm:col-span-5 lg:col-span-1" : "";
           return (
             <li key={c.k} className={`min-w-0 ${span}`}>
               {c.href ? (

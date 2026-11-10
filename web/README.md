@@ -56,7 +56,7 @@ publishing fake numbers.
 | `src/lib/data.ts` | Snapshot loader and per-team and league helpers |
 | `src/lib/format.ts` | Money, percent, date and label formatting |
 | `src/lib/viewState.ts` | `useViewState`: a toggle, tab, sort or zoomed group remembered for the visit (sessionStorage, per page), so Back returns to the same view |
-| `src/lib/availability.ts` | Availability states (active, questionable, out this week, out long-term, out for season, practice squad, dead) and per-player helpers, usable from server pages |
+| `src/lib/availability.ts` | Availability states (active, questionable, out, out for season, practice squad, dead), the per-player out tag ("IR, eligible week 12") and other per-player helpers, usable from server pages |
 | `src/lib/matchup.ts` | Position matchup pairs, group money, league ranks and edge picks |
 | `src/components/site/` | Header with section links and the team switcher (the links move to `BottomTabs`, a tab bar at the bottom of a phone screen), footer, the strip used to step between teams or games, the scroll memory that puts each page back where it was left on Back and Forward, and the sticky section bar (breadcrumb plus a link to each section, the one in view marked) on the league, team and matchup pages |
 | `src/components/ui/` | The hero band that opens every page (`Hero`, on the dark `.board` scope from globals.css), section heads, stat tile, segmented control, chips, step buttons |

@@ -15,7 +15,7 @@ import { AverageSwatch, TeamTrend } from "@/components/team/TeamTrend";
 import { Treemap } from "@/components/team/Treemap";
 import { Hero, SectionHead, WRAP } from "@/components/ui";
 import { teamVars, UNITS } from "@/design/tokens";
-import { slicesOf } from "@/lib/availability";
+import { outOf, slicesOf } from "@/lib/availability";
 import { getSnapshot, groupLeagueStats, kickoffLabel, leagueHistoryAverage, matchupHref, teamGame, teamView } from "@/lib/data";
 import { dayLabel, money, pct } from "@/lib/format";
 import { deadHref, rosterHref, statusHrefs } from "@/lib/rosterLink";
@@ -115,8 +115,13 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
               cells={[
                 { k: "active", label: "Active", value: <Amount value={summary.cap_active} />, href: rosterHref(team.team, { status: "active" }) },
                 { k: "questionable", label: "Questionable", value: <Amount value={summary.cap_questionable} />, href: rosterHref(team.team, { status: "questionable" }) },
-                { k: "inactive", label: "Out this week", value: <Amount value={summary.cap_inactive_week} />, href: rosterHref(team.team, { status: "inactive" }) },
-                { k: "season", label: "Out long-term", value: <Amount value={summary.cap_inactive_season} />, sub: "Can return", href: rosterHref(team.team, { status: "season" }) },
+                {
+                  k: "inactive",
+                  label: "Out",
+                  value: <Amount value={outOf(summary)} />,
+                  sub: summary.cap_inactive_season > 0 ? `${money(summary.cap_inactive_season)} on reserve` : undefined,
+                  href: rosterHref(team.team, { status: "inactive" }),
+                },
                 { k: "year", label: "Out for season", value: <Amount value={summary.cap_inactive_year ?? 0} />, href: rosterHref(team.team, { status: "year" }) },
                 { k: "unknown", label: "Practice squad", value: <Amount value={summary.cap_unknown} />, href: rosterHref(team.team, { status: "unknown" }) },
                 { k: "dead", label: "Dead money", value: summary.dead_money === null ? "–" : money(summary.dead_money), sub: asOf, href: deadHref(team.team) },
@@ -155,7 +160,7 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
               <TeamTrend team={team.team} rows={trend} week={s.week} league={leagueHistoryAverage(s)} />
               <div className="mt-3">
                 <AvailabilityLegend
-                  keys={["questionable", "inactive", "season", "year"]}
+                  keys={["questionable", "inactive", "year"]}
                   short
                   extra={
                     <span className="flex items-center gap-1.5 whitespace-nowrap">

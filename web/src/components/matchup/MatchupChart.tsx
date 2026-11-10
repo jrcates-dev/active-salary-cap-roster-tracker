@@ -3,6 +3,7 @@
 import type { CSSProperties } from "react";
 import { useViewState } from "@/lib/viewState";
 import { money, ordinal } from "@/lib/format";
+import { reserveLine } from "@/lib/availability";
 import { statusHrefs, type RosterStatus } from "@/lib/rosterLink";
 import type { GroupMoney, MatchupMode } from "@/lib/matchup";
 import { SEGMENT_LINK, sliceClass, Swatch, type SliceKey } from "../Availability";
@@ -39,8 +40,7 @@ export interface MatchupHalf {
 const SLICES: { k: SliceKey; f: keyof GroupMoney; label: string }[] = [
   { k: "active", f: "active", label: "Active" },
   { k: "questionable", f: "questionable", label: "Questionable" },
-  { k: "inactive", f: "out", label: "Out this week" },
-  { k: "season", f: "season", label: "Out long-term" },
+  { k: "inactive", f: "out", label: "Out" },
   { k: "year", f: "year", label: "Out for season" },
 ];
 
@@ -49,7 +49,7 @@ const SLICES: { k: SliceKey; f: keyof GroupMoney; label: string }[] = [
  * runs right, one shared scale for the whole game. The ratio badge sits between
  * them and points at the side with more money; it turns accent at 1.5x. Every
  * segment wears its own team's color, and the status reads from its pattern
- * (solid active, dotted questionable, striped out), so out and reserve money stay
+ * (solid active, dotted questionable, striped out, hollow out for season), so money out stays
  * visible and a reader sees what an injury took away. Each segment links to the team's roster filtered to the
  * groups and that status.
  */
@@ -183,7 +183,12 @@ function Bar({
         <div>
           <TipTitle>{title}</TipTitle>
           {SLICES.map((s) =>
-            (m[s.f] as number) > 0 ? <TipRow key={s.k} label={s.label} value={money(m[s.f] as number)} swatch={<Swatch k={s.k} team={vars} />} /> : null,
+            (m[s.f] as number) > 0 ? (
+              <div key={s.k}>
+                <TipRow label={s.label} value={money(m[s.f] as number)} swatch={<Swatch k={s.k} team={vars} />} />
+                {s.k === "inactive" && reserveLine(m.out, m.reserve) && <p className="mb-0.5 text-ink-3">{reserveLine(m.out, m.reserve)}</p>}
+              </div>
+            ) : null,
           )}
           {total > 0 && <TipHint />}
         </div>

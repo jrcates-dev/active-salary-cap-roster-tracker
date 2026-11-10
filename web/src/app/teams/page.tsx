@@ -27,7 +27,7 @@ export default async function TeamsPage() {
     <>
       <Hero eyebrow={`${s.season} season · Week ${s.week}`} title="Teams" />
       <main className={`${WRAP} space-y-8 py-8 sm:py-10`}>
-        <AvailabilityLegend keys={["active", "questionable", "inactive", "season", "year", "unknown", "dead"]} short />
+        <AvailabilityLegend keys={["active", "questionable", "inactive", "year", "unknown", "dead"]} short />
         <div className="grid gap-x-10 gap-y-10 md:grid-cols-2">
           {CONFERENCES.map((conf) => (
             <section key={conf} aria-label={conf} className="space-y-8">

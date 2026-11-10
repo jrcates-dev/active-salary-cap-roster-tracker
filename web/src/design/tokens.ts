@@ -9,9 +9,9 @@
  *                        as `var(--team)`.
  *   2. Money status    - one fixed hue per availability state, the same on every
  *                        page and every team (globals.css, `--st-*` and `.s-*`):
- *                        green active, amber questionable, red out this week, berry
- *                        out long-term, violet out for season, neutral practice
- *                        squad and dead money. Textures repeat the hue's meaning.
+ *                        green active, amber questionable, red out, violet out
+ *                        for season, neutral practice squad and dead money.
+ *                        Textures repeat the hue's meaning.
  *   3. Intensity       - one amber ramp for share of cap (globals.css, `--ramp-N`).
  *   4. Accent          - one orange, only where it carries meaning.
  *   5. Unit            - blue offense, green defense, gold special teams, only on
@@ -44,8 +44,7 @@ export const UNIT_COLOR: Record<Unit, string> = {
 export const STATUS_COLOR: Record<SliceKey, string> = {
   active: "var(--st-active)",
   questionable: "var(--st-questionable)",
-  inactive: "var(--st-week)",
-  season: "var(--st-long)",
+  inactive: "var(--st-out)",
   year: "var(--st-year)",
   unknown: "var(--ps-dot)",
   dead: "var(--dead)",

@@ -10,7 +10,7 @@ import { SectionNav } from "@/components/site/SectionNav";
 import { Strip } from "@/components/site/Strip";
 import { Hero, SectionHead, WRAP } from "@/components/ui";
 import { matchupVars } from "@/design/tokens";
-import { playerSlice, slicesOf, statusText } from "@/lib/availability";
+import { outOf, playerSlice, slicesOf, statusText } from "@/lib/availability";
 import { getSnapshot, kickoffLabel, matchupHref, weekGames } from "@/lib/data";
 import { money, ordinal } from "@/lib/format";
 import { statusHrefs } from "@/lib/rosterLink";
@@ -206,10 +206,9 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
                       hrefs={statusHrefs(t.team)}
                       subject={t.name}
                     />
-                    <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-4">
+                    <dl className="mt-3 grid grid-cols-3 gap-x-3 gap-y-3">
                       <StatPair label="On the field" value={money(sum.cap_active + sum.cap_questionable)} />
-                      <StatPair label="Out this week" value={money(sum.cap_inactive_week)} />
-                      <StatPair label="Out long-term" value={money(sum.cap_inactive_season)} />
+                      <StatPair label="Out" value={money(outOf(sum))} />
                       <StatPair label="Out for season" value={money(sum.cap_inactive_year ?? 0)} />
                     </dl>
                   </div>
@@ -217,7 +216,7 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
               })}
             </div>
             <div>
-              <AvailabilityLegend keys={["active", "questionable", "inactive", "season", "year"]} short palette="team" extra={<span className="text-ink-3">Bars wear each team&apos;s color, on one dollar scale, practice squad left out</span>} />
+              <AvailabilityLegend keys={["active", "questionable", "inactive", "year"]} short palette="team" extra={<span className="text-ink-3">Bars wear each team&apos;s color, on one dollar scale, practice squad left out</span>} />
             </div>
           </section>
         </div>
@@ -288,7 +287,7 @@ function KeyAbsences({ s, abbr, vars }: { s: Snapshot; abbr: string; vars: CSSPr
   const rows = s.players
     .filter((p) => p.team === abbr && (p.flag === "inactive" || p.flag === "questionable"))
     .sort((a, b) => {
-      const rank = (x: typeof a) => ({ season: 1, year: 2 })[playerSlice(x) as string] ?? 0;
+      const rank = (x: typeof a) => (playerSlice(x) === "year" ? 1 : 0);
       return rank(a) - rank(b) || b.cap - a.cap;
     })
     .slice(0, 8);

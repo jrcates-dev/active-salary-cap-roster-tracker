@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useViewState } from "@/lib/viewState";
-import { statusText, YEAR_NOTE } from "@/lib/availability";
+import { OUT_NOTE, statusText, YEAR_NOTE } from "@/lib/availability";
 import { parseRosterFilter, PAST_STATUSES, ROSTER_EVENT, ROSTER_ID, rosterQuery, scrollToRoster, type RosterFilter } from "@/lib/rosterLink";
 import { UNIT_LABEL, money } from "@/lib/format";
 import type { Group, HistoryPlayer, Player, Unit } from "@/lib/types";
@@ -16,12 +16,12 @@ import { useMoneyMode } from "./MoneyMode";
 type SortKey = "name" | "group" | "cap" | "flag" | "years_left";
 
 type Filter = Exclude<SliceKey, "dead">;
-const SLICE_RANK: Record<Filter, number> = { inactive: 0, season: 1, year: 2, questionable: 3, active: 4, unknown: 5 };
-const FILTERS: (Filter | "all")[] = ["all", "active", "questionable", "inactive", "season", "year", "unknown"];
+const SLICE_RANK: Record<Filter, number> = { inactive: 0, year: 1, questionable: 2, active: 3, unknown: 4 };
+const FILTERS: (Filter | "all")[] = ["all", "active", "questionable", "inactive", "year", "unknown"];
 /** An earlier week lists only who was out or questionable, so only those filters apply. */
 const PAST_FILTERS: (Filter | "all")[] = ["all", ...(PAST_STATUSES as Filter[])];
 const FILTER_TITLE: Partial<Record<Filter, string>> = {
-  season: "On a reserve list and able to come back this season",
+  inactive: OUT_NOTE,
   year: YEAR_NOTE,
   unknown: "Practice squad, plus anyone the roster file has no gameday status for",
 };
@@ -277,7 +277,7 @@ export function PlayerTable({
               title={f === "all" ? undefined : FILTER_TITLE[f]}
               swatch={f !== "all" ? <Swatch k={f} size={10} /> : undefined}
             >
-              {f === "all" ? (past ? "All out" : "All") : past && f === "inactive" ? "Out that week" : SLICE_SHORT[f]}
+              {f === "all" ? (past ? "All out" : "All") : SLICE_SHORT[f]}
             </Chip>
           ))}
         </div>

@@ -1,7 +1,7 @@
 /**
  * Deep links into a team's roster table. Every chart segment that stands for a set
  * of players links here: `/team/SEA/?status=inactive`, `/team/LA/?unit=defense`,
- * `/team/NE/?group=IDL,EDGE&status=season`. `week` opens an earlier week's list of
+ * `/team/NE/?group=IDL,EDGE&status=inactive`. `week` opens an earlier week's list of
  * who was out: `/team/GB/?week=3&status=year`. The roster reads these on load, sets
  * its filters and scrolls itself into view. Kept free of "use client" so server
  * pages can build links too.
@@ -20,10 +20,10 @@ export function deadHref(team: string): string {
 }
 
 /** Status filters the roster offers: every availability state except dead money. */
-export type RosterStatus = "active" | "questionable" | "inactive" | "season" | "year" | "unknown";
-export const ROSTER_STATUSES: RosterStatus[] = ["active", "questionable", "inactive", "season", "year", "unknown"];
+export type RosterStatus = "active" | "questionable" | "inactive" | "year" | "unknown";
+export const ROSTER_STATUSES: RosterStatus[] = ["active", "questionable", "inactive", "year", "unknown"];
 /** The statuses an earlier week keeps: only the players who were out or questionable. */
-export const PAST_STATUSES: RosterStatus[] = ["questionable", "inactive", "season", "year"];
+export const PAST_STATUSES: RosterStatus[] = ["questionable", "inactive", "year"];
 const UNITS: Unit[] = ["offense", "defense", "special_teams"];
 
 export interface RosterFilter {
@@ -73,7 +73,9 @@ export function parseRosterFilter(search: string): RosterFilter | null {
   const out: RosterFilter = {};
   const week = Number(p.get("week"));
   if (Number.isInteger(week) && week > 0) out.week = week;
-  const status = p.get("status");
+  // "season" (out long-term) was its own filter before it joined "inactive" (out);
+  // links shared from then still open the right list.
+  const status = p.get("status") === "season" ? "inactive" : p.get("status");
   if (status && (ROSTER_STATUSES as string[]).includes(status)) out.status = status as RosterStatus;
   const groups = (p.get("group") ?? "")
     .split(",")

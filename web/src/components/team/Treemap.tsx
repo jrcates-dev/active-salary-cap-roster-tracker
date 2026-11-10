@@ -1,11 +1,12 @@
 "use client";
 
 import { hierarchy, treemap, treemapSquarify, type HierarchyRectangularNode } from "d3-hierarchy";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { money, pct } from "@/lib/format";
-import type { Group, Player } from "@/lib/types";
+import type { Group, Player, Unit } from "@/lib/types";
 import { playerSlice, sliceClass, Swatch } from "../Availability";
 import { ChartLink } from "../ChartLink";
+import { Chip } from "../ui/controls";
 import { Tip, TipRow, TipTitle } from "../Tip";
 import { rosterHref } from "@/lib/rosterLink";
 import { statusText } from "@/lib/availability";
@@ -13,6 +14,7 @@ import { statusText } from "@/lib/availability";
 type Node = { name: string; code?: string; player?: Player; children?: Node[] };
 
 const HEADER = 26;
+const UNIT_ORDER: Unit[] = ["offense", "defense", "special_teams"];
 /** Tiles narrower or shorter than this are not controls: they keep the hover tip and the list below carries them. */
 const MIN_TARGET = 24;
 /** Smallest type a tile label may shrink to before the tile goes unlabeled. */
@@ -24,7 +26,8 @@ type Measure = (text: string, size: number, weight: number) => number;
 
 /**
  * Every counted player sized by cap number, nested in position groups and filled
- * by availability. Click a group to zoom in; the breadcrumb zooms back out. Zoomed
+ * by availability. Click a group, or its chip above the chart, to zoom in; the group
+ * header, the same chip or "All" zooms back out. Zoomed
  * in, a tap on a player shows his details and the group's players are listed below,
  * so the view works on a phone where the small tiles have no room for names.
  * It takes the full page width, and each tile's label is fitted to it: the
@@ -35,6 +38,7 @@ export function Treemap({ team, groups, players, teamTotal }: { team: string; gr
   const ref = useRef<HTMLDivElement>(null);
   const fontRef = useRef<HTMLSpanElement>(null);
   const [width, setWidth] = useState(0);
+  const stripRef = useRef<HTMLDivElement>(null);
   const [focus, setFocus] = useState<string | null>(null);
   const measure = useDisplayMeasure(fontRef);
 
@@ -81,36 +85,54 @@ export function Treemap({ team, groups, players, teamTotal }: { team: string; gr
   const leaves = layout?.leaves().filter((l) => l.data.player) ?? [];
   const focusGroup = groups.find((g) => g.code === focus);
 
+  // One chip per group that has money in the chart, offense first, then defense
+  // and special teams, each in the site's group order.
+  const chipGroups = useMemo(() => {
+    const total = new Map<string, number>();
+    for (const p of players) if (p.group && p.cap > 0) total.set(p.group, (total.get(p.group) ?? 0) + p.cap);
+    return groups
+      .filter((g) => total.has(g.code))
+      .map((g) => ({ ...g, total: total.get(g.code)! }))
+      .sort((a, b) => UNIT_ORDER.indexOf(a.unit) - UNIT_ORDER.indexOf(b.unit) || a.order - b.order);
+  }, [groups, players]);
+  const groupTotal = chipGroups.reduce((sum, g) => sum + g.total, 0);
+
+  // On a phone the chip row scrolls; when a tile tap picks a group whose chip is
+  // out of view, slide the row (only the row, never the page) to show it.
+  useEffect(() => {
+    const strip = stripRef.current;
+    const chip = strip?.querySelector<HTMLElement>('[aria-pressed="true"]');
+    if (!strip || !chip) return;
+    const left = chip.offsetLeft - strip.offsetLeft;
+    if (left < strip.scrollLeft || left + chip.offsetWidth > strip.scrollLeft + strip.clientWidth) {
+      strip.scrollTo({ left: Math.max(0, left - 16), behavior: "smooth" });
+    }
+  }, [focus]);
+
   return (
     <div>
-      <nav aria-label="Treemap level" className="mb-3 flex items-center gap-1.5 text-[13px]">
-        <button
-          type="button"
-          onClick={() => setFocus(null)}
-          className={`rounded-md px-2 py-1 transition-colors duration-(--dur-1) ${
-            focus ? "text-ink-2 hover:bg-surface-2 hover:text-ink" : "bg-surface-2 font-medium text-ink"
-          }`}
-        >
-          All groups
-        </button>
-        {focusGroup && (
-          <>
-            <span className="text-ink-3">/</span>
-            <span className="rounded-md bg-surface-2 px-2 py-1 font-medium text-ink">{focusGroup.label}</span>
-          </>
-        )}
-        {focusGroup ? (
-          <ChartLink
-            href={rosterHref(team, { groups: [focusGroup.code] })}
-            tapPreview={false}
-            className="ml-auto rounded-md px-2 py-1 text-xs font-medium text-ink-2 transition-colors duration-(--dur-1) hover:bg-surface-2 hover:text-ink"
-          >
-            {focusGroup.code} in the roster ↓
-          </ChartLink>
-        ) : (
-          <span className="ml-auto text-xs text-ink-3">Tap a group to zoom</span>
-        )}
-      </nav>
+      {/* The groups as chips, so one can be picked without hunting for its tile. One
+          row that scrolls sideways on phones; wraps from small screens up. */}
+      <div ref={stripRef} className="strip -mx-4 mb-3 px-4 py-1 sm:mx-0 sm:px-0">
+        <div className="flex w-max items-center gap-1.5 sm:w-auto sm:flex-wrap" role="group" aria-label="Zoom to a position group">
+          <Chip active={!focus} onClick={() => setFocus(null)} count={money(groupTotal)}>
+            All
+          </Chip>
+          {chipGroups.map((g, i) => (
+            <Fragment key={g.code}>
+              {i > 0 && chipGroups[i - 1].unit !== g.unit && <span aria-hidden className="mx-0.5 h-4 w-px bg-line" />}
+              <Chip
+                active={focus === g.code}
+                onClick={() => setFocus(focus === g.code ? null : g.code)}
+                count={money(g.total)}
+                title={`${g.label}: ${money(g.total)}, ${pct(g.total / teamTotal)} of the team`}
+              >
+                {g.code}
+              </Chip>
+            </Fragment>
+          ))}
+        </div>
+      </div>
       <span ref={fontRef} className="fig" hidden />
       <div ref={ref} className="relative w-full overflow-hidden rounded-lg" style={{ height }}>
         {groupNodes.map((g) => (
@@ -133,7 +155,20 @@ export function Treemap({ team, groups, players, teamTotal }: { team: string; gr
         ))}
       </div>
       {focusGroup && (
-        <ol className="card mt-3 divide-y divide-line text-sm">
+        <div className="mt-3 mb-2 flex items-center gap-2 text-[13px]">
+          <span className="font-medium text-ink">{focusGroup.label}</span>
+          <span className="hidden text-ink-3 sm:inline">Tap the group header or All to zoom out</span>
+          <ChartLink
+            href={rosterHref(team, { groups: [focusGroup.code] })}
+            tapPreview={false}
+            className="ml-auto rounded-md px-2 py-1 text-xs font-medium whitespace-nowrap text-ink-2 transition-colors duration-(--dur-1) hover:bg-surface-2 hover:text-ink"
+          >
+            {focusGroup.code} in the roster ↓
+          </ChartLink>
+        </div>
+      )}
+      {focusGroup && (
+        <ol className="card divide-y divide-line text-sm">
           {players
             .filter((p) => p.group === focusGroup.code)
             .sort((a, b) => b.cap - a.cap)

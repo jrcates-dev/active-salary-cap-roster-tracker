@@ -40,7 +40,7 @@ export function Segmented<T extends string>({
   );
 }
 
-/** Pill filter with an optional count. */
+/** Pill filter with an optional count (or any short figure, such as a dollar total). */
 export function Chip({
   active,
   onClick,
@@ -52,7 +52,7 @@ export function Chip({
   active: boolean;
   onClick: () => void;
   children: ReactNode;
-  count?: number;
+  count?: ReactNode;
   title?: string;
   swatch?: ReactNode;
 }) {

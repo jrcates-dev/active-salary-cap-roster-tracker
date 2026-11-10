@@ -27,6 +27,33 @@ export function useSort<K extends string>(
   return [state, toggle];
 }
 
+export interface FocusSortState<K extends string> extends SortState<K> {
+  /** True once the reader has picked a legend entry; false is the plain default view. */
+  focused: boolean;
+}
+
+/**
+ * The sort for a chart whose legend entries rank it. Each entry cycles through
+ * three states: its natural order, the reverse, then back to unfocused, the
+ * chart's default order with no entry picked and nothing faded. Picking another
+ * entry starts that one at its natural order.
+ */
+export function useFocusSort<K extends string>(
+  initial: K,
+  naturalDir: (k: K) => SortDir = () => "desc",
+): [FocusSortState<K>, (k: K) => void] {
+  const unfocused: FocusSortState<K> = { key: initial, dir: naturalDir(initial), focused: false };
+  const [state, setState] = useState<FocusSortState<K>>(unfocused);
+  const toggle = (k: K) =>
+    setState((s) => {
+      const natural = naturalDir(k);
+      if (!s.focused || s.key !== k) return { key: k, dir: natural, focused: true };
+      if (s.dir === natural) return { key: k, dir: natural === "desc" ? "asc" : "desc", focused: true };
+      return unfocused;
+    });
+  return [state, toggle];
+}
+
 /** Compare two numbers in the given direction. */
 export function byDir(a: number, b: number, dir: SortDir) {
   return dir === "desc" ? b - a : a - b;
@@ -93,7 +120,11 @@ export function SortHeader({
   );
 }
 
-/** A legend entry that sorts the list below it by that series. */
+/**
+ * A legend entry that ranks the chart below it by that series. Used with
+ * `useFocusSort`: the first click ranks in the natural order, the second reverses
+ * it, the third clears the focus. The label says what the next click will do.
+ */
 export function SortChip({
   active,
   dir,
@@ -102,6 +133,7 @@ export function SortChip({
   swatch,
   ascLabel = "lowest first",
   descLabel = "highest first",
+  naturalDir = "desc",
   tone,
 }: {
   active: boolean;
@@ -111,16 +143,25 @@ export function SortChip({
   swatch: ReactNode;
   ascLabel?: string;
   descLabel?: string;
+  /** The order a first click ranks in. */
+  naturalDir?: SortDir;
   /** The series color. When set, the active chip wears it as a ring and a light wash. */
   tone?: string;
 }) {
-  const now = active ? `, sorted ${directionWords(dir, ascLabel, descLabel)}` : "";
+  const now = active ? `, ranked ${directionWords(dir, ascLabel, descLabel)}` : "";
   const toned = active && tone;
+  const flipped: SortDir = naturalDir === "desc" ? "asc" : "desc";
+  const next = !active
+    ? `Click to rank by ${label}, ${directionWords(naturalDir, ascLabel, descLabel)}`
+    : dir === naturalDir
+      ? `Click to rank ${directionWords(flipped, ascLabel, descLabel)}`
+      : "Click to clear the focus";
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-label={`Sort by ${label}${now}`}
+      aria-label={`${label}${now}. ${next}`}
+      title={next}
       aria-pressed={active}
       style={
         toned

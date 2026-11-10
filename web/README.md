@@ -43,7 +43,7 @@ publishing fake numbers.
 | `/teams` | All 32 teams by division: counted cap and the availability bar on one dollar scale, each segment opening that roster |
 | `/matchups` | Any week of the season: scores for played games, an early look at future ones |
 | `/team/[abbr]` | Team: team strip for stepping sideways, last result and this week's game, counted cap and cap space with a $ / % toggle and the same tape as the league page (each figure opens those players), all on the team's band, position groups against the league median, player treemap, week-by-week money out, sortable roster |
-| `/matchup/[week-away-home]` | Matchup: strip of the week's games, both teams' availability on one dollar scale (each segment opens that roster), the two biggest edges, mirrored bars per position matchup (on the field or full investment) with league ranks, key absences |
+| `/matchup/[week-away-home]` | Matchup: strip of the week's games, the scorebug (both teams, kickoff or score) with the two biggest edges as the headline, both teams' availability on one dollar scale (each segment opens that roster), mirrored bars per position matchup (on the field or full investment) with league ranks, key absences |
 | `/methodology` | Sources and attribution, accounting rules, matchups, estimates, reconciliation table |
 
 ## Layout

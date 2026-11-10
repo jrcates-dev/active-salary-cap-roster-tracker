@@ -73,17 +73,19 @@ export function MatchupChart({ halves }: { halves: MatchupHalf[] }) {
       </div>
       {halves.map((h) => (
         <section key={h.title} aria-label={h.title}>
-          <div className="mb-4 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 border-b border-line pb-2">
-            <p className="tc flex items-center justify-end gap-2 text-right text-[15px] font-semibold" style={h.offTeam.vars}>
-              <span className="text-xs font-normal text-ink-3">Offense</span>
-              {h.offTeam.nick}
-              <span aria-hidden className="h-3 w-3 rounded-[3px]" style={{ background: "var(--team)" }} />
+          <div className="mb-4 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 border-b border-line pb-2.5">
+            <p className="tc display flex flex-wrap items-center justify-end gap-x-2 text-right text-[20px] leading-none sm:text-[22px]" style={h.offTeam.vars}>
+              <span>
+                {h.offTeam.nick} <span className="text-ink-3">offense</span>
+              </span>
+              <span aria-hidden className="h-4 w-1.5 rounded-[2px]" style={{ background: "var(--team)" }} />
             </p>
-            <span className="text-xs text-ink-3">vs</span>
-            <p className="tc flex items-center gap-2 text-[15px] font-semibold" style={h.defTeam.vars}>
-              <span aria-hidden className="h-3 w-3 rounded-[3px]" style={{ background: "var(--team)" }} />
-              {h.defTeam.nick}
-              <span className="text-xs font-normal text-ink-3">Defense</span>
+            <span className="display w-[3.25rem] text-center text-sm text-ink-3">vs</span>
+            <p className="tc display flex flex-wrap items-center gap-x-2 text-[20px] leading-none sm:text-[22px]" style={h.defTeam.vars}>
+              <span aria-hidden className="h-4 w-1.5 rounded-[2px]" style={{ background: "var(--team)" }} />
+              <span>
+                {h.defTeam.nick} <span className="text-ink-3">defense</span>
+              </span>
             </p>
           </div>
           <div className="space-y-5">
@@ -110,7 +112,7 @@ export function MatchupChart({ halves }: { halves: MatchupHalf[] }) {
                       hrefs={statusHrefs(h.offTeam.abbr, { groups: r.offGroups })}
                     />
                     <span
-                      className={`num flex h-6 items-center justify-center gap-0.5 rounded-md text-xs font-semibold ${
+                      className={`num flex h-6 items-center justify-center gap-0.5 rounded-sm text-xs font-semibold ${
                         strong ? "bg-accent text-accent-ink" : even ? "bg-surface-2 text-ink-3" : "bg-surface-2 text-ink"
                       }`}
                       title={even ? "Within 5%" : `${offWins ? h.offTeam.nick : h.defTeam.nick} have ${badge} the money`}
@@ -175,7 +177,7 @@ function Bar({
   const total = SLICES.reduce((acc, s) => acc + (m[s.f] as number), 0);
   return (
     <Tip
-      className={`tc flex h-4 w-full ${dir === "left" ? "justify-end" : "justify-start"}`}
+      className={`tc flex h-5 w-full ${dir === "left" ? "justify-end" : "justify-start"}`}
       style={vars}
       content={
         <div>

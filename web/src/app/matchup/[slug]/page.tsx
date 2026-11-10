@@ -124,10 +124,39 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
           )}
           <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 sm:gap-6">
             <TeamHead s={s} abbr={away.team} vars={awayVars} score={final ? g.away_score : null} won={final && g.away_score! > g.home_score!} align="right" />
-            <span className="text-sm text-ink-3">at</span>
+            <span className="display text-base text-ink-3">at</span>
             <TeamHead s={s} abbr={home.team} vars={homeVars} score={final ? g.home_score : null} won={final && g.home_score! > g.away_score!} align="left" />
           </div>
         </header>
+
+        <div id="overview" className="mt-8 scroll-mt-28">
+          {edges.length > 0 && (
+            <section aria-label="Biggest edges" className="grid gap-3 md:grid-cols-2">
+              {edges.map((e) => {
+                const x = edgeSides(e);
+                return (
+                  <div key={`${e.offTeam}-${e.pair.key}`} className="rounded-md border border-line-2 border-l-[3px] border-l-accent bg-surface/70 px-4 py-3.5">
+                    <p className="eyebrow mb-1.5 text-accent">Edge · {e.pair.label}</p>
+                    <p className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                      <span className="display text-[22px] leading-tight sm:text-[26px]">
+                        {nick(x.win)} {x.winLabel}
+                      </span>
+                      <span className="num rounded-sm bg-surface-3 px-1.5 text-xs font-medium text-ink">{ordinal(x.winRank)}</span>
+                      <span className="text-ink-3">vs</span>
+                      <span className="text-[15px] font-medium text-ink-2">
+                        {nick(x.lose)} {x.loseLabel}
+                      </span>
+                      <span className="num rounded-sm bg-surface-3 px-1.5 text-xs font-medium text-ink-2">{ordinal(x.loseRank)}</span>
+                    </p>
+                    <p className="num mt-1.5 text-[13px] text-ink-2">
+                      {money(x.winMoney.field)} vs {money(x.loseMoney.field)} on the field
+                    </p>
+                  </div>
+                );
+              })}
+            </section>
+          )}
+        </div>
       </Hero>
 
       <SectionNav
@@ -137,18 +166,22 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
           { label: `${away.team} @ ${home.team}` },
         ]}
         items={[
-          { id: "overview", label: "Overview" },
+          { id: "overview", label: "Edges" },
+          { id: "payroll", label: "Payroll" },
           { id: "positions", label: "Position matchups" },
           { id: "out", label: "Who's out" },
         ]}
       />
 
-      <main className={`${WRAP} space-y-12 pt-6 pb-5 sm:pb-6`}>
-        <div id="overview" className="scroll-mt-28 space-y-12">
+
+      <main className={`${WRAP} space-y-12 pt-8 pb-5 sm:pb-6`}>
+        <div id="payroll" className="scroll-mt-28">
           {/* Tale of the tape: both teams' bars on one dollar scale, so the bigger
-              payroll draws the longer bar and the two compare at a glance. */}
-          <section aria-label="Money on each side" className="space-y-3">
-            <div className="grid gap-3 md:grid-cols-2 [&>*]:min-w-0">
+              payroll draws the longer bar and the two compare at a glance. It sits on
+              the page, not the board: the board would repaint each team in its dark
+              theme color, and on this page a team must be one color top to bottom. */}
+          <section aria-label="Money on each side" className="space-y-4">
+            <div className="grid gap-x-8 gap-y-6 md:grid-cols-2 [&>*]:min-w-0">
               {[away, home].map((t) => {
                 const sum = s.summary.find((x) => x.team === t.team)!;
                 const rival = s.summary.find((x) => x.team === (t.team === away.team ? home.team : away.team))!;
@@ -156,16 +189,15 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
                 const rostered = (x: typeof sum) => x.cap_total - x.cap_unknown;
                 const slices = { ...slicesOf(sum), unknown: 0 };
                 return (
-                  <div key={t.team} className="tc card px-4 py-4" style={varsOf(t.team)}>
-                    <div className="mb-3 flex items-baseline justify-between gap-3">
-                      <Link href={`/team/${t.team}`} className="flex items-center gap-2 text-[15px] font-semibold hover:underline">
-                        <span aria-hidden className="h-3 w-3 rounded-[3px]" style={{ background: "var(--team)" }} />
+                  <div key={t.team} className="tc border-t-[3px] pt-3" style={{ ...varsOf(t.team), borderColor: "var(--team)" }}>
+                    <div className="mb-2.5 flex items-end justify-between gap-3">
+                      <Link href={`/team/${t.team}`} className="text-[15px] font-semibold hover:underline">
                         {t.name}
                       </Link>
-                      <span className="num text-[15px] font-semibold">{money(rostered(sum))}</span>
+                      <span className="fig text-[30px] leading-none sm:text-[34px]">{money(rostered(sum))}</span>
                     </div>
                     <AvailabilityBar
-                      height={20}
+                      height={28}
                       labels
                       title={t.name}
                       slices={slices}
@@ -174,7 +206,7 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
                       hrefs={statusHrefs(t.team)}
                       subject={t.name}
                     />
-                    <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 sm:grid-cols-4">
+                    <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-4">
                       <StatPair label="On the field" value={money(sum.cap_active + sum.cap_questionable)} />
                       <StatPair label="Out this week" value={money(sum.cap_inactive_week)} />
                       <StatPair label="Out long-term" value={money(sum.cap_inactive_season)} />
@@ -188,33 +220,6 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
               <AvailabilityLegend keys={["active", "questionable", "inactive", "season", "year"]} short palette="team" extra={<span className="text-ink-3">Bars wear each team&apos;s color, on one dollar scale, practice squad left out</span>} />
             </div>
           </section>
-          {edges.length > 0 && (
-            <section aria-label="Biggest edges" className="grid gap-3 md:grid-cols-2">
-              {edges.map((e) => {
-                const x = edgeSides(e);
-                return (
-                  <div key={`${e.offTeam}-${e.pair.key}`} className="card border-l-[3px] border-l-accent px-4 py-3.5">
-                    <p className="eyebrow mb-2">Edge · {e.pair.label}</p>
-                    <p className="flex flex-wrap items-baseline gap-x-2 text-[15px]">
-                      <span className="font-semibold">
-                        {nick(x.win)} {x.winLabel}
-                      </span>
-                      <span className="num rounded bg-surface-2 px-1.5 text-xs font-medium text-ink-2">{ordinal(x.winRank)}</span>
-                      <span className="text-ink-3">vs</span>
-                      <span className="font-medium text-ink-2">
-                        {nick(x.lose)} {x.loseLabel}
-                      </span>
-                      <span className="num rounded bg-surface-2 px-1.5 text-xs font-medium text-ink-2">{ordinal(x.loseRank)}</span>
-                    </p>
-                    <p className="num mt-1.5 text-[13px] text-ink-3">
-                      {money(x.winMoney.field)} vs {money(x.loseMoney.field)} on the field
-                    </p>
-                  </div>
-                );
-              })}
-            </section>
-          )}
-
         </div>
 
         <div id="positions" className="scroll-mt-28">
@@ -255,9 +260,11 @@ function TeamHead({
       style={vars}
     >
       <span className="hidden sm:block">
-        <Logo src={t.logo_url} size={60} fallback={abbr} />
+        <Logo src={t.logo_url} size={64} fallback={abbr} />
       </span>
-      <span className="block h-10 w-1.5 rounded-full sm:hidden" style={{ background: "var(--team)" }} aria-hidden />
+      <span className="sm:hidden">
+        <Logo src={t.logo_url} size={36} fallback={abbr} />
+      </span>
       <span className="min-w-0">
         <span className={`display block truncate text-[28px] leading-none sm:text-[52px] ${dim ? "text-ink-3" : ""}`}>{t.nick}</span>
         {score !== null && <span className={`fig mt-1 block text-[30px] leading-none sm:text-[44px] ${dim ? "text-ink-3" : ""}`}>{score}</span>}
@@ -268,9 +275,9 @@ function TeamHead({
 
 function StatPair({ label, value }: { label: string; value: string }) {
   return (
-    <div>
-      <dt className="text-[11px] text-ink-3">{label}</dt>
-      <dd className="num text-sm font-medium">{value}</dd>
+    <div className="min-w-0">
+      <dt className="truncate text-xs text-ink-3">{label}</dt>
+      <dd className="fig mt-0.5 text-[20px] leading-none sm:text-[22px]">{value}</dd>
     </div>
   );
 }

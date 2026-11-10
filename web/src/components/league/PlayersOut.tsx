@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type CSSProperties } from "react";
+import type { CSSProperties } from "react";
+import { useViewState } from "@/lib/viewState";
 import { money, reasonLabel } from "@/lib/format";
 import { YEAR_NOTE } from "@/lib/availability";
 import type { Player } from "@/lib/types";
@@ -36,8 +37,8 @@ export function PlayersOut({
   longTerm: OutRow[];
   forSeason: OutRow[];
 }) {
-  const [tab, setTab] = useState<Tab>("week");
-  const [all, setAll] = useState(false);
+  const [tab, setTab] = useViewState<Tab>("players-out-tab", "week", (v) => v === "week" || v === "season" || v === "year");
+  const [all, setAll] = useViewState("players-out-all", false);
   const list = tab === "week" ? thisWeek : tab === "season" ? longTerm : forSeason;
   const rows = all ? list : list.slice(0, SHOWN);
   return (

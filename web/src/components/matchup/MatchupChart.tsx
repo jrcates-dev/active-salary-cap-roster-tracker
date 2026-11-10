@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import type { CSSProperties } from "react";
+import { useViewState } from "@/lib/viewState";
 import { money, ordinal } from "@/lib/format";
 import { statusHrefs, type RosterStatus } from "@/lib/rosterLink";
 import type { GroupMoney, MatchupMode } from "@/lib/matchup";
@@ -53,7 +54,7 @@ const SLICES: { k: SliceKey; f: keyof GroupMoney; label: string }[] = [
  * groups and that status.
  */
 export function MatchupChart({ halves }: { halves: MatchupHalf[] }) {
-  const [mode, setMode] = useState<MatchupMode>("field");
+  const [mode, setMode] = useViewState<MatchupMode>("matchup-mode", "field", (v) => v === "field" || v === "full");
   const scale = Math.max(1, ...halves.flatMap((h) => h.rows.flatMap((r) => [r.off.total, r.def.total])));
   const v = (m: GroupMoney) => (mode === "field" ? m.field : m.total);
   return (

@@ -5,6 +5,7 @@ import { money } from "@/lib/format";
 import { deadHref, weekStatusHrefs } from "@/lib/rosterLink";
 import type { HistoryRow } from "@/lib/types";
 import { AvailabilityBar, SLICE_SHORT, slicesOf, Swatch, type SliceKey } from "../Availability";
+import { useViewState } from "@/lib/viewState";
 import { byDir, SortChip, useFocusSort } from "../Sort";
 import { TeamChip } from "../TeamChip";
 import { Tip, TipRow, TipTitle } from "../Tip";
@@ -83,8 +84,8 @@ export function InactiveBoard({
   week: number;
 }) {
   const weeks = useMemo(() => [...new Set(history.map((h) => h.week))].sort((a, b) => a - b), [history]);
-  const [shown, setShown] = useState(week);
-  const [sort, toggleSort] = useFocusSort<SliceKey>("inactive");
+  const [shown, setShown] = useViewState("money-out-week", week, (v) => weeks.includes(v as number));
+  const [sort, toggleSort] = useFocusSort<SliceKey>("money-out", "inactive");
   // Bars grow once on first paint; a re-sort moves rows, which must not replay it.
   const [animate, setAnimate] = useState(true);
   const byTeam = Object.fromEntries(teams.map((t) => [t.team, t]));

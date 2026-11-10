@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useViewState } from "@/lib/viewState";
 import { statusText, YEAR_NOTE } from "@/lib/availability";
 import { parseRosterFilter, PAST_STATUSES, ROSTER_EVENT, ROSTER_ID, rosterQuery, scrollToRoster, type RosterFilter } from "@/lib/rosterLink";
 import { UNIT_LABEL, money } from "@/lib/format";
@@ -84,7 +85,7 @@ export function PlayerTable({
 }) {
   const { fmt } = useMoneyMode();
   const [shown, setShown] = useState(week);
-  const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: "cap", dir: "desc" });
+  const [sort, setSort] = useViewState<{ key: SortKey; dir: SortDir }>("roster-sort", { key: "cap", dir: "desc" });
   const [flag, setFlag] = useState<Filter | "all">("all");
   const [pos, setPos] = useState<Pos>("all");
   const [query, setQuery] = useState("");

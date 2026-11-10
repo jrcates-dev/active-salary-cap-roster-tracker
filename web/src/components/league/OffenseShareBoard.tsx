@@ -30,7 +30,7 @@ export interface UnitRow {
  * only sorts.
  */
 export function OffenseShareBoard({ rows }: { rows: UnitRow[] }) {
-  const [sort, toggleSort] = useFocusSort<Unit>("offense");
+  const [sort, toggleSort] = useFocusSort<Unit>("offense-share", "offense");
   const [animate, setAnimate] = useState(true);
   const share = (r: UnitRow, u: Unit) => (r.total ? r.unitCap[u] / r.total : 0);
   const order = [sort.key, ...UNITS.filter((u) => u !== sort.key)];

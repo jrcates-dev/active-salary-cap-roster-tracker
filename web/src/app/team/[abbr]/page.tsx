@@ -54,6 +54,8 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
   const base = summary.cap_total;
   const asOf = summary.reference_as_of && summary.reference_as_of !== "fixture" ? `as of ${dayLabel(summary.reference_as_of)}` : undefined;
   const trend = s.history.filter((h) => h.team === team.team && h.unit === "all");
+  const pastOut = s.history_players.filter((h) => h.team === team.team);
+  const weeks = [...new Set([...trend.map((h) => h.week), s.week])].sort((a, b) => a - b);
   const strip = [...s.teams]
     .sort((a, b) => a.division.localeCompare(b.division) || a.nick.localeCompare(b.nick))
     .map((t) => ({ key: t.team, href: `/team/${t.team}`, label: t.team, title: t.name, vars: teamVars(t), current: t.team === team.team }));
@@ -143,14 +145,14 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
           {trend.length > 1 && (
             <section className="max-w-3xl">
               <SectionHead title="Money out by week" />
-              <TeamTrend rows={trend} week={s.week} />
+              <TeamTrend team={team.team} rows={trend} week={s.week} />
               <div className="mt-3">
                 <AvailabilityLegend keys={["questionable", "inactive", "season", "year"]} short />
               </div>
             </section>
           )}
 
-          <PlayerTable players={players} groups={s.groups} week={s.week} />
+          <PlayerTable players={players} pastOut={pastOut} weeks={weeks} groups={s.groups} week={s.week} />
         </main>
       </div>
     </MoneyModeProvider>

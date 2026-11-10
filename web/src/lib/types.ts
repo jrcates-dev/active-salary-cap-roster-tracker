@@ -143,6 +143,28 @@ export interface HistoryRow {
   cap_unknown: number;
 }
 
+/**
+ * A player who was out or questionable in an earlier week, as that week saw him.
+ * The players behind one week's bar in "Money out by week".
+ */
+export type HistoryPlayer = Pick<
+  Player,
+  | "team"
+  | "key"
+  | "name"
+  | "pos"
+  | "group"
+  | "unit"
+  | "cap"
+  | "flag"
+  | "reason"
+  | "absence"
+  | "outlook_basis"
+  | "outlook_note"
+  | "report_status"
+  | "injury"
+> & { week: number };
+
 export interface Freshness {
   schedule_week: number;
   roster_week: number | null;
@@ -163,6 +185,8 @@ export interface Snapshot {
   games: Game[];
   freshness: Freshness | null;
   history: HistoryRow[];
+  /** Who was out or questionable in each earlier week. Older snapshots lack it. */
+  history_players: HistoryPlayer[];
   reconcile: {
     season: number;
     tolerance: number;

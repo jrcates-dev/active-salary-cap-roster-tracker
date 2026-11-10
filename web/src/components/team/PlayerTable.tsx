@@ -2,13 +2,13 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { statusText, YEAR_NOTE } from "@/lib/availability";
-import { parseRosterFilter, ROSTER_EVENT, ROSTER_ID, rosterQuery, scrollToRoster, type RosterFilter } from "@/lib/rosterLink";
+import { parseRosterFilter, PAST_STATUSES, ROSTER_EVENT, ROSTER_ID, rosterQuery, scrollToRoster, type RosterFilter } from "@/lib/rosterLink";
 import { UNIT_LABEL, money } from "@/lib/format";
-import type { Group, Player, Unit } from "@/lib/types";
+import type { Group, HistoryPlayer, Player, Unit } from "@/lib/types";
 import { playerSlice, SLICE_SHORT, Swatch, type SliceKey } from "../Availability";
 import { ariaSort, SortHeader, type SortDir } from "../Sort";
 import { SectionHead } from "../ui";
-import { Chip, SearchInput, Select } from "../ui/controls";
+import { Chip, SearchInput, Select, StepButton } from "../ui/controls";
 import { useMoneyMode } from "./MoneyMode";
 
 type SortKey = "name" | "group" | "cap" | "flag" | "years_left";
@@ -16,6 +16,8 @@ type SortKey = "name" | "group" | "cap" | "flag" | "years_left";
 type Filter = Exclude<SliceKey, "dead">;
 const SLICE_RANK: Record<Filter, number> = { inactive: 0, season: 1, year: 2, questionable: 3, active: 4, unknown: 5 };
 const FILTERS: (Filter | "all")[] = ["all", "active", "questionable", "inactive", "season", "year", "unknown"];
+/** An earlier week lists only who was out or questionable, so only those filters apply. */
+const PAST_FILTERS: (Filter | "all")[] = ["all", ...(PAST_STATUSES as Filter[])];
 const FILTER_TITLE: Partial<Record<Filter, string>> = {
   season: "On a reserve list and able to come back this season",
   year: YEAR_NOTE,
@@ -32,14 +34,52 @@ const UNIT_KEYS: Unit[] = ["offense", "defense", "special_teams"];
 type Pos = "all" | Unit | `g:${string}`;
 const posOf = (f: RosterFilter): Pos => (f.groups?.length ? `g:${f.groups.join(",")}` : (f.unit ?? "all"));
 const groupsOf = (pos: Pos) => (pos.startsWith("g:") ? pos.slice(2).split(",") : null);
-const filterOf = (flag: Filter | "all", pos: Pos): RosterFilter => ({
+const filterOf = (flag: Filter | "all", pos: Pos, week?: number): RosterFilter => ({
+  week,
   status: flag === "all" ? undefined : flag,
   groups: groupsOf(pos) ?? undefined,
   unit: pos !== "all" && !pos.startsWith("g:") ? (pos as Unit) : undefined,
 });
 
-export function PlayerTable({ players, groups, week }: { players: Player[]; groups: Group[]; week: number }) {
+/**
+ * An earlier week's row as a roster row: that week's cap number and status, with the
+ * contract details from today's roster when the player is still on it.
+ */
+function pastRow(h: HistoryPlayer, now: Player | undefined): Player {
+  return {
+    source: "contract",
+    roster_status: null,
+    years_left: null,
+    contract_apy: null,
+    headshot: null,
+    ...now,
+    ...h,
+    contract_cap: now && now.cap === h.cap ? now.contract_cap : h.cap,
+  };
+}
+
+/**
+ * The team's roster for the current week, or for an earlier week the list of who was
+ * out or questionable then (`pastOut`), picked with the week control or a link from
+ * the money-out-by-week chart.
+ */
+export function PlayerTable({
+  players,
+  pastOut,
+  weeks,
+  groups,
+  week,
+}: {
+  players: Player[];
+  /** This team's players out or questionable in each earlier week. */
+  pastOut: HistoryPlayer[];
+  /** Every week with data, the current one included, in order. */
+  weeks: number[];
+  groups: Group[];
+  week: number;
+}) {
   const { fmt } = useMoneyMode();
+  const [shown, setShown] = useState(week);
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: "cap", dir: "desc" });
   const [flag, setFlag] = useState<Filter | "all">("all");
   const [pos, setPos] = useState<Pos>("all");
@@ -47,12 +87,17 @@ export function PlayerTable({ players, groups, week }: { players: Player[]; grou
   const [showAll, setShowAll] = useState(false);
 
   /** Sets the filters a chart link asked for, clearing the rest. */
-  const apply = useCallback((f: RosterFilter) => {
-    setFlag(f.status ?? "all");
+  const apply = useCallback(
+    (f: RosterFilter) => {
+      const w = f.week && weeks.includes(f.week) ? f.week : week;
+      setShown(w);
+      setFlag(w !== week && f.status && !PAST_STATUSES.includes(f.status) ? "all" : (f.status ?? "all"));
     setPos(posOf(f));
     setQuery("");
-    setShowAll(false);
-  }, []);
+      setShowAll(false);
+    },
+    [week, weeks],
+  );
 
   // Links from charts: on arrival (the query string), from a chart on this page
   // (an event, the URL is already updated), and back/forward between filters.
@@ -80,12 +125,25 @@ export function PlayerTable({ players, groups, week }: { players: Player[]; grou
   }, [apply]);
 
   /** Keeps the address in step with the filters the reader picks, so it can be shared. */
-  const pick = (nextFlag: Filter | "all", nextPos: Pos) => {
-    setFlag(nextFlag);
+  const pick = (nextFlag: Filter | "all", nextPos: Pos, nextWeek = shown) => {
+    // Active and practice squad players are not kept for earlier weeks.
+    const flagFor = nextWeek !== week && nextFlag !== "all" && !PAST_STATUSES.includes(nextFlag) ? "all" : nextFlag;
+    setShown(nextWeek);
+    setFlag(flagFor);
     setPos(nextPos);
-    const url = `${window.location.pathname}${rosterQuery(filterOf(nextFlag, nextPos))}${window.location.hash}`;
-    window.history.replaceState(null, "", url);
+    if (nextWeek !== shown) setShowAll(false);
+    const query = rosterQuery(filterOf(flagFor, nextPos, nextWeek === week ? undefined : nextWeek));
+    window.history.replaceState(null, "", `${window.location.pathname}${query}${window.location.hash}`);
   };
+
+  const past = shown !== week;
+  const pastIdx = weeks.indexOf(shown);
+  const source = useMemo(() => {
+    if (shown === week) return players;
+    const now = new Map(players.map((p) => [p.key, p]));
+    return pastOut.filter((h) => h.week === shown).map((h) => pastRow(h, now.get(h.key)));
+  }, [players, pastOut, shown, week]);
+  const filters = past ? PAST_FILTERS : FILTERS;
 
   const groupOrder = useMemo(() => {
     const unitRank: Record<string, number> = { offense: 0, defense: 1, special_teams: 2 };
@@ -93,18 +151,18 @@ export function PlayerTable({ players, groups, week }: { players: Player[]; grou
   }, [groups]);
 
   const counts = useMemo(() => {
-    const c: Record<string, number> = { all: players.length };
-    for (const p of players) {
+    const c: Record<string, number> = { all: source.length };
+    for (const p of source) {
       const k = playerSlice(p);
       c[k] = (c[k] ?? 0) + 1;
     }
     return c;
-  }, [players]);
+  }, [source]);
 
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase();
     const codes = groupsOf(pos);
-    const filtered = players.filter(
+    const filtered = source.filter(
       (p) =>
         (flag === "all" || playerSlice(p) === flag) &&
         (codes ? codes.includes(p.group ?? "") : pos === "all" || p.unit === pos) &&
@@ -131,7 +189,7 @@ export function PlayerTable({ players, groups, week }: { players: Player[]; grou
       const c = typeof va === "string" ? va.localeCompare(vb as string) : va - (vb as number);
       return c !== 0 ? c * dir : b.cap - a.cap;
     });
-  }, [players, flag, pos, query, sort, groupOrder]);
+  }, [source, flag, pos, query, sort, groupOrder]);
 
   const total = rows.reduce((acc, p) => acc + p.cap, 0);
   const filtered = flag !== "all" || pos !== "all" || query.trim() !== "";
@@ -158,10 +216,29 @@ export function PlayerTable({ players, groups, week }: { players: Player[]; grou
     <section id={ROSTER_ID} className="scroll-mt-28">
       <SectionHead
         title="Roster"
-        count={`Week ${week}`}
-        asideClassName="w-full flex-nowrap sm:w-auto"
+        count={past ? `Week ${shown} · who was out` : `Week ${week}`}
+        asideClassName="w-full flex-wrap sm:w-auto sm:flex-nowrap"
         aside={
           <>
+            {weeks.length > 1 && (
+              <div className="flex items-center gap-1" role="group" aria-label="Week">
+                <StepButton dir="prev" label="Previous week" disabled={pastIdx <= 0} onClick={() => pick(flag, pos, weeks[pastIdx - 1])} />
+                <Select label="Show week" value={shown} onChange={(v) => pick(flag, pos, Number(v))}>
+                  {[...weeks].reverse().map((w) => (
+                    <option key={w} value={w}>
+                      Week {w}
+                      {w === week ? " · now" : ""}
+                    </option>
+                  ))}
+                </Select>
+                <StepButton
+                  dir="next"
+                  label="Next week"
+                  disabled={pastIdx < 0 || pastIdx >= weeks.length - 1}
+                  onClick={() => pick(flag, pos, weeks[pastIdx + 1])}
+                />
+              </div>
+            )}
             <Select label="Filter by position" value={pos} onChange={(v) => pick(flag, v as Pos)}>
               <option value="all">All positions</option>
               {combo && <option value={combo}>{pickedGroups!.join(" + ")}</option>}
@@ -186,7 +263,7 @@ export function PlayerTable({ players, groups, week }: { players: Player[]; grou
       {/* One row that scrolls sideways on phones; wraps from small screens up. */}
       <div className="strip -mx-4 -mt-1 mb-2 px-4 py-1 sm:mx-0 sm:px-0">
         <div className="flex w-max gap-1.5 sm:w-auto sm:flex-wrap" role="group" aria-label="Filter by status">
-          {FILTERS.map((f) => (
+          {filters.map((f) => (
             <Chip
               key={f}
               active={flag === f}
@@ -195,11 +272,19 @@ export function PlayerTable({ players, groups, week }: { players: Player[]; grou
               title={f === "all" ? undefined : FILTER_TITLE[f]}
               swatch={f !== "all" ? <Swatch k={f} size={10} /> : undefined}
             >
-              {f === "all" ? "All" : SLICE_SHORT[f]}
+              {f === "all" ? (past ? "All out" : "All") : past && f === "inactive" ? "Out that week" : SLICE_SHORT[f]}
             </Chip>
           ))}
         </div>
       </div>
+      {past && (
+        <p className="mb-3 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-[13px] text-ink-2">
+          <span>Players who were out or questionable in week {shown}, at this season&rsquo;s cap numbers.</span>
+          <button type="button" onClick={() => pick("all", pos, week)} className="font-medium text-ink underline-offset-4 hover:underline">
+            Back to the week {week} roster
+          </button>
+        </p>
+      )}
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="tbl w-full min-w-[640px] text-sm">

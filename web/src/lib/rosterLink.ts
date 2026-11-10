@@ -1,7 +1,8 @@
 /**
  * Deep links into a team's roster table. Every chart segment that stands for a set
  * of players links here: `/team/SEA/?status=inactive`, `/team/LA/?unit=defense`,
- * `/team/NE/?group=IDL,EDGE&status=season`. The roster reads these on load, sets
+ * `/team/NE/?group=IDL,EDGE&status=season`. `week` opens an earlier week's list of
+ * who was out: `/team/GB/?week=3&status=year`. The roster reads these on load, sets
  * its filters and scrolls itself into view. Kept free of "use client" so server
  * pages can build links too.
  */
@@ -13,9 +14,13 @@ export const ROSTER_ID = "roster";
 /** Status filters the roster offers: every availability state except dead money. */
 export type RosterStatus = "active" | "questionable" | "inactive" | "season" | "year" | "unknown";
 export const ROSTER_STATUSES: RosterStatus[] = ["active", "questionable", "inactive", "season", "year", "unknown"];
+/** The statuses an earlier week keeps: only the players who were out or questionable. */
+export const PAST_STATUSES: RosterStatus[] = ["questionable", "inactive", "season", "year"];
 const UNITS: Unit[] = ["offense", "defense", "special_teams"];
 
 export interface RosterFilter {
+  /** An earlier week. Left out for the current week, whose roster is the default. */
+  week?: number;
   status?: RosterStatus;
   unit?: Unit;
   /** Position-group codes. A matchup side can span several (IDL and EDGE). */
@@ -25,6 +30,7 @@ export interface RosterFilter {
 /** The query string for a filter, "" when nothing is filtered. Groups win over unit. */
 export function rosterQuery(f: RosterFilter): string {
   const parts: string[] = [];
+  if (f.week) parts.push(`week=${f.week}`);
   if (f.status) parts.push(`status=${f.status}`);
   if (f.groups?.length) parts.push(`group=${f.groups.map(encodeURIComponent).join(",")}`);
   else if (f.unit) parts.push(`unit=${f.unit}`);
@@ -44,10 +50,21 @@ export function statusHrefs(team: string, f: Omit<RosterFilter, "status"> = {}):
   >;
 }
 
+/**
+ * Roster links for the statuses of one week's money out. The current week (`week`
+ * equal to `current`) links to the live roster; an earlier one to that week's list.
+ */
+export function weekStatusHrefs(team: string, week: number, current: number): Partial<Record<RosterStatus, string>> {
+  if (week === current) return statusHrefs(team);
+  return Object.fromEntries(PAST_STATUSES.map((status) => [status, rosterHref(team, { week, status })]));
+}
+
 /** Filters from a query string, or null when it carries none the roster knows. */
 export function parseRosterFilter(search: string): RosterFilter | null {
   const p = new URLSearchParams(search);
   const out: RosterFilter = {};
+  const week = Number(p.get("week"));
+  if (Number.isInteger(week) && week > 0) out.week = week;
   const status = p.get("status");
   if (status && (ROSTER_STATUSES as string[]).includes(status)) out.status = status as RosterStatus;
   const groups = (p.get("group") ?? "")
@@ -57,7 +74,7 @@ export function parseRosterFilter(search: string): RosterFilter | null {
   if (groups.length) out.groups = groups;
   const unit = p.get("unit");
   if (!groups.length && unit && (UNITS as string[]).includes(unit)) out.unit = unit as Unit;
-  return out.status || out.groups || out.unit ? out : null;
+  return out.week || out.status || out.groups || out.unit ? out : null;
 }
 
 /** Fired on the team page when a chart there links to its own roster. Detail: RosterFilter. */

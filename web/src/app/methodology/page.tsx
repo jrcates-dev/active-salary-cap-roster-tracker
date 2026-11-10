@@ -48,10 +48,13 @@ export default async function MethodologyPage() {
         <Section title="Availability">
           <li>
             <B>Out</B>: money missing from this game but not for good. That is anyone ruled out or doubtful before the game, on the official inactive
-            list once it is played, or on injured reserve, PUP, NFI, suspension or another reserve list with a way back this season.
+            list once it is played (if he was on that week&apos;s injury report), or on injured reserve, PUP, NFI, suspension or another reserve list with a way back this season.
           </li>
           <li>
-            A player ruled out for his team&apos;s last game stays out between games, tagged &ldquo;Out last game&rdquo;, until the new week&apos;s
+            A healthy scratch, inactive on gameday without being on the injury report, counts as active.
+          </li>
+          <li>
+            A player who missed his team&apos;s last game hurt (ruled out, or listed doubtful or questionable and then inactive) stays out between games, tagged &ldquo;Out last game&rdquo;, until the new week&apos;s
             report says otherwise: listed questionable moves him to Questionable, ruled out or doubtful keeps him out, and a game-status report
             without him on it means he was cleared and counts as active. A bye in between does not reset it.
           </li>
@@ -71,7 +74,7 @@ export default async function MethodologyPage() {
           </li>
           <li>
             <B>Questionable</B>: listed questionable on the latest report for a game not yet played. Counts as on the field until ruled out. Once a
-            game is final, everyone not on the inactive list counts as active.
+            game is final, everyone not on the inactive list counts as active, and so does a healthy scratch.
           </li>
           <li>
             <B>Practice squad</B>: the practice squad and anyone the roster file has no gameday status for.

@@ -149,8 +149,46 @@ def test_out_last_game_carries_over_a_bye(rosters_df, injuries_df):
     assert wk11["gameday_flag"] == "inactive" and wk11["inactive_reason"] == "out_last_game"
 
 
-def test_only_ruled_out_carries_over(rosters_df, injuries_df):
-    # The kicker was Questionable in week 8 and the WR2 is on IR: neither is "out last game".
+def _sat_week9(rosters_df, injuries_df, report_status, on_report=True):
+    """The QB sat week 9 (INA) with the given report status; his week-10 row."""
+    r = rosters_df.with_columns(
+        pl.when((pl.col("week") == 9) & (pl.col("gsis_id") == "00-QB"))
+        .then(pl.lit("INA"))
+        .otherwise(pl.col("status"))
+        .alias("status")
+    )
+    extra = [{**_report(9, "00-QB", report_status), "position": "QB"}] if on_report else []
+    report = (
+        injuries_df.vstack(pl.DataFrame(extra, schema=injuries_df.schema)) if extra else injuries_df
+    )
+    games = _games([(8, "GB", "NE", 20), (9, "NE", "DET", 17), (10, "NE", "MIA", None)])
+    status = rosters.player_week_status(r, report, 2026, games=games, through_week=10)
+    qb = status.filter(pl.col("gsis_id") == "00-QB")
+    return {row["week"]: row for row in qb.iter_rows(named=True)}
+
+
+def test_doubtful_or_questionable_and_sat_carries_over(rosters_df, injuries_df):
+    for designation in ("Doubtful", "Questionable", None):
+        weeks = _sat_week9(rosters_df, injuries_df, designation)
+        assert weeks[9]["gameday_flag"] == "inactive"
+        assert weeks[9]["inactive_reason"] == "inactive_list"
+        assert weeks[10]["gameday_flag"] == "inactive", designation
+        assert weeks[10]["inactive_reason"] == "out_last_game"
+
+
+def test_healthy_scratch_counts_as_active(rosters_df, injuries_df):
+    # Inactive in week 9 without being on the injury report: active that week, and
+    # nothing to carry into week 10.
+    weeks = _sat_week9(rosters_df, injuries_df, None, on_report=False)
+    assert weeks[9]["roster_status"] == "INA"
+    assert weeks[9]["gameday_flag"] == "active" and weeks[9]["inactive_reason"] is None
+    assert weeks[9]["absence"] is None
+    assert weeks[10]["gameday_flag"] == "active"
+
+
+def test_played_or_on_ir_does_not_carry_over(rosters_df, injuries_df):
+    # The kicker was Questionable in week 8 and played; the WR2 is on IR. Neither is
+    # "out last game".
     games = _games([(8, "GB", "NE", 20), (9, "NE", "DET", None)])
     status = rosters.player_week_status(rosters_df, injuries_df, 2026, games=games)
     wk9 = {r["gsis_id"]: r for r in status.filter(pl.col("week") == 9).iter_rows(named=True)}

@@ -1,6 +1,22 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
+
+/**
+ * A tap on a field's invisible touch margin (the wrapper's `.hit` area, outside the
+ * field itself) opens or focuses the field, as a tap on the field would.
+ */
+function openField(field: HTMLSelectElement | HTMLInputElement | null, target: EventTarget) {
+  if (!field || target === field) return;
+  field.focus();
+  if (field instanceof HTMLSelectElement) {
+    try {
+      field.showPicker?.();
+    } catch {
+      // Older browsers: focus alone is the fallback.
+    }
+  }
+}
 
 /** One control style for every pick-one choice on the site. */
 export function Segmented<T extends string>({
@@ -28,7 +44,7 @@ export function Segmented<T extends string>({
             aria-checked={active}
             title={o.title}
             onClick={() => onChange(o.value)}
-            className={`rounded-[7px] font-medium whitespace-nowrap transition-colors duration-(--dur-1) ${
+            className={`hit rounded-[7px] font-medium whitespace-nowrap transition-colors duration-(--dur-1) ${
               size === "sm" ? "h-6 px-2 text-xs" : "h-7 px-2.5 text-[13px]"
             } ${active ? "bg-surface text-ink shadow-[0_1px_2px_rgb(0_0_0/0.06),0_0_0_1px_var(--line)]" : "text-ink-2 hover:text-ink"}`}
           >
@@ -62,7 +78,7 @@ export function Chip({
       aria-pressed={active}
       title={title}
       onClick={onClick}
-      className={`flex h-7 items-center gap-1.5 rounded-full border px-2.5 text-[13px] whitespace-nowrap transition-colors duration-(--dur-1) ${
+      className={`hit flex h-7 items-center gap-1.5 rounded-full border px-2.5 text-[13px] whitespace-nowrap transition-colors duration-(--dur-1) ${
         active ? "border-ink bg-ink text-bg" : "border-line text-ink-2 hover:border-line-2 hover:text-ink"
       }`}
     >
@@ -91,7 +107,7 @@ export function StepButton({
       onClick={onClick}
       disabled={disabled}
       aria-label={label}
-      className="flex h-7 w-7 items-center justify-center rounded-md border border-line text-ink-2 transition-colors duration-(--dur-1) enabled:hover:border-line-2 enabled:hover:text-ink disabled:opacity-35"
+      className="hit hit-sq flex h-7 w-7 items-center justify-center rounded-md border border-line text-ink-2 transition-colors duration-(--dur-1) enabled:hover:border-line-2 enabled:hover:text-ink disabled:opacity-35"
     >
       <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
         <path
@@ -108,7 +124,7 @@ export function StepButton({
 }
 
 const CHEVRON = (
-  <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 text-ink-3">
+  <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden className="pointer-events-none absolute top-1/2 right-2 z-[2] -translate-y-1/2 text-ink-3">
     <path d="M3 4.5 6 7.5l3-3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
@@ -130,13 +146,15 @@ export function Select({
   children: ReactNode;
   className?: string;
 }) {
+  const field = useRef<HTMLSelectElement>(null);
   return (
-    <span className={`relative inline-flex shrink-0 ${className}`}>
+    <span className={`hit relative inline-flex shrink-0 ${className}`} onClick={(e) => openField(field.current, e.target)}>
       <select
+        ref={field}
         aria-label={label}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-7 w-full cursor-pointer appearance-none rounded-md border border-line bg-surface py-0 pr-7 pl-2.5 text-[13px] text-ink transition-colors duration-(--dur-1) hover:border-line-2"
+        className="relative z-[1] h-7 min-h-full w-full cursor-pointer appearance-none rounded-md border border-line bg-surface py-0 pr-7 pl-2.5 text-[13px] text-ink transition-colors duration-(--dur-1) hover:border-line-2"
       >
         {children}
       </select>
@@ -159,25 +177,27 @@ export function SearchInput({
   placeholder?: string;
   className?: string;
 }) {
+  const field = useRef<HTMLInputElement>(null);
   return (
-    <span className={`relative inline-flex min-w-0 ${className}`}>
+    <span className={`hit relative inline-flex min-w-0 ${className}`} onClick={(e) => openField(field.current, e.target)}>
       <svg
         width="13"
         height="13"
         viewBox="0 0 14 14"
         aria-hidden
-        className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-ink-3"
+        className="pointer-events-none absolute top-1/2 left-2.5 z-[2] -translate-y-1/2 text-ink-3"
       >
         <circle cx="6" cy="6" r="4.25" fill="none" stroke="currentColor" strokeWidth="1.5" />
         <path d="m9.25 9.25 3 3" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       </svg>
       <input
+        ref={field}
         type="search"
         placeholder={placeholder}
         aria-label={label}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-7 w-full min-w-0 rounded-md border border-line bg-surface pr-2 pl-8 text-[13px] text-ink placeholder:text-ink-4 transition-colors duration-(--dur-1) hover:border-line-2 focus:border-line-2 focus:outline-none"
+        className="relative z-[1] h-7 min-h-full w-full min-w-0 rounded-md border border-line bg-surface pr-2 pl-8 text-[13px] text-ink placeholder:text-ink-4 transition-colors duration-(--dur-1) hover:border-line-2 focus:border-line-2 focus:outline-none"
       />
     </span>
   );

@@ -5,6 +5,7 @@ import { AvailabilityBar, AvailabilityLegend, Swatch } from "@/components/Availa
 import { MatchupChart, type MatchupHalf, type MatchupRow } from "@/components/matchup/MatchupChart";
 import { Logo } from "@/components/Logo";
 import { StarterKey, StarterMark } from "@/components/Starter";
+import { SectionNav } from "@/components/site/SectionNav";
 import { Strip } from "@/components/site/Strip";
 import { SectionHead, WRAP } from "@/components/ui";
 import { teamVars } from "@/design/tokens";
@@ -99,95 +100,116 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
   }));
 
   return (
-    <main className={`${WRAP} space-y-12 py-5 sm:py-6`}>
-      <Strip items={strip} label={`Week ${g.week} games`} />
+    <>
+      <div className={`${WRAP} space-y-12 pt-5 pb-6 sm:pt-6`}>
+        <Strip items={strip} label={`Week ${g.week} games`} />
 
-      <header className="space-y-5">
-        <p className="eyebrow text-center">
-          <Link href={`/matchups/?week=${g.week}`} className="hover:text-ink">
-            Week {g.week}
-          </Link>{" "}
-          · {final ? "Final" : kickoffLabel(g)}
-          {future && " · early look"}
-        </p>
-        {(future || past) && (
-          <p className="mx-auto max-w-xl text-center text-[13px] text-ink-3">
-            {future
-              ? `Money and injury statuses below are from week ${s.week}. They update each day as this game gets closer.`
-              : `Money and injury statuses below are from the current week ${s.week}, not from the week this game was played.`}
+        <header className="space-y-5">
+          <p className="eyebrow text-center">
+            <Link href={`/matchups/?week=${g.week}`} className="hover:text-ink">
+              Week {g.week}
+            </Link>{" "}
+            · {final ? "Final" : kickoffLabel(g)}
+            {future && " · early look"}
           </p>
-        )}
-        <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 sm:gap-6">
-          <TeamHead s={s} abbr={away.team} score={final ? g.away_score : null} won={final && g.away_score! > g.home_score!} align="right" />
-          <span className="text-sm text-ink-3">at</span>
-          <TeamHead s={s} abbr={home.team} score={final ? g.home_score : null} won={final && g.home_score! > g.away_score!} align="left" />
-        </div>
-      </header>
+          {(future || past) && (
+            <p className="mx-auto max-w-xl text-center text-[13px] text-ink-3">
+              {future
+                ? `Money and injury statuses below are from week ${s.week}. They update each day as this game gets closer.`
+                : `Money and injury statuses below are from the current week ${s.week}, not from the week this game was played.`}
+            </p>
+          )}
+          <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 sm:gap-6">
+            <TeamHead s={s} abbr={away.team} score={final ? g.away_score : null} won={final && g.away_score! > g.home_score!} align="right" />
+            <span className="text-sm text-ink-3">at</span>
+            <TeamHead s={s} abbr={home.team} score={final ? g.home_score : null} won={final && g.home_score! > g.away_score!} align="left" />
+          </div>
+        </header>
+      </div>
 
-      {edges.length > 0 && (
-        <section aria-label="Biggest edges" className="grid gap-3 md:grid-cols-2">
-          {edges.map((e) => {
-            const x = edgeSides(e);
-            return (
-              <div key={`${e.offTeam}-${e.pair.key}`} className="card border-l-[3px] border-l-accent px-4 py-3.5">
-                <p className="eyebrow mb-2">Edge · {e.pair.label}</p>
-                <p className="flex flex-wrap items-baseline gap-x-2 text-[15px]">
-                  <span className="font-semibold">
-                    {nick(x.win)} {x.winLabel}
-                  </span>
-                  <span className="num rounded bg-surface-2 px-1.5 text-xs font-medium text-ink-2">{ordinal(x.winRank)}</span>
-                  <span className="text-ink-3">vs</span>
-                  <span className="font-medium text-ink-2">
-                    {nick(x.lose)} {x.loseLabel}
-                  </span>
-                  <span className="num rounded bg-surface-2 px-1.5 text-xs font-medium text-ink-2">{ordinal(x.loseRank)}</span>
-                </p>
-                <p className="num mt-1.5 text-[13px] text-ink-3">
-                  {money(x.winMoney.field)} vs {money(x.loseMoney.field)} on the field
-                </p>
-              </div>
-            );
-          })}
+      <SectionNav
+        crumbs={[
+          { label: "Matchups", href: "/matchups/" },
+          { label: `Week ${g.week}`, href: `/matchups/?week=${g.week}` },
+          { label: `${away.team} @ ${home.team}` },
+        ]}
+        items={[
+          { id: "overview", label: "Overview" },
+          { id: "positions", label: "Position matchups" },
+          { id: "out", label: "Who's out" },
+        ]}
+      />
+
+      <main className={`${WRAP} space-y-12 pt-6 pb-5 sm:pb-6`}>
+        <div id="overview" className="scroll-mt-28 space-y-12">
+          {edges.length > 0 && (
+            <section aria-label="Biggest edges" className="grid gap-3 md:grid-cols-2">
+              {edges.map((e) => {
+                const x = edgeSides(e);
+                return (
+                  <div key={`${e.offTeam}-${e.pair.key}`} className="card border-l-[3px] border-l-accent px-4 py-3.5">
+                    <p className="eyebrow mb-2">Edge · {e.pair.label}</p>
+                    <p className="flex flex-wrap items-baseline gap-x-2 text-[15px]">
+                      <span className="font-semibold">
+                        {nick(x.win)} {x.winLabel}
+                      </span>
+                      <span className="num rounded bg-surface-2 px-1.5 text-xs font-medium text-ink-2">{ordinal(x.winRank)}</span>
+                      <span className="text-ink-3">vs</span>
+                      <span className="font-medium text-ink-2">
+                        {nick(x.lose)} {x.loseLabel}
+                      </span>
+                      <span className="num rounded bg-surface-2 px-1.5 text-xs font-medium text-ink-2">{ordinal(x.loseRank)}</span>
+                    </p>
+                    <p className="num mt-1.5 text-[13px] text-ink-3">
+                      {money(x.winMoney.field)} vs {money(x.loseMoney.field)} on the field
+                    </p>
+                  </div>
+                );
+              })}
+            </section>
+          )}
+
+          <section className="space-y-3">
+            <div className="grid gap-3 md:grid-cols-2 [&>*]:min-w-0">
+              {[away, home].map((t) => {
+                const sum = s.summary.find((x) => x.team === t.team)!;
+                return (
+                  <div key={t.team} className="tc card px-4 py-4" style={teamVars(t)}>
+                    <div className="mb-3 flex items-baseline justify-between gap-3">
+                      <Link href={`/team/${t.team}`} className="flex items-center gap-2 text-[15px] font-semibold hover:underline">
+                        <span aria-hidden className="h-3 w-3 rounded-[3px]" style={{ background: "var(--team)" }} />
+                        {t.name}
+                      </Link>
+                      <span className="num text-[15px] font-semibold">{money(sum.cap_total)}</span>
+                    </div>
+                    <AvailabilityBar height={20} labels title={t.name} slices={slicesOf(sum)} team={teamVars(t)} />
+                    <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 sm:grid-cols-4">
+                      <StatPair label="On the field" value={money(sum.cap_active + sum.cap_questionable)} />
+                      <StatPair label="Out this week" value={money(sum.cap_inactive_week)} />
+                      <StatPair label="Out long-term" value={money(sum.cap_inactive_season)} />
+                      <StatPair label="Out for season" value={money(sum.cap_inactive_year ?? 0)} />
+                    </dl>
+                  </div>
+                );
+              })}
+            </div>
+            <div>
+              <AvailabilityLegend keys={["active", "questionable", "inactive", "season", "year"]} short palette="team" extra={<span className="text-ink-3">Bars wear each team&apos;s color</span>} />
+            </div>
+          </section>
+        </div>
+
+        <div id="positions" className="scroll-mt-28">
+          <MatchupChart halves={halves} />
+        </div>
+
+        <section id="out" aria-label="Who's out" className="grid scroll-mt-28 gap-6 md:grid-cols-2 [&>*]:min-w-0">
+          {[away, home].map((t) => (
+            <KeyAbsences key={t.team} s={s} abbr={t.team} />
+          ))}
         </section>
-      )}
-
-      <section className="space-y-3">
-        <div className="grid gap-3 md:grid-cols-2 [&>*]:min-w-0">
-          {[away, home].map((t) => {
-            const sum = s.summary.find((x) => x.team === t.team)!;
-            return (
-              <div key={t.team} className="tc card px-4 py-4" style={teamVars(t)}>
-                <div className="mb-3 flex items-baseline justify-between gap-3">
-                  <Link href={`/team/${t.team}`} className="flex items-center gap-2 text-[15px] font-semibold hover:underline">
-                    <span aria-hidden className="h-3 w-3 rounded-[3px]" style={{ background: "var(--team)" }} />
-                    {t.name}
-                  </Link>
-                  <span className="num text-[15px] font-semibold">{money(sum.cap_total)}</span>
-                </div>
-                <AvailabilityBar height={20} labels title={t.name} slices={slicesOf(sum)} team={teamVars(t)} />
-                <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 sm:grid-cols-4">
-                  <StatPair label="On the field" value={money(sum.cap_active + sum.cap_questionable)} />
-                  <StatPair label="Out this week" value={money(sum.cap_inactive_week)} />
-                  <StatPair label="Out long-term" value={money(sum.cap_inactive_season)} />
-                  <StatPair label="Out for season" value={money(sum.cap_inactive_year ?? 0)} />
-                </dl>
-              </div>
-            );
-          })}
-        </div>
-        <div>
-          <AvailabilityLegend keys={["active", "questionable", "inactive", "season", "year"]} short palette="team" extra={<span className="text-ink-3">Bars wear each team&apos;s color</span>} />
-        </div>
-      </section>
-
-      <MatchupChart halves={halves} />
-
-      <section className="grid gap-6 md:grid-cols-2 [&>*]:min-w-0">
-        {[away, home].map((t) => (
-          <KeyAbsences key={t.team} s={s} abbr={t.team} />
-        ))}
-      </section>
-    </main>
+      </main>
+    </>
   );
 }
 

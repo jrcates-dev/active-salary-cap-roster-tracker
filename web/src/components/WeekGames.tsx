@@ -74,7 +74,7 @@ export function WeekGames({
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
         <h2 id={id} className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-lg font-semibold tracking-tight">
-          <span className="relative inline-flex items-center gap-1.5 rounded-md border border-line px-2.5 py-0.5 transition-colors duration-(--dur-1) focus-within:border-ink hover:border-line-2">
+          <span className="hit-field relative inline-flex items-center gap-1.5 rounded-md border border-line px-2.5 py-0.5 transition-colors duration-(--dur-1) focus-within:border-ink hover:border-line-2">
             Week {slate.week}
             <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden className="text-ink-2">
               <path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -83,7 +83,7 @@ export function WeekGames({
               aria-label="Week"
               value={slate.week}
               onChange={(e) => pick(Number(e.target.value))}
-              className="absolute inset-0 cursor-pointer appearance-none bg-surface text-ink opacity-0"
+              className="hit-overlay absolute inset-0 cursor-pointer appearance-none bg-surface text-ink opacity-0"
             >
               {slates.map((s) => (
                 <option key={s.week} value={s.week}>
@@ -103,7 +103,7 @@ export function WeekGames({
               <button
                 type="button"
                 onClick={() => pick(nowWeek)}
-                className="h-7 rounded-md border border-line px-2 text-xs font-medium text-ink-2 transition-colors duration-(--dur-1) hover:border-line-2 hover:text-ink"
+                className="hit h-7 rounded-md border border-line px-2 text-xs font-medium text-ink-2 transition-colors duration-(--dur-1) hover:border-line-2 hover:text-ink"
               >
                 This week
               </button>

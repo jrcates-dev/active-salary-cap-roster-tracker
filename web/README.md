@@ -56,7 +56,7 @@ publishing fake numbers.
 | `src/lib/format.ts` | Money, percent, date and label formatting |
 | `src/lib/availability.ts` | Availability states (active, questionable, out this week, out long-term, out for season, practice squad, dead) and per-player helpers, usable from server pages |
 | `src/lib/matchup.ts` | Position matchup pairs, group money, league ranks and edge picks |
-| `src/components/site/` | Header with section links and the team switcher, footer, and the strip used to step between teams or games |
+| `src/components/site/` | Header with section links and the team switcher, footer, the strip used to step between teams or games, and the sticky section bar (breadcrumb plus a link to each section, the one in view marked) on the league, team and matchup pages |
 | `src/components/ui/` | Page and section heads, stat tile, segmented control, chips, step buttons |
 | `src/components/Availability.tsx` | The segmented availability bar (thin in rows, tall with shares printed inside), swatches and legend |
 | `src/components/Tip.tsx` | Tooltip: follows the mouse, opens on tap, and on keyboard focus |

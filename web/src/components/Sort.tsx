@@ -172,7 +172,7 @@ export function SortChip({
             }
           : undefined
       }
-      className={`group flex h-7 items-center gap-2 rounded-md border px-2 text-[13px] whitespace-nowrap transition-colors duration-(--dur-1) ${
+      className={`hit group flex h-7 items-center gap-2 rounded-md border px-2 text-[13px] whitespace-nowrap transition-colors duration-(--dur-1) ${
         active
           ? `text-ink ${toned ? "font-medium" : "border-line-2 bg-surface-2"}`
           : "border-transparent text-ink-2 hover:bg-surface-2 hover:text-ink"

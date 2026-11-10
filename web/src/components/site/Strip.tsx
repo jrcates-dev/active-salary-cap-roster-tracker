@@ -41,7 +41,7 @@ export function Strip({ items, label }: { items: StripItem[]; label: string }) {
               href={it.href}
               title={it.title}
               aria-current={it.current ? "page" : undefined}
-              className={`tc flex h-7 items-center gap-1.5 rounded-md px-2 text-xs font-medium transition-colors duration-(--dur-1) ${
+              className={`tc hit flex h-7 items-center gap-1.5 rounded-md px-2 text-xs font-medium transition-colors duration-(--dur-1) ${
                 it.current ? "" : "text-ink-2 hover:bg-surface-2 hover:text-ink"
               }`}
               style={{
@@ -62,7 +62,7 @@ export function Strip({ items, label }: { items: StripItem[]; label: string }) {
 
 function Arrow({ item, dir }: { item: StripItem | null; dir: "prev" | "next" }) {
   const path = dir === "prev" ? "M7.5 2.5 4 6l3.5 3.5" : "M4.5 2.5 8 6l-3.5 3.5";
-  const cls = "flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-line";
+  const cls = "hit hit-sq flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-line";
   if (!item) return <span aria-hidden className={`${cls} opacity-35`}><Chevron d={path} /></span>;
   return (
     <Link href={item.href} aria-label={`${dir === "prev" ? "Previous" : "Next"}: ${item.title ?? item.label}`} className={`${cls} text-ink-2 transition-colors duration-(--dur-1) hover:border-line-2 hover:text-ink`}>

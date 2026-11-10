@@ -4,6 +4,7 @@ import Link from "next/link";
 import { AvailabilityBar, AvailabilityLegend, Swatch } from "@/components/Availability";
 import { ChartLink } from "@/components/ChartLink";
 import { Logo } from "@/components/Logo";
+import { SectionNav } from "@/components/site/SectionNav";
 import { Strip } from "@/components/site/Strip";
 import { TeamChip } from "@/components/TeamChip";
 import { DeadMoney } from "@/components/team/DeadMoney";
@@ -69,7 +70,7 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
           className="pointer-events-none absolute inset-x-0 top-14 -z-10 h-72"
           style={{ background: "linear-gradient(180deg, color-mix(in srgb, var(--team) 14%, transparent), transparent)" }}
         />
-        <main className={`${WRAP} space-y-12 py-5 sm:py-6`}>
+        <div className={`${WRAP} space-y-12 pt-5 pb-6 sm:pt-6`}>
           <Strip items={strip} label="Teams" />
 
           <header className="flex flex-wrap items-center gap-x-6 gap-y-5">
@@ -83,8 +84,22 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
             </div>
             <Games s={s} abbr={team.team} />
           </header>
+        </div>
 
-          <section aria-label="Cap summary" className="space-y-5">
+        <SectionNav
+          crumbs={[{ label: "League", href: "/" }, { label: team.division }, { label: team.nick, vars }]}
+          items={[
+            { id: "summary", label: "Summary" },
+            { id: "groups", label: "Position groups" },
+            { id: "players", label: "Players" },
+            ...(trend.length > 1 ? [{ id: "by-week", label: "By week" }] : []),
+            { id: "roster", label: "Roster" },
+            { id: "dead-money", label: "Dead money" },
+          ]}
+        />
+
+        <main className={`${WRAP} space-y-12 pt-6 pb-5 sm:pb-6`}>
+          <section id="summary" aria-label="Cap summary" className="scroll-mt-28 space-y-5">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <p className="text-[13px] text-ink-2">Counted cap</p>
@@ -133,18 +148,18 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
             </div>
           </section>
 
-          <section>
+          <section id="groups" className="scroll-mt-28">
             <SectionHead title="Position groups" aside={<span>Tick · league median. Rank of 32 by spend</span>} />
             <GroupBreakdown team={{ team: team.team, name: team.name }} lines={lines} unitRows={unitRows} />
           </section>
 
-          <section>
+          <section id="players" className="scroll-mt-28">
             <SectionHead title="Players" aside={<span>Sized by cap number</span>} />
             <Treemap team={team.team} groups={s.groups} players={players} teamTotal={base} />
           </section>
 
           {trend.length > 1 && (
-            <section className="max-w-3xl">
+            <section id="by-week" className="max-w-3xl scroll-mt-28">
               <SectionHead title="Money out by week" />
               <TeamTrend team={team.team} rows={trend} week={s.week} />
               <div className="mt-3">

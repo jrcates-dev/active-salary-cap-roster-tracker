@@ -428,6 +428,37 @@ select option:disabled {
   color: var(--ink-4);
 }
 
+/*
+ * Touch targets. Controls stay compact for a mouse, but on a touch screen each one
+ * grows to 36px and reaches 44px with an invisible margin around it, so a thumb
+ * never misses (WCAG 2.5.5).
+ */
+@media (pointer: coarse) {
+  .hit {
+    position: relative;
+    min-height: 36px;
+  }
+  .hit-sq {
+    min-width: 36px;
+  }
+  .hit-field {
+    min-height: 36px;
+  }
+  /* An invisible native select laid over its label reaches past it instead. */
+  .hit-overlay {
+    inset: -4px 0;
+  }
+  .hit::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+}
+
 /* A horizontal strip that scrolls without a visible bar. */
 .strip {
   overflow-x: auto;

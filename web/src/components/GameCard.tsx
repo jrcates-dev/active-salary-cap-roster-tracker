@@ -15,11 +15,11 @@ export function GameCard({ game: g, teams }: { game: CardGame; teams: CardTeams 
     const team = teams[t.abbr];
     return (
       <span className="tc flex items-center gap-2.5" style={team?.vars}>
-        <span aria-hidden className="h-3 w-3 shrink-0 rounded-[3px]" style={{ background: "var(--team)" }} />
+        <span aria-hidden className="h-5 w-1.5 shrink-0 rounded-[2px]" style={{ background: "var(--team)" }} />
         <span className={`flex-1 truncate text-[15px] ${won || !g.final ? "font-semibold text-ink" : "font-medium text-ink-3"}`}>
           {team?.nick ?? t.abbr}
         </span>
-        {g.final && <span className={`num text-[15px] ${won ? "font-semibold text-ink" : "text-ink-3"}`}>{t.score}</span>}
+        {g.final && <span className={`fig text-[20px] leading-none ${won ? "text-ink" : "text-ink-3"}`}>{t.score}</span>}
       </span>
     );
   };
@@ -28,7 +28,7 @@ export function GameCard({ game: g, teams }: { game: CardGame; teams: CardTeams 
       href={g.href}
       className="card block px-4 py-3 transition-[border-color,transform,box-shadow] duration-(--dur-2) ease-(--ease) hover:-translate-y-px hover:border-line-2 hover:shadow-[0_6px_16px_-10px_rgb(17_24_39/0.35)]"
     >
-      <p className="num mb-2 text-xs text-ink-3">{g.when}</p>
+      <p className="eyebrow mb-2 !text-[12px]">{g.when}</p>
       <div className="space-y-1.5">
         {side(g.away)}
         {side(g.home)}

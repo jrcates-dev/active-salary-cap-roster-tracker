@@ -51,7 +51,7 @@ of the page and quiet and tabular below it.
 | League | How much of the league's cap is active this week, on the league bar, with the ledger of every status under it. Then the week's games as a ticker, then who is hurting most. |
 | Teams | Every team by division, counted cap and availability on one scale. |
 | Team | The team's name on its color, counted cap, cap space, and its availability bar and ledger, all on the board. |
-| Matchup | The scorebug: both teams, the score or kickoff, both payrolls on one dollar scale and the two biggest edges. |
+| Matchup | The scorebug: both teams, the score or kickoff, and the two biggest edges as the headline. Both payrolls on one dollar scale follow on the page itself, because the board would repaint each team in its dark-theme color and a team must be one color from top to bottom there. |
 | Methodology | Unchanged in content. |
 
 ## Left alone on purpose

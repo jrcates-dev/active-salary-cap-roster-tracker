@@ -20,7 +20,8 @@ export default async function MethodologyPage() {
 
         <Section title="Sources">
           <li>
-            Contracts, players, weekly rosters, injury reports and schedules: <A href="https://github.com/nflverse">nflverse</A> (CC BY 4.0).
+            Contracts, players, weekly rosters, injury reports, depth charts and schedules: <A href="https://github.com/nflverse">nflverse</A> (CC BY
+            4.0).
             Contract data in nflverse comes from <A href="https://overthecap.com">OverTheCap</A>.
           </li>
           <li>
@@ -65,6 +66,18 @@ export default async function MethodologyPage() {
           </li>
           <li>
             <B>Practice squad</B>: the practice squad and anyone the roster file has no gameday status for.
+          </li>
+        </Section>
+
+        <Section title="Starters">
+          <li>
+            <B>The star</B> next to a name marks a starter: the first name in a slot on the team&apos;s depth chart (ESPN&apos;s, via nflverse,
+            refreshed daily). That is the 11 on offense in a three-receiver set, the base defense plus the nickel back, and the kicker, punter and long
+            snapper. A fullback, holder and the return men are not counted as starters.
+          </li>
+          <li>
+            A player who is out keeps the role he had before he went out: the chart from his last available game, or from before the opener if he has
+            been out all season. Teams move injured players down the chart, which would otherwise hide the absences that cost the most.
           </li>
         </Section>
 

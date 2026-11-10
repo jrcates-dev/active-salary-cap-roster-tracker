@@ -13,6 +13,7 @@ import polars as pl
 from . import (
     contracts,
     crosswalk,
+    depth,
     estimates,
     health,
     reconcile,
@@ -68,6 +69,7 @@ def _shared_frames(season: int, week: int | None) -> dict:
         "injuries": injuries,
         "contract_years_base": cy,
         "status": status,
+        "depth_chart": depth.load_chart(season),
     }
 
 
@@ -173,7 +175,8 @@ def _history(f: dict) -> tuple[list[dict], list[dict]]:
         else:
             w = _week_frames(f, week)
             roll = w["rollup"]
-            out_players.extend(export.week_out_players(w["fact"], f["season"]))
+            roles = depth.roles_for(f["depth_chart"], f["status"], f["games"], f["season"], week)
+            out_players.extend(export.week_out_players(w["fact"], f["season"], roles))
         rows.append(roll.filter(pl.col("level").is_in(["team", "unit"])))
     if not rows:
         return [], []
@@ -260,6 +263,9 @@ def cmd_export(args: argparse.Namespace) -> int:
         freshness=freshness,
         history=history,
         history_players=history_players,
+        depth_roles=depth.roles_for(
+            f["depth_chart"], f["status"], f["games"], f["season"], f["week"]
+        ),
     )
     out = Path(args.out)
     if args.fixture:

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { AvailabilityBar, AvailabilityLegend, Swatch } from "@/components/Availability";
 import { MatchupChart, type MatchupHalf, type MatchupRow } from "@/components/matchup/MatchupChart";
 import { Logo } from "@/components/Logo";
+import { StarterKey, StarterMark } from "@/components/Starter";
 import { Strip } from "@/components/site/Strip";
 import { SectionHead, WRAP } from "@/components/ui";
 import { teamVars } from "@/design/tokens";
@@ -240,9 +241,10 @@ function KeyAbsences({ s, abbr }: { s: Snapshot; abbr: string }) {
           {rows.map((p) => (
             <li key={p.key} className="flex items-center gap-3 px-3.5 py-2">
               <Swatch k={playerSlice(p)} team={teamVars(t)} />
-              <span className="min-w-0 flex-1 truncate">
-                <span className="font-medium">{p.name}</span>
-                <span className="ml-2 text-ink-3">
+              <span className="flex min-w-0 flex-1 items-center gap-1">
+                <span className="truncate font-medium">{p.name}</span>
+                <StarterMark player={p} />
+                <span className="ml-1 truncate text-ink-3">
                   {p.group} · {statusText(p)}
                 </span>
               </span>
@@ -251,6 +253,7 @@ function KeyAbsences({ s, abbr }: { s: Snapshot; abbr: string }) {
           ))}
         </ol>
       )}
+      {rows.some((p) => p.starter) && <StarterKey className="mt-2" />}
     </div>
   );
 }

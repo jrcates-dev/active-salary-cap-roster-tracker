@@ -6,6 +6,7 @@ import { money, pct } from "@/lib/format";
 import type { Group, Player, Unit } from "@/lib/types";
 import { playerSlice, sliceClass, Swatch } from "../Availability";
 import { ChartLink } from "../ChartLink";
+import { depthText, StarterMark } from "../Starter";
 import { Chip } from "../ui/controls";
 import { Tip, TipRow, TipTitle } from "../Tip";
 import { rosterHref } from "@/lib/rosterLink";
@@ -175,9 +176,10 @@ export function Treemap({ team, groups, players, teamTotal }: { team: string; gr
             .map((p) => (
               <li key={p.key} className="flex items-center gap-3 px-3 py-1.5">
                 <Swatch k={playerSlice(p)} />
-                <span className="min-w-0 flex-1 truncate">
-                  {p.name}
-                  <span className="ml-2 text-ink-3">{statusText(p)}</span>
+                <span className="flex min-w-0 flex-1 items-center gap-1">
+                  <span className="truncate">{p.name}</span>
+                  <StarterMark player={p} />
+                  <span className="ml-1 truncate text-ink-3">{statusText(p)}</span>
                 </span>
                 <span className="num font-medium">{money(p.cap)}</span>
               </li>
@@ -243,12 +245,17 @@ function Leaf({
       content={
         <div>
           <TipTitle>
-            {p.name} <span className="font-normal text-ink-3">{p.pos}</span>
+            <span className="inline-flex items-center gap-1">
+              {p.name}
+              <StarterMark player={p} />
+            </span>{" "}
+            <span className="font-normal text-ink-3">{p.pos}</span>
           </TipTitle>
           <TipRow label="Cap" value={money(p.cap)} />
           <TipRow label="Share of team" value={pct(p.cap / teamTotal)} />
           <TipRow label={status} value="" swatch={<Swatch k={k} />} />
           {(p.outlook_note ?? p.injury) && <TipRow label="Injury" value={p.outlook_note ?? p.injury} />}
+          {depthText(p) && <TipRow label={depthText(p)} value="" />}
           {p.source !== "contract" && (
             <div className="pt-1 text-xs text-ink-3">
               {p.source === "derived_rookie_scale"

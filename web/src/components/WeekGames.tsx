@@ -72,9 +72,9 @@ export function WeekGames({
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
-        <h2 id={id} className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-lg font-semibold tracking-tight">
-          <span className="hit-field relative inline-flex items-center gap-1.5 rounded-md border border-line px-2.5 py-0.5 transition-colors duration-(--dur-1) focus-within:border-ink hover:border-line-2">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t-2 border-ink pt-2.5">
+        <h2 id={id} className="display flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[24px] leading-none">
+          <span className="hit-field relative inline-flex items-center gap-1.5 rounded-md border border-line-2 px-2.5 py-1 transition-colors duration-(--dur-1) focus-within:border-ink hover:border-line-2">
             Week {slate.week}
             <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden className="text-ink-2">
               <path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -94,7 +94,7 @@ export function WeekGames({
             </select>
           </span>
           <span>games</span>
-          <span className="num text-sm font-normal text-ink-3">{count}</span>
+          <span className="num font-sans text-sm font-normal tracking-normal text-ink-3 normal-case">{count}</span>
         </h2>
         <div className="flex min-w-0 flex-wrap items-center gap-2 text-[13px] text-ink-2">
           <div className="flex items-center gap-1" role="group" aria-label="Step through weeks">

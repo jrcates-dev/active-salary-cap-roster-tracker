@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PageHead, WRAP } from "@/components/ui";
+import { Hero, WRAP } from "@/components/ui";
 import { getSnapshot } from "@/lib/data";
 import { money, pct, stampLabel } from "@/lib/format";
 
@@ -14,9 +14,10 @@ export default async function MethodologyPage() {
   const derived = s.summary.reduce((a, t) => a + (t.players_rookie_derived ?? 0), 0);
 
   return (
+    <>
+    <Hero eyebrow={`${s.season} season · Week ${s.week} · built ${stampLabel(s.generated_at)}`} title="Methodology" />
     <main className={`${WRAP} py-8 sm:py-10`}>
       <div className="max-w-2xl space-y-12">
-        <PageHead eyebrow={`${s.season} season · Week ${s.week} · built ${stampLabel(s.generated_at)}`} title="Methodology" />
 
         <Section title="Sources">
           <li>
@@ -173,13 +174,14 @@ export default async function MethodologyPage() {
         )}
       </div>
     </main>
+    </>
   );
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section>
-      <h2 className="mb-3 text-lg font-semibold tracking-tight">{title}</h2>
+      <h2 className="display mb-3 border-t-2 border-ink pt-2.5 text-[24px] leading-none">{title}</h2>
       <ul className="list-disc space-y-2 pl-5 text-[15px] leading-relaxed text-ink-2 marker:text-ink-3">{children}</ul>
     </section>
   );

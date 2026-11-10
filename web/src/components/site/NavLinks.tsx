@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const ITEMS = [
-  { href: "/", label: "League", match: (p: string) => p === "/" },
-  { href: "/matchups", label: "Matchups", match: (p: string) => p === "/matchups" || p.startsWith("/matchup/") },
-  { href: "/methodology", label: "Methodology", match: (p: string) => p === "/methodology" },
+export const NAV_ITEMS = [
+  { href: "/", label: "League", short: "League", match: (p: string) => p === "/" },
+  { href: "/teams", label: "Teams", short: "Teams", match: (p: string) => p === "/teams" || p.startsWith("/team/") },
+  { href: "/matchups", label: "Matchups", short: "Matchups", match: (p: string) => p === "/matchups" || p.startsWith("/matchup/") },
+  { href: "/methodology", label: "Methodology", short: "Method", match: (p: string) => p === "/methodology" },
 ];
 
 /** Strip a trailing slash so "/matchups/" and "/matchups" compare equal. */
@@ -15,23 +16,24 @@ export function cleanPath(p: string | null): string {
   return p.length > 1 && p.endsWith("/") ? p.slice(0, -1) : p;
 }
 
+/** The sections, in the top bar. Hidden on a phone, where BottomTabs carries them. */
 export function NavLinks() {
   const path = cleanPath(usePathname());
   return (
-    <nav aria-label="Sections" className="flex h-full min-w-0 items-center gap-0 sm:gap-1">
-      {ITEMS.map((it) => {
+    <nav aria-label="Sections" className="hidden h-full min-w-0 items-center gap-1 sm:flex">
+      {NAV_ITEMS.map((it) => {
         const active = it.match(path);
         return (
           <Link
             key={it.href}
             href={it.href}
             aria-current={active ? "page" : undefined}
-            className={`relative flex h-14 items-center px-1.5 text-[13px] whitespace-nowrap transition-colors duration-(--dur-1) sm:px-2.5 sm:text-sm ${
-              active ? "font-medium text-ink" : "text-ink-2 hover:text-ink"
+            className={`display relative flex h-14 items-center px-2.5 text-[16px] tracking-[0.06em] whitespace-nowrap transition-colors duration-(--dur-1) ${
+              active ? "text-ink" : "text-ink-2 hover:text-ink"
             }`}
           >
             {it.label}
-            {active && <span aria-hidden className="absolute inset-x-1.5 -bottom-px h-0.5 rounded-full bg-ink sm:inset-x-2.5" />}
+            {active && <span aria-hidden className="absolute inset-x-2.5 -bottom-px h-[3px] bg-ink" />}
           </Link>
         );
       })}

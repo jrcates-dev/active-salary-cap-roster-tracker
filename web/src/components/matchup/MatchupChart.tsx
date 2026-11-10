@@ -59,8 +59,8 @@ export function MatchupChart({ halves }: { halves: MatchupHalf[] }) {
   const v = (m: GroupMoney) => (mode === "field" ? m.field : m.total);
   return (
     <div className="space-y-10">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold tracking-tight">Position matchups</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t-2 border-ink pt-2.5">
+        <h2 className="display text-[24px] leading-none">Position matchups</h2>
         <Segmented<MatchupMode>
           label="Compare"
           value={mode}

@@ -8,7 +8,7 @@ import { Logo } from "@/components/Logo";
 import { StarterKey, StarterMark } from "@/components/Starter";
 import { SectionNav } from "@/components/site/SectionNav";
 import { Strip } from "@/components/site/Strip";
-import { SectionHead, WRAP } from "@/components/ui";
+import { Hero, SectionHead, WRAP } from "@/components/ui";
 import { matchupVars } from "@/design/tokens";
 import { playerSlice, slicesOf, statusText } from "@/lib/availability";
 import { getSnapshot, kickoffLabel, matchupHref, weekGames } from "@/lib/data";
@@ -106,9 +106,7 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
 
   return (
     <>
-      <div className={`${WRAP} space-y-12 pt-5 pb-6 sm:pt-6`}>
-        <Strip items={strip} label={`Week ${g.week} games`} />
-
+      <Hero before={<Strip items={strip} label={`Week ${g.week} games`} />}>
         <header className="space-y-5">
           <p className="eyebrow text-center">
             <Link href={`/matchups/?week=${g.week}`} className="hover:text-ink">
@@ -130,7 +128,7 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
             <TeamHead s={s} abbr={home.team} vars={homeVars} score={final ? g.home_score : null} won={final && g.home_score! > g.away_score!} align="left" />
           </div>
         </header>
-      </div>
+      </Hero>
 
       <SectionNav
         crumbs={[
@@ -261,8 +259,8 @@ function TeamHead({
       </span>
       <span className="block h-10 w-1.5 rounded-full sm:hidden" style={{ background: "var(--team)" }} aria-hidden />
       <span className="min-w-0">
-        <span className={`block truncate text-[22px] leading-none font-semibold tracking-tight sm:text-[32px] ${dim ? "text-ink-3" : ""}`}>{t.nick}</span>
-        {score !== null && <span className={`fig mt-1 block text-[26px] leading-none sm:text-[34px] ${dim ? "text-ink-3" : ""}`}>{score}</span>}
+        <span className={`display block truncate text-[28px] leading-none sm:text-[52px] ${dim ? "text-ink-3" : ""}`}>{t.nick}</span>
+        {score !== null && <span className={`fig mt-1 block text-[30px] leading-none sm:text-[44px] ${dim ? "text-ink-3" : ""}`}>{score}</span>}
       </span>
     </Link>
   );

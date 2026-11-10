@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Empty, PageHead, WRAP } from "@/components/ui";
+import { Empty, Hero, WRAP } from "@/components/ui";
 import { WeekGames } from "@/components/WeekGames";
 import { cardTeams, getSnapshot, weekSlates } from "@/lib/data";
 
@@ -10,11 +10,11 @@ export default async function MatchupsPage() {
   const s = await getSnapshot();
   const slates = weekSlates(s);
   return (
-    <main className={`${WRAP} space-y-8 py-8 sm:py-10`}>
-      <PageHead eyebrow={`${s.season} season`} title="Matchups" />
-      <section>
+    <>
+      <Hero eyebrow={`${s.season} season`} title="Matchups" />
+      <main className={`${WRAP} py-8 sm:py-10`}>
         {slates.length === 0 ? <Empty>No games on the schedule</Empty> : <WeekGames slates={slates} teams={cardTeams(s)} dataWeek={s.week} initialWeek={s.week} />}
-      </section>
-    </main>
+      </main>
+    </>
   );
 }

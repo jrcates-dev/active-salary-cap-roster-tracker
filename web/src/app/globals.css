@@ -56,6 +56,8 @@
   --st-year-ink: #ffffff; /* 6.8:1 */
   --st-dead-ink: #111827;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Condensed display face for titles and standalone figures: the scoreboard voice. */
+  --font-display: var(--font-barlow), "Arial Narrow", "Roboto Condensed", var(--font-sans);
   --dur-1: 120ms;
   --dur-2: 200ms;
   --dur-3: 420ms;
@@ -99,6 +101,71 @@
     --st-year-ink: #111827; /* 4.6:1 */
     --st-dead-ink: #eef1f5;
   }
+}
+
+/*
+ * The board: the dark band that opens every page (site bar, page hero, the phone's
+ * tab bar). It is dark in both themes, like a broadcast scorebug, so it carries the
+ * dark theme's tokens with it: anything drawn inside reads exactly as it does on a
+ * dark page, with the same contrast checks. Keep this list in step with the dark
+ * block above.
+ */
+.board {
+  color-scheme: dark;
+  --bg: #0b0e14;
+  --surface: #141821;
+  --surface-2: #1b2130;
+  --surface-3: #232b3c;
+  --line: #252c3a;
+  --line-2: #384153;
+  --ink: #eef1f5;
+  --ink-2: #aab3c2;
+  --ink-3: #8a94a6;
+  --ink-4: #7d889b;
+  --accent: #fb8a3c;
+  --accent-ink: #111827;
+  --accent-soft: #33200f;
+  --dead: #6f7a8c;
+  --ps-fill: #1e2433;
+  --ps-dot: #727d8f;
+  --pop-shadow: 0 16px 40px -12px rgb(0 0 0 / 0.6), 0 0 0 1px var(--line-2);
+  /* Same hues stepped for #141821. */
+  --unit-off: #3987e5;
+  --unit-def: #199e70;
+  --unit-st: #c98500;
+  /* Money status stepped for #141821: all clear 3:1 there and the same pair checks. */
+  --st-active: #45a83a;
+  --st-active-ink: #111827; /* 5.8:1 */
+  --st-questionable: #f2b318;
+  --st-questionable-ink: #111827; /* 9.5:1 */
+  --st-week: #f4543e;
+  --st-week-ink: #111827; /* 5.2:1 */
+  --st-long: #cf47a6;
+  --st-long-ink: #111827; /* 4.3:1 */
+  --st-year: #8f6be6;
+  --st-year-ink: #111827; /* 4.6:1 */
+  --st-dead-ink: #eef1f5;
+  color: var(--ink);
+}
+.board .tc,
+.board.tc {
+  --team: var(--tc-d);
+  --team-ink: var(--tc-d-ink);
+}
+/* The hero band itself: near-black with faint yard lines, closed by a hairline. */
+.board-band {
+  position: relative;
+  background:
+    repeating-linear-gradient(90deg, rgb(255 255 255 / 0.03) 0 1px, transparent 1px 88px),
+    linear-gradient(180deg, #0b0e14 0%, #121722 100%);
+  border-bottom: 1px solid var(--line-2);
+}
+/* On a team's page the band takes a wash of the team color from the top corner. */
+.board-band.tc {
+  background:
+    repeating-linear-gradient(90deg, rgb(255 255 255 / 0.03) 0 1px, transparent 1px 88px),
+    radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--team) 34%, transparent) 0%, transparent 60%),
+    linear-gradient(180deg, #0b0e14 0%, #121722 100%);
 }
 
 :root {
@@ -160,10 +227,11 @@
   --color-accent-soft: var(--accent-soft);
   --color-dead: var(--dead);
   --font-sans: var(--font-sans);
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 20px;
+  --font-display: var(--font-display);
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
   --shadow-pop: var(--pop-shadow);
 }
 
@@ -183,9 +251,17 @@ body {
 
 /* Numbers: proportional on big standalone figures, tabular wherever they align. */
 .fig {
+  font-family: var(--font-display);
   font-weight: 600;
-  letter-spacing: -0.025em;
+  letter-spacing: 0;
   font-variant-numeric: proportional-nums;
+}
+/* Titles: condensed, upper case, tight. */
+.display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
 }
 .num {
   font-variant-numeric: tabular-nums;
@@ -193,9 +269,10 @@ body {
 }
 
 .eyebrow {
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ink-3);
 }

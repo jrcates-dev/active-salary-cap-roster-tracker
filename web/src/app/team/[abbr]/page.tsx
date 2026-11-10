@@ -13,7 +13,7 @@ import { Amount, MoneyModeProvider, MoneyToggle } from "@/components/team/MoneyM
 import { PlayerTable } from "@/components/team/PlayerTable";
 import { TeamTrend } from "@/components/team/TeamTrend";
 import { Treemap } from "@/components/team/Treemap";
-import { SectionHead, WRAP } from "@/components/ui";
+import { Hero, SectionHead, WRAP } from "@/components/ui";
 import { STATUS_COLOR, teamVars, UNITS } from "@/design/tokens";
 import { slicesOf } from "@/lib/availability";
 import { getSnapshot, groupLeagueStats, kickoffLabel, matchupHref, teamGame, teamView } from "@/lib/data";
@@ -65,26 +65,19 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
   return (
     <MoneyModeProvider base={base}>
       <div className="tc" style={vars}>
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-14 -z-10 h-72"
-          style={{ background: "linear-gradient(180deg, color-mix(in srgb, var(--team) 14%, transparent), transparent)" }}
-        />
-        <div className={`${WRAP} space-y-12 pt-5 pb-6 sm:pt-6`}>
-          <Strip items={strip} label="Teams" />
-
+        <Hero team={vars} before={<Strip items={strip} label="Teams" />}>
           <header className="flex flex-wrap items-center gap-x-6 gap-y-5">
             {/* Logo and name stay on one line; only the game cards wrap below. */}
             <div className="flex min-w-0 items-center gap-4 sm:gap-6">
-              <Logo src={team.logo_url} size={64} fallback={team.team} />
+              <Logo src={team.logo_url} size={72} fallback={team.team} />
               <div className="min-w-0">
                 <p className="eyebrow mb-1">{team.division}</p>
-                <h1 className="text-[28px] leading-[1.05] font-semibold tracking-tight sm:text-[36px] sm:leading-none">{team.name}</h1>
+                <h1 className="display text-[36px] leading-[0.92] sm:text-[60px]">{team.name}</h1>
               </div>
             </div>
             <Games s={s} abbr={team.team} />
           </header>
-        </div>
+        </Hero>
 
         <SectionNav
           crumbs={[{ label: "League", href: "/" }, { label: team.division }, { label: team.nick, vars }]}

@@ -163,7 +163,7 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
                   </Link>
                   <span className="num text-[15px] font-semibold">{money(sum.cap_total)}</span>
                 </div>
-                <AvailabilityBar height={20} labels title={t.name} slices={slicesOf(sum)} />
+                <AvailabilityBar height={20} labels title={t.name} slices={slicesOf(sum)} team={teamVars(t)} />
                 <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 sm:grid-cols-4">
                   <StatPair label="On the field" value={money(sum.cap_active + sum.cap_questionable)} />
                   <StatPair label="Out this week" value={money(sum.cap_inactive_week)} />
@@ -175,7 +175,7 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
           })}
         </div>
         <div>
-          <AvailabilityLegend keys={["active", "questionable", "inactive", "season", "year"]} short />
+          <AvailabilityLegend keys={["active", "questionable", "inactive", "season", "year"]} short palette="team" extra={<span className="text-ink-3">Bars wear each team&apos;s color</span>} />
         </div>
       </section>
 
@@ -239,7 +239,7 @@ function KeyAbsences({ s, abbr }: { s: Snapshot; abbr: string }) {
         <ol className="card divide-y divide-line text-sm">
           {rows.map((p) => (
             <li key={p.key} className="flex items-center gap-3 px-3.5 py-2">
-              <Swatch k={playerSlice(p)} />
+              <Swatch k={playerSlice(p)} team={teamVars(t)} />
               <span className="min-w-0 flex-1 truncate">
                 <span className="font-medium">{p.name}</span>
                 <span className="ml-2 text-ink-3">

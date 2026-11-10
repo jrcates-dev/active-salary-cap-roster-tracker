@@ -282,6 +282,48 @@ body {
 }
 
 /*
+ * Matchup page fills: there two teams share every chart, so each segment wears its
+ * own team's color (--team, from the enclosing .tc or inline vars) and the status
+ * reads from a pattern alone, one per state and unlike the others at bar size:
+ *   active         solid team color
+ *   questionable   team-color dots on a light wash
+ *   inactive       wide 135deg team-color stripes (out for this game)
+ *   season         horizontal team-color stripes (reserve list, can return)
+ *   year           hollow: a team-color outline around a faint wash (done for the year)
+ * Practice squad and dead money keep their neutral .s-* fills. A legend that
+ * covers both teams sets --team to ink so the key shows the pattern, not a team.
+ */
+.t-active,
+.t-questionable,
+.t-inactive,
+.t-season,
+.t-year {
+  --s: var(--team, var(--ink-2));
+  --s-ink: var(--team-ink, var(--surface));
+  --t-wash: color-mix(in srgb, var(--s) 16%, var(--surface));
+}
+.t-active {
+  background: var(--s);
+}
+.t-questionable {
+  background:
+    radial-gradient(circle, var(--s) 1.5px, transparent 2px) 1px 1px / 6px 6px,
+    var(--t-wash);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--s) 45%, transparent);
+}
+.t-inactive {
+  background: repeating-linear-gradient(135deg, var(--s) 0 2.5px, var(--t-wash) 2.5px 6px);
+}
+.t-season {
+  background: repeating-linear-gradient(180deg, var(--s) 0 2px, var(--t-wash) 2px 4.5px);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--s) 45%, transparent);
+}
+.t-year {
+  background: color-mix(in srgb, var(--s) 6%, var(--surface));
+  box-shadow: inset 0 0 0 1.5px var(--s);
+}
+
+/*
  * A tile that leads with one money status: a band of the status hue across the
  * top and a faint wash of it behind the figure. The figure itself stays in ink.
  */

@@ -9,9 +9,11 @@ import { playerSlice, sliceClass, Swatch } from "../Availability";
 import { ChartLink } from "../ChartLink";
 import { depthText, StarterMark } from "../Starter";
 import { Chip } from "../ui/controls";
-import { Tip, TipRow, TipTitle } from "../Tip";
+import { Tip, TipHint, TipRow, TipTitle } from "../Tip";
 import { rosterHref } from "@/lib/rosterLink";
 import { statusText } from "@/lib/availability";
+import { openContract } from "@/lib/contract";
+import { ContractLink } from "../contract/ContractLink";
 
 type Node = { name: string; code?: string; player?: Player; children?: Node[] };
 
@@ -152,7 +154,12 @@ export function Treemap({ team, groups, players, teamTotal }: { team: string; gr
             node={l}
             teamTotal={teamTotal}
             measure={measure}
-            onClick={focus ? undefined : () => setFocus(l.data.player!.group ?? null)}
+            zoomed={!!focus}
+            onClick={
+              focus
+                ? () => openContract({ key: l.data.player!.key, player: l.data.player! })
+                : () => setFocus(l.data.player!.group ?? null)
+            }
           />
         ))}
       </div>
@@ -178,7 +185,9 @@ export function Treemap({ team, groups, players, teamTotal }: { team: string; gr
               <li key={p.key} className="flex items-center gap-3 px-3 py-1.5">
                 <Swatch k={playerSlice(p)} />
                 <span className="flex min-w-0 flex-1 items-center gap-1">
-                  <span className="truncate">{p.name}</span>
+                  <ContractLink player={p} className="truncate">
+                    {p.name}
+                  </ContractLink>
                   <StarterMark player={p} />
                   <span className="ml-1 truncate text-ink-3">{statusText(p)}</span>
                 </span>
@@ -223,11 +232,14 @@ function Leaf({
   node,
   teamTotal,
   measure,
+  zoomed,
   onClick,
 }: {
   node: HierarchyRectangularNode<Node>;
   teamTotal: number;
   measure: Measure | null;
+  /** Zoomed into his group, a click opens his contract; otherwise it zooms in. */
+  zoomed: boolean;
   onClick?: () => void;
 }) {
   const p = node.data.player!;
@@ -239,6 +251,18 @@ function Leaf({
   const label = measure ? fitLabel(p, w, h, k !== "active" ? status : null, teamTotal, measure) : null;
   const control = w >= MIN_TARGET && h >= MIN_TARGET;
   const Tag = control ? "button" : "div";
+  // Zoomed in, a tap first shows the tile's tip (as a tap on any chart mark does)
+  // and a second tap opens the contract; a mouse click opens it at once.
+  const touch = useRef(false);
+  const armedAt = useRef(0);
+  const click = () => {
+    if (zoomed && touch.current && performance.now() - armedAt.current > 4000) {
+      armedAt.current = performance.now();
+      return;
+    }
+    armedAt.current = 0;
+    onClick?.();
+  };
   return (
     <Tip
       className={`${sliceClass(k)} absolute overflow-hidden rounded-[4px] transition-[filter] duration-(--dur-1) hover:brightness-110 ${control ? "cursor-pointer" : ""}`}
@@ -264,11 +288,20 @@ function Leaf({
                 : "Cap number estimated at the league minimum"}
             </div>
           )}
+          {control && zoomed && <TipHint>see his contract</TipHint>}
         </div>
       }
     >
       <Tag
-        {...(control ? { type: "button" as const, onClick, "aria-label": label ? undefined : `${p.name}, ${money(p.cap)}, ${status}` } : {})}
+        {...(control
+          ? {
+              type: "button" as const,
+              onClick: click,
+              onPointerDown: (e: React.PointerEvent) => (touch.current = e.pointerType !== "mouse"),
+              "aria-label": label ? undefined : `${p.name}, ${money(p.cap)}, ${status}`,
+              "aria-haspopup": zoomed ? ("dialog" as const) : undefined,
+            }
+          : {})}
         className="fig block h-full w-full overflow-hidden text-left"
         style={{ color: ink, padding: label?.pad ?? 0 }}
       >

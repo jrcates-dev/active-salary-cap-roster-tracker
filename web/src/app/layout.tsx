@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Barlow_Condensed, Inter } from "next/font/google";
+import { ContractSheet } from "@/components/contract/ContractSheet";
 import { BottomTabs } from "@/components/site/BottomTabs";
 import { Footer } from "@/components/site/Footer";
 import { Header } from "@/components/site/Header";
@@ -27,6 +28,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <div className="flex-1">{children}</div>
         <Footer snapshot={snapshot} />
         <BottomTabs />
+        <ContractSheet />
       </body>
     </html>
   );

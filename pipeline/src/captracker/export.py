@@ -15,7 +15,7 @@ from pathlib import Path
 
 import polars as pl
 
-from . import contracts
+from . import contract_detail, contracts
 from .positions import POSITION_GROUPS
 
 ROLLUP_FIELDS = [
@@ -215,6 +215,7 @@ def build_export(
     depth_roles: pl.DataFrame | None = None,
     dead_charges: list[dict] | None = None,
     outlook: pl.DataFrame | None = None,
+    contracts: list[dict] | None = None,
 ) -> dict:
     players = player_records(fact, season, depth_roles, outlook)
     return {
@@ -236,6 +237,7 @@ def build_export(
         "history": history or [],
         "history_players": history_players or [],
         "dead_charges": dead_charges or [],
+        "contracts": contracts or [],
     }
 
 
@@ -381,6 +383,7 @@ def build_fixture(real: dict, seed: int = 7) -> dict:
         "history": history,
         "history_players": history_players,
         "dead_charges": _fixture_dead_charges(real["teams"], 20_000_000, rng),
+        "contracts": [_fixture_contract(p, real["season"], rng) for p in players],
     }
 
 
@@ -430,6 +433,135 @@ def _fixture_outlook(cap: int, season: int, years_left: int, rng: random.Random)
         "contract_years": len(seasons) + rng.randint(0, 2),
         "contract_value": value,
         "contract_guaranteed": sum(r["cash"] for r in counted if r["gtd"]),
+    }
+
+
+def _fixture_contract(p: dict, season: int, rng: random.Random) -> dict:
+    """A synthetic contract record for a fixture player, in the shape
+    `contract_detail.contract_details` writes, run through the same ledger rules.
+
+    His deal's seasons follow `money_years`; the signing bonus, when there is one, is
+    paid in the signing year and spread over five seasons at most (void years at the
+    end carry the rest), and this season's cap number is his fixture cap.
+    """
+    years = [y for y in p["money_years"] if y["kind"] != "void"]
+    voids = [y for y in p["money_years"] if y["kind"] == "void"]
+    signed = p["year_signed"]
+    first, last = signed, years[-1]["season"]
+    span = last - first + 1 + len(voids)
+    bonus = (
+        rng.randrange(2_000_000, 40_000_000, 50_000)
+        if p["cap"] > 6_000_000 and rng.random() < 0.6
+        else 0
+    )
+    n = min(contract_detail.MAX_PRORATION_YEARS, span)
+    per = bonus // n if bonus else 0
+    cash_by = {y["season"]: y["cash"] for y in years}
+    gtd_by = {y["season"]: y["gtd"] for y in years}
+    nick = {p["team"]: p["team"]}
+    by: dict[int, dict] = {}
+    for y in range(first, last + 1 + len(voids)):
+        prorated = per if y < first + n else 0
+        void = y > last
+        workout = 0 if void or rng.random() < 0.6 else 250_000
+        if y == season:
+            base = max(p["cap"] - prorated - workout, 0)
+        elif void:
+            base = 0
+        else:
+            target = cash_by.get(y) or int(p["cap"] * rng.uniform(0.85, 1.15))
+            base = max(target - workout, 0)
+        cash = 0 if void else base + workout + (bonus if y == signed else 0)
+        cap = base + prorated + workout
+        if void and y == last + 1:
+            # The first void year carries the proration still to come.
+            cap = sum(per for z in range(y, first + n))
+        by[y] = {
+            "base_salary": base,
+            "prorated_bonus": prorated,
+            "option_bonus": 0,
+            "roster_bonus": 0,
+            "workout_bonus": workout,
+            "per_game_roster_bonus": 0,
+            "other_bonus": 0,
+            "guaranteed_salary": base if (y <= season or gtd_by.get(y)) and not void else 0,
+            "cash_paid": cash,
+            "cap_number": cap,
+            "cap_percent": round(cap / 301_200_000, 4) if y <= season else None,
+            "team": p["team"],
+        }
+    rows = contract_detail.season_rows(by, first, season, nick)
+    value = sum(r["cash"] for r in rows if r["kind"] != "void")
+    release = (
+        contract_detail.release_costs(by, season + 1)
+        if any(r["season"] == season + 1 and r["kind"] in ("counted", "token") for r in rows)
+        else None
+    )
+    deal = {
+        "type": rng.choice(["Drafted", "UFA", "Extension", "SFA"]),
+        "team": p["team"],
+        "signed": signed,
+        "years": last - first + 1,
+        "value": value,
+        "apy": round(value / (last - first + 1)),
+        "apy_cap_pct": round(value / (last - first + 1) / 301_200_000, 3),
+        "guaranteed": bonus + sum(r["gtd"] for r in rows if r["kind"] != "void"),
+        "signing_bonus": contract_detail.signing_bonus(by, signed),
+        "last_season": last,
+        "earned": sum(r["cash"] for r in rows if r["season"] < season),
+        "pct_earned": None,
+    }
+    history = [
+        {
+            "team": deal["team"],
+            "type": deal["type"],
+            "status": "Active",
+            "signed": signed,
+            "years": deal["years"],
+            "value": value,
+            "apy": deal["apy"],
+            "guaranteed": deal["guaranteed"],
+            "earned": deal["earned"],
+            "pct_earned": round(deal["earned"] / value, 3) if value else None,
+        }
+    ]
+    if signed > season - 3:
+        old = rng.randrange(800_000, 20_000_000, 10_000) * 4
+        history.append(
+            {
+                "team": p["team"],
+                "type": "Drafted",
+                "status": "Extended",
+                "signed": signed - 4,
+                "years": 4,
+                "value": old,
+                "apy": old // 4,
+                "guaranteed": old // 2,
+                "earned": int(old * 0.8),
+                "pct_earned": 0.8,
+            }
+        )
+    return {
+        "key": p["key"],
+        "team": p["team"],
+        "basis": "contract",
+        "otc_url": None,
+        "bio": {
+            "birth_date": f"{season - rng.randint(22, 34)}-0{rng.randint(1, 9)}-15",
+            "height": rng.randint(70, 78),
+            "weight": rng.randint(185, 330),
+            "college": "Synthetic State",
+            "jersey": str(rng.randint(1, 99)),
+            "experience": season - signed + rng.randint(0, 4),
+            "draft_year": signed - rng.randint(0, 4),
+            "draft_round": rng.randint(1, 7),
+            "draft_pick": rng.randint(1, 256),
+            "draft_team": p["team"],
+        },
+        "deal": deal,
+        "years": rows,
+        "release": release,
+        "history": history,
     }
 
 

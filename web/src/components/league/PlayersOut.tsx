@@ -7,6 +7,7 @@ import { money } from "@/lib/format";
 import { OUT_NOTE, statusText, YEAR_NOTE } from "@/lib/availability";
 import type { Player } from "@/lib/types";
 import { Swatch } from "../Availability";
+import { ContractLink } from "../contract/ContractLink";
 import { StarterKey, StarterMark } from "../Starter";
 import { Empty } from "../ui";
 import { Segmented } from "../ui/controls";
@@ -56,7 +57,9 @@ export function PlayersOut({ week, out, forSeason }: { week: number; out: OutRow
               <Swatch k={tab === "out" ? "inactive" : "year"} size={14} />
               <div className="min-w-0 flex-1">
                 <p className="flex items-center gap-1 text-sm font-medium">
-                  <span className="truncate">{p.name}</span>
+                  <ContractLink player={p} className="truncate">
+                    {p.name}
+                  </ContractLink>
                   <StarterMark player={p} />
                 </p>
                 <p className="truncate text-xs text-ink-3">

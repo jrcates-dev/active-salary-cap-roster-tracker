@@ -44,7 +44,10 @@ publishing fake numbers.
 | `/matchups` | Any week of the season: scores for played games, an early look at future ones |
 | `/team/[abbr]` | Team: team strip for stepping sideways, last result and this week's game, counted cap and cap space with a $ / % toggle and the same tape as the league page (each figure opens those players), all on the team's band, position groups against the league median, player treemap, week-by-week money out, sortable roster |
 | `/matchup/[week-away-home]` | Matchup: strip of the week's games, the scorebug (both teams, kickoff or score) with the two biggest edges as the headline, both teams' availability on one dollar scale (each segment opens that roster), mirrored bars per position matchup (on the field or full investment) with league ranks, key absences |
-| `/methodology` | Sources and attribution, accounting rules, matchups, estimates, reconciliation table |
+| `/methodology` | Sources and attribution, accounting rules, matchups, contracts, estimates, reconciliation table |
+| `/data/contracts/[key].json` | One static JSON file per counted player: his contract (`ContractFile` in `src/lib/contract.ts`), fetched by the contract sheet when it opens |
+
+Any page takes `?player=<gsis id>`, which opens that player's contract sheet over it.
 
 ## Layout
 
@@ -67,5 +70,7 @@ publishing fake numbers.
 | `src/components/team/` | Team page pieces: money mode toggle, group breakdown, treemap, week-by-week trend, player table |
 | `src/components/league/` | League pieces: money-out board with week picker, players out, heatmap, offense share |
 | `src/components/matchup/` | The mirrored matchup chart |
+| `src/lib/contract.ts` | The contract sheet's address (`?player=`), the open event, the per-player file's URL and fetch cache, and contract labels |
+| `src/components/contract/` | The contract sheet, mounted once in the layout: `ContractLink` (any player name), the sheet itself (a panel from the right, a bottom sheet on a phone), the header and key figures, the cap-number-by-season chart, the season-by-season ledger, release costs and contract history |
 
 Scripts: `pnpm dev`, `pnpm build`, `pnpm lint`, `pnpm typecheck`.

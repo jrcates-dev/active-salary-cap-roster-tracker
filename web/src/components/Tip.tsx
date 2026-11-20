@@ -80,7 +80,7 @@ export function Tip({
           <div
             ref={tipRef}
             role="tooltip"
-            className="pointer-events-none fixed z-50 max-w-[280px] rounded-md bg-surface px-3 py-2 text-[13px] leading-snug text-ink shadow-pop"
+            className="pointer-events-none fixed z-[70] max-w-[280px] rounded-md bg-surface px-3 py-2 text-[13px] leading-snug text-ink shadow-pop"
             style={{
               left: Math.max(8, Math.min(pos.x + 14, window.innerWidth - 292)),
               top: Math.max(8, Math.min(pos.y + 16, window.innerHeight - tipH - 16)),

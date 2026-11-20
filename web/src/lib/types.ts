@@ -231,6 +231,115 @@ export interface DeadCharge {
   amount: number;
 }
 
+/**
+ * One season of a player's contract, from OverTheCap's ledger in the nflverse file.
+ * `past` seasons are paid out; from this season on, `counted` seasons are paid,
+ * a `token` season is a placeholder at the end of the deal, and a `void` season pays
+ * nothing and only carries bonus proration landing there. Bonuses a season does not
+ * have are left out (read them as 0).
+ */
+export interface ContractYear {
+  season: number;
+  /** The team carrying the cap charge that season. */
+  team: string | null;
+  base: number;
+  /** Signing and restructure bonus proration. A void season's whole cap number. */
+  prorated: number;
+  /** Option bonus proration. */
+  option?: number;
+  roster?: number;
+  workout?: number;
+  per_game?: number;
+  other?: number;
+  /** Salary guaranteed that season. */
+  gtd: number;
+  cap: number;
+  /** Share of that season's cap, when the cap is set (this season and earlier). */
+  cap_pct?: number;
+  cash: number;
+  kind: "past" | "counted" | "token" | "void";
+  /** Released before June 1 of that league year: dead money and cap savings. Future paid seasons only. */
+  dead_cut?: number;
+  savings_cut?: number;
+}
+
+/** What releasing or trading him at the start of next league year would cost. */
+export interface ContractRelease {
+  season: number;
+  cap: number;
+  cut: { dead: number; savings: number };
+  june1: { dead: number; dead_next: number; savings: number };
+  trade: { dead: number; savings: number };
+}
+
+/** One deal from the player's contract history. */
+export interface CareerContract {
+  team: string | null;
+  /** OverTheCap's label: Drafted, UFA, Extension, SFA, Practice, Franchise, ... */
+  type: string | null;
+  /** Active, Expired, Extended, Terminated, Traded, ... */
+  status: string | null;
+  signed: number;
+  years: number | null;
+  value: number;
+  apy: number;
+  guaranteed: number;
+  earned: number | null;
+  pct_earned: number | null;
+}
+
+export interface ContractDeal {
+  type: string | null;
+  /** The team that signed him to it. */
+  team: string | null;
+  signed: number | null;
+  years: number | null;
+  value: number | null;
+  apy: number | null;
+  /** APY as a share of the cap the year it was signed. */
+  apy_cap_pct: number | null;
+  /** Total guarantees at signing, as OverTheCap reports them (full and injury). */
+  guaranteed: number | null;
+  /** Worked out by the pipeline (contract_detail.signing_bonus); null when it could not be. */
+  signing_bonus: number | null;
+  /** The last season he is paid for. */
+  last_season: number | null;
+  /** Paid on this deal through last season, and that share of its value. */
+  earned: number | null;
+  pct_earned: number | null;
+}
+
+export interface ContractBio {
+  birth_date: string | null;
+  /** Inches. */
+  height: number | null;
+  weight: number | null;
+  college: string | null;
+  jersey: string | null;
+  experience: number | null;
+  draft_year: number | null;
+  draft_round: number | null;
+  draft_pick: number | null;
+  draft_team: string | null;
+}
+
+/**
+ * A player's contract as the contract view shows it. `basis`: the full ledger
+ * (`contract`), a deal signed this season the free data has not broken down yet
+ * (`rookie_scale`: terms only), or no contract in the free data (`minimum`).
+ */
+export interface ContractRecord {
+  key: string;
+  team: string;
+  basis: "contract" | "rookie_scale" | "minimum";
+  otc_url: string | null;
+  bio: ContractBio;
+  deal: ContractDeal | null;
+  years: ContractYear[];
+  release: ContractRelease | null;
+  history: CareerContract[];
+}
+
 export interface Snapshot {
   season: number;
   week: number;
@@ -248,6 +357,8 @@ export interface Snapshot {
   history_players: HistoryPlayer[];
   /** Each team's dead money, charge by charge. Older snapshots lack it. */
   dead_charges: DeadCharge[];
+  /** Every counted player's contract, for the contract view. Older snapshots lack it. */
+  contracts: ContractRecord[];
   reconcile: {
     season: number;
     tolerance: number;

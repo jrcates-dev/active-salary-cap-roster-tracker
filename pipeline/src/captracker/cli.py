@@ -11,6 +11,7 @@ from pathlib import Path
 import polars as pl
 
 from . import (
+    contract_detail,
     contracts,
     crosswalk,
     depth,
@@ -269,6 +270,7 @@ def cmd_export(args: argparse.Namespace) -> int:
         ),
         dead_charges=reconcile.load_dead_charges(f["season"]),
         outlook=f["outlook"],
+        contracts=contract_detail.load_contract_details(f["fact"], f["season"]),
     )
     out = Path(args.out)
     if args.fixture:

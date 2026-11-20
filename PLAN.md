@@ -130,6 +130,7 @@ Four pages carry the product. Each one answers a single question and leads with 
 
 - Global week selector and a "now" indicator showing which status source is current.
 - Methodology page explaining the accounting rules and data sources, with attribution.
+- Contract sheet: any player name (and a treemap tile once zoomed into his group) opens his contract over the page, with the deal's terms and guarantees, a cap-number-by-season chart, the season-by-season ledger (base, each bonus, cap number, cash, guaranteed, dead money and savings if cut), what a release or trade next offseason would cost, and his contract history. Dead money, savings and the signing bonus are worked out from the nflverse ledger; the full vs. injury guarantee split, vesting dates and incentives are not in the free data. *As built 2026-11-20.*
 - Share cards: every hero visual exports as a 1200 by 630 image for social posts, which is the main growth channel for a stats site.
 
 ## Design direction

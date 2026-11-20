@@ -79,6 +79,7 @@ injury news (a public IR tracker plus team announcements; never OverTheCap or Sp
 | `depth.py` | starters from the daily nflverse (ESPN) depth chart: top of each slot on offense, defense, K, P and LS; a player out keeps the role he had before he went out |
 | `rollup.py` | team -> unit -> position group totals: active, questionable, out this week, out long-term, out for season |
 | `data/season_outlook_<season>.csv` | hand-kept table of reserve-list players done for the season (or confirmed coming back), with the injury and a news source; see "Out for season" below |
+| `contract_detail.py` | each counted player's contract for the contract sheet: the deal, the season-by-season ledger, contract history, and the figures worked out here (dead money and savings for a release before or after June 1 or a trade, and the signing bonus) |
 | `summary.py` | one row per team: availability totals, estimates, dead money and cap space |
 | `reconcile.py` | the 1% gate against the hand-entered OTC team totals, with per-team allowances for known gaps |
 | `health.py` | stale-source, reconciliation, drift and reference-age checks after each export |

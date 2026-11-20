@@ -5,12 +5,14 @@ import { notFound } from "next/navigation";
 import { AvailabilityBar, AvailabilityLegend, Swatch } from "@/components/Availability";
 import { MatchupChart, type MatchupHalf, type MatchupRow } from "@/components/matchup/MatchupChart";
 import { Logo } from "@/components/Logo";
+import { ContractLink } from "@/components/contract/ContractLink";
 import { StarterKey, StarterMark } from "@/components/Starter";
 import { SectionNav } from "@/components/site/SectionNav";
 import { Strip } from "@/components/site/Strip";
 import { Hero, SectionHead, WRAP } from "@/components/ui";
 import { matchupVars } from "@/design/tokens";
 import { outOf, playerSlice, slicesOf, statusText, YEAR_NOTE } from "@/lib/availability";
+import { contractPreview } from "@/lib/contract";
 import { getSnapshot, kickoffLabel, matchupHref, weekGames } from "@/lib/data";
 import { money, ordinal } from "@/lib/format";
 import { statusHrefs } from "@/lib/rosterLink";
@@ -338,7 +340,9 @@ function AbsenceList({
             <li key={p.key} className="flex items-center gap-3 px-3.5 py-2">
               <Swatch k={playerSlice(p)} team={vars} />
               <span className="flex min-w-0 flex-1 items-center gap-1">
-                <span className="truncate font-medium">{p.name}</span>
+                <ContractLink player={contractPreview(p)} className="truncate font-medium">
+                  {p.name}
+                </ContractLink>
                 <StarterMark player={p} />
                 <span className="ml-1 truncate text-ink-3">
                   {p.group} · {statusText(p)}

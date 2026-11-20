@@ -128,6 +128,29 @@ export default async function MethodologyPage() {
           </li>
         </Section>
 
+        <Section title="Contracts">
+          <li>
+            Any player name, and any tile in the treemap once it is zoomed into his group, opens his contract: the deal OverTheCap lists for him in the
+            nflverse contracts file (type, value, years, per year, total guarantees) and, season by season, the base salary, each bonus, the cap number,
+            the cash and the guaranteed salary. The link can be shared; it opens the page with the contract showing.
+          </li>
+          <li>
+            <B>Dead money and cap savings</B> are worked out here. Cut before June 1: all bonus proration still to come and all guaranteed salary still
+            owed land that season. Cut after June 1 (or designated as one): that season&apos;s proration and guarantee land now and the rest the next
+            season. Traded: only the bonus proration stays behind. Option bonuses are spread over up to five seasons like a signing bonus. Offsets
+            from a new team are not taken off.
+          </li>
+          <li>
+            <B>Signing bonus</B> is worked out too, since the free data has the proration but not the bonus. For a player new to his team it is the
+            first season&apos;s proration times the seasons it is spread over (five at most); for an extension it is the signing season&apos;s cash less
+            the salary and other bonuses listed. It can read high when other money was paid that year, and is left blank when the numbers do not fit.
+          </li>
+          <li>
+            Not in the free data: which guarantees are full and which cover injury only, when guarantees vest, incentives, offsets, and the
+            season-by-season lines of most new rookie deals (those show the signed terms only).
+          </li>
+        </Section>
+
         <Section title="Estimates">
           <li>
             <B>Rookie scale</B> ({derived} players): {s.season} draft picks without a cap line. Rounds 1 to 3 take 8/11 of the contract&apos;s average per

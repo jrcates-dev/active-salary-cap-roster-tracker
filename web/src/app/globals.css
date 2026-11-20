@@ -384,6 +384,73 @@ body {
   box-shadow: inset 0 0 0 1.5px var(--s);
 }
 
+/*
+ * Contract view: the parts of a cap number, in the player's own team color (the
+ * sheet sets --team), darkest to lightest by how firmly the money is his:
+ *   base salary       solid team color
+ *   bonus proration   the team color washed halfway into the surface
+ *   other bonuses     a faint wash inside a team-color outline
+ *   void season       proration with a dashed outline (a season that is never played)
+ * The steps differ in lightness, so they hold apart under any color vision, and the
+ * chart's key, tooltips and table name every part.
+ */
+.c-base {
+  background: var(--team, var(--ink-2));
+}
+.c-bonus {
+  background: color-mix(in srgb, var(--team, var(--ink-2)) 48%, var(--surface));
+}
+.c-other {
+  background: color-mix(in srgb, var(--team, var(--ink-2)) 12%, var(--surface));
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--team, var(--ink-2)) 75%, var(--surface));
+}
+.c-void {
+  outline: 1.5px dashed var(--team, var(--ink-2));
+  outline-offset: 1px;
+}
+.c-void > * {
+  opacity: 0.6;
+}
+
+/* The contract sheet: from the right on wide screens, from the bottom on a phone. */
+@keyframes sheet-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+}
+@keyframes sheet-left {
+  from {
+    transform: translateX(32px);
+    opacity: 0;
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+.sheet-in {
+  animation: sheet-up var(--dur-3) var(--ease) both;
+}
+.sheet-out {
+  animation: sheet-up 180ms ease-in reverse both;
+}
+.sheet-fade-in {
+  animation: fade var(--dur-2) var(--ease) both;
+}
+.sheet-fade-out {
+  animation: fade 180ms ease-in reverse both;
+}
+@media (min-width: 640px) {
+  .sheet-in {
+    animation-name: sheet-left;
+  }
+  .sheet-out {
+    animation-name: sheet-left;
+  }
+}
+
 /* Swatch: the legend's and the table's small square of a state. */
 .sw {
   display: inline-block;

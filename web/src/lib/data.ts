@@ -53,6 +53,7 @@ function normalize(s: Snapshot): Snapshot {
     history: s.history ?? [],
     history_players: history_players.map((h) => (h.flag === "inactive" ? { ...h, out_tag: tag(h, h.week) } : h)),
     dead_charges: s.dead_charges ?? [],
+    contracts: s.contracts ?? [],
     freshness: s.freshness ?? null,
   };
 }

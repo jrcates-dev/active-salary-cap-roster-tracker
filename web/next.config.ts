@@ -11,6 +11,9 @@ const basePath = process.env.PAGES_BASE_PATH ?? "";
 const nextConfig: NextConfig = {
   output: "export",
   basePath,
+  // Client code fetches the static contract files (/data/contracts/<key>.json) and
+  // has to prefix them with the base path itself.
+  env: { NEXT_PUBLIC_BASE_PATH: basePath },
   trailingSlash: true,
   // Cache Components and partial prefetching turn on partial prerendering, which a
   // static export cannot use. Nothing here renders at request time, so neither is needed.

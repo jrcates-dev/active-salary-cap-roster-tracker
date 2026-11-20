@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useViewState } from "@/lib/viewState";
 import { OUT_NOTE, statusText, YEAR_NOTE } from "@/lib/availability";
 import { parseRosterFilter, PAST_STATUSES, ROSTER_EVENT, ROSTER_ID, rosterQuery, scrollToRoster, type RosterFilter } from "@/lib/rosterLink";
@@ -11,6 +11,7 @@ import { ariaSort, SortHeader, type SortDir } from "../Sort";
 import { NameWithStar, StarterKey } from "../Starter";
 import { SectionHead } from "../ui";
 import { Chip, SearchInput, Select, StepButton } from "../ui/controls";
+import { ContractLink } from "../contract/ContractLink";
 import { useMoneyMode } from "./MoneyMode";
 import { ContractCell, PerYearCell, StripKey } from "./PerYear";
 
@@ -92,9 +93,13 @@ export function PlayerTable({
   const [query, setQuery] = useState("");
   const [showAll, setShowAll] = useState(false);
 
+  /** The roster part of the address for the filters on screen. */
+  const applied = useRef(rosterQuery({}));
+
   /** Sets the filters a chart link asked for, clearing the rest. */
   const apply = useCallback(
     (f: RosterFilter) => {
+      applied.current = rosterQuery(f);
       const w = f.week && weeks.includes(f.week) ? f.week : week;
       setShown(w);
       setFlag(w !== week && f.status && !PAST_STATUSES.includes(f.status) ? "all" : (f.status ?? "all"));
@@ -120,7 +125,12 @@ export function PlayerTable({
       apply((e as CustomEvent<RosterFilter>).detail);
       scrollToRoster();
     };
-    const onPop = () => apply(fromUrl() ?? {});
+    // Opening or closing a contract changes the address too (?player=); the filters
+    // only follow Back and Forward when the roster's own part of it changed.
+    const onPop = () => {
+      const f = fromUrl() ?? {};
+      if (rosterQuery(f) !== applied.current) apply(f);
+    };
     window.addEventListener(ROSTER_EVENT, onLink);
     window.addEventListener("popstate", onPop);
     return () => {
@@ -139,11 +149,14 @@ export function PlayerTable({
     setPos(nextPos);
     if (nextWeek !== shown) setShowAll(false);
     const query = rosterQuery(filterOf(flagFor, nextPos, nextWeek === week ? undefined : nextWeek));
+    applied.current = query;
     window.history.replaceState(null, "", `${window.location.pathname}${query}${window.location.hash}`);
   };
 
   const past = shown !== week;
   const pastIdx = weeks.indexOf(shown);
+  /** Players on today's roster: their names open their contracts. */
+  const current = useMemo(() => new Set(players.map((p) => p.key)), [players]);
   const source = useMemo(() => {
     if (shown === week) return players;
     const now = new Map(players.map((p) => [p.key, p]));
@@ -313,7 +326,13 @@ export function PlayerTable({
                   <td>
                     <span className="flex items-center gap-2">
                       <span className="font-medium">
-                        <NameWithStar player={p} />
+                        {current.has(p.key) ? (
+                          <ContractLink player={p}>
+                            <NameWithStar player={p} />
+                          </ContractLink>
+                        ) : (
+                          <NameWithStar player={p} />
+                        )}
                       </span>
                       {p.source !== "contract" && (
                         <span

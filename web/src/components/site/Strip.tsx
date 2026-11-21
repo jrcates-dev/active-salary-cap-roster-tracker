@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, type CSSProperties } from "react";
+import { Logo } from "../Logo";
 
 export interface StripItem {
   key: string;
@@ -9,13 +10,16 @@ export interface StripItem {
   label: string;
   title?: string;
   vars?: CSSProperties;
+  /** A team's logo, shown before the label (with `vars`, a block of the team color if missing). */
+  logo?: string | null;
   current?: boolean;
 }
 
 /**
  * A scrolling row of links for stepping sideways: every team on a team page, every
- * game of the week on a matchup page. The current item is filled in its team color
- * and scrolled into view; the arrows at the ends go to its neighbours.
+ * game of the week on a matchup page. Team items lead with the team's logo; the
+ * current item is filled in its team color instead and scrolled into view; the
+ * arrows at the ends go to its neighbours.
  */
 export function Strip({ items, label }: { items: StripItem[]; label: string }) {
   const ref = useRef<HTMLUListElement>(null);
@@ -49,7 +53,7 @@ export function Strip({ items, label }: { items: StripItem[]; label: string }) {
                 ...(it.current ? { background: "var(--team)", color: "var(--team-ink)" } : {}),
               }}
             >
-              {it.vars && !it.current && <span aria-hidden className="h-2 w-2 rounded-[2px]" style={{ background: "var(--team)" }} />}
+              {it.vars && !it.current && <Logo src={it.logo} size={16} tone="board" />}
               {it.label}
             </Link>
           </li>

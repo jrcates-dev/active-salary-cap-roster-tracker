@@ -10,7 +10,7 @@ export interface CardSide {
 }
 
 /** Name and colors per team, sent once rather than on every card. */
-export type CardTeams = Record<string, { nick: string; vars: CSSProperties }>;
+export type CardTeams = Record<string, { nick: string; logo: string | null; vars: CSSProperties }>;
 
 export interface CardGame {
   id: string;

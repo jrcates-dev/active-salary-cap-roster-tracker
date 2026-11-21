@@ -12,7 +12,7 @@ export function OffenseShare({ s }: { s: Snapshot }) {
       ]),
     ) as Record<Unit, number>;
     const total = UNITS.reduce((acc, u) => acc + unitCap[u], 0);
-    return { team: team.team, nick: team.nick, name: team.name, vars: teamVars(team), unitCap, total };
+    return { team: team.team, nick: team.nick, name: team.name, logo: team.logo_url, vars: teamVars(team), unitCap, total };
   });
   return <OffenseShareBoard rows={rows} />;
 }

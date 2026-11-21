@@ -7,6 +7,7 @@ import { ageLabel, money } from "@/lib/format";
 import { OUT_NOTE, statusText, YEAR_NOTE } from "@/lib/availability";
 import type { Player } from "@/lib/types";
 import { Swatch } from "../Availability";
+import { Logo } from "../Logo";
 import { ContractLink } from "../contract/ContractLink";
 import { StarterKey, StarterMark } from "../Starter";
 import { Empty } from "../ui";
@@ -15,6 +16,7 @@ import { Segmented } from "../ui/controls";
 export interface OutRow {
   player: Player;
   nick: string;
+  logo: string | null;
   vars: CSSProperties;
 }
 
@@ -52,7 +54,7 @@ export function PlayersOut({ week, out, forSeason }: { week: number; out: OutRow
         </Empty>
       ) : (
         <ol className="card divide-y divide-line">
-          {rows.map(({ player: p, nick, vars }) => (
+          {rows.map(({ player: p, nick, logo, vars }) => (
             <li key={p.key} className="tc flex items-center gap-3 px-3.5 py-2" style={vars}>
               <Swatch k={tab === "out" ? "inactive" : "year"} size={14} />
               <div className="min-w-0 flex-1">
@@ -63,6 +65,7 @@ export function PlayersOut({ week, out, forSeason }: { week: number; out: OutRow
                   <StarterMark player={p} />
                 </p>
                 <p className="truncate text-xs text-ink-3">
+                  <Logo src={logo} size={14} inline className="mr-1 -mt-px" />
                   <Link href={`/team/${p.team}`} className="text-ink-2 underline decoration-line-2 underline-offset-2 hover:decoration-ink">
                     {nick}
                   </Link>

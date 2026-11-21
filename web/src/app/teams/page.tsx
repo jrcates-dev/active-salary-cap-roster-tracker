@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AvailabilityBar, AvailabilityLegend } from "@/components/Availability";
+import { Logo } from "@/components/Logo";
 import { Hero, WRAP } from "@/components/ui";
 import { teamVars } from "@/design/tokens";
 import { slicesOf } from "@/lib/availability";
@@ -47,7 +48,7 @@ export default async function TeamsPage() {
                               href={`/team/${t.team}`}
                               className="flex min-h-11 min-w-0 items-center gap-2.5 rounded-sm text-[15px] font-semibold hover:underline"
                             >
-                              <span aria-hidden className="h-6 w-1.5 shrink-0 rounded-[2px]" style={{ background: "var(--team)" }} />
+                              <Logo src={t.logo_url} size={24} />
                               <span className="truncate">{t.nick}</span>
                             </Link>
                             {sum && (

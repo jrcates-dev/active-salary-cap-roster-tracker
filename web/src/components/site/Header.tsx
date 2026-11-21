@@ -13,7 +13,7 @@ import { TeamSwitcher, type SwitcherTeam } from "./TeamSwitcher";
 export function Header({ snapshot: s }: { snapshot: Snapshot }) {
   const teams: SwitcherTeam[] = [...s.teams]
     .sort((a, b) => a.division.localeCompare(b.division) || a.nick.localeCompare(b.nick))
-    .map((t) => ({ team: t.team, nick: t.nick, name: t.name, division: t.division, vars: teamVars(t) }));
+    .map((t) => ({ team: t.team, nick: t.nick, name: t.name, division: t.division, logo: t.logo_url, vars: teamVars(t) }));
   return (
     <>
       <header data-sticky className="board sticky top-0 z-40 border-b border-line-2 bg-bg/90 backdrop-blur-md">

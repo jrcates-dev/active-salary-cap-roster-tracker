@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Fragment, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { scrollToRoster, stickyOffset } from "@/lib/rosterLink";
+import { Logo } from "../Logo";
 import { WRAP } from "../ui";
 
 export interface SectionItem {
@@ -13,8 +14,9 @@ export interface SectionItem {
 export interface Crumb {
   label: ReactNode;
   href?: string;
-  /** Team colors for a small block before the label (`teamVars()`). */
+  /** Team colors (`teamVars()`): the team's logo goes before the label, or a small block of its color without one. */
   vars?: CSSProperties;
+  logo?: string | null;
 }
 
 /**
@@ -84,7 +86,11 @@ export function SectionNav({ crumbs, items, className = "" }: { crumbs: Crumb[];
             return (
               <Fragment key={i}>
                 <li className={`${last ? "flex" : "hidden sm:flex"} min-w-0 items-center gap-1.5`}>
-                  {c.vars && <span aria-hidden className="tc h-2.5 w-2.5 shrink-0 rounded-[3px]" style={{ ...c.vars, background: "var(--team)" }} />}
+                  {c.vars && (
+                    <span className="tc" style={c.vars}>
+                      <Logo src={c.logo} size={16} />
+                    </span>
+                  )}
                   {c.href && !last ? (
                     <Link href={c.href} className="hit truncate text-ink-3 transition-colors duration-(--dur-1) hover:text-ink">
                       {c.label}

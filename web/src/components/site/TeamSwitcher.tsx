@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { Logo } from "../Logo";
 import { cleanPath } from "./NavLinks";
 
 export interface SwitcherTeam {
@@ -10,6 +11,7 @@ export interface SwitcherTeam {
   nick: string;
   name: string;
   division: string;
+  logo: string | null;
   vars: CSSProperties;
 }
 
@@ -75,7 +77,9 @@ export function TeamSwitcher({ teams }: { teams: SwitcherTeam[] }) {
       >
         {current ? (
           <>
-            <span aria-hidden className="tc h-3 w-3 shrink-0 rounded-[3px]" style={{ ...current.vars, background: "var(--team)" }} />
+            <span className="tc" style={current.vars}>
+              <Logo src={current.logo} size={18} tone="board" />
+            </span>
             <span className="truncate font-medium">{current.nick}</span>
           </>
         ) : (
@@ -142,7 +146,7 @@ function TeamItem({ t, active, onPick, full }: { t: SwitcherTeam; active: boolea
         }`}
         style={t.vars}
       >
-        <span aria-hidden className="h-3 w-3 shrink-0 rounded-[3px]" style={{ background: "var(--team)" }} />
+        <Logo src={t.logo} size={18} tone="board" />
         <span className="truncate">{full ? t.name : t.nick}</span>
       </Link>
     </li>

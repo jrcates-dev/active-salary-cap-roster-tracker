@@ -48,7 +48,7 @@ export default async function LeaguePage() {
         cells[r.position_group] = { cap: r.cap_total, inactive: outOf(r) };
       }
     }
-    return { team: t.team, nick: team.nick, name: team.name, vars: teamVars(team), total: t.cap_total, cells };
+    return { team: t.team, nick: team.nick, name: team.name, logo: team.logo_url, vars: teamVars(team), total: t.cap_total, cells };
   });
 
   const outRows = (kind: OutKind): OutRow[] =>
@@ -56,11 +56,12 @@ export default async function LeaguePage() {
       .filter(isOut(kind))
       .sort((a, b) => b.cap - a.cap)
       .slice(0, 40)
-      .map((p) => ({ player: p, nick: teamsById[p.team].nick, vars: teamVars(teamsById[p.team]) }));
+      .map((p) => ({ player: p, nick: teamsById[p.team].nick, logo: teamsById[p.team].logo_url, vars: teamVars(teamsById[p.team]) }));
   const boardTeams = s.teams.map((t) => ({
     team: t.team,
     nick: t.nick,
     name: t.name,
+    logo: t.logo_url,
     vars: teamVars(t),
     dead: deadByTeam[t.team] ?? 0,
   }));

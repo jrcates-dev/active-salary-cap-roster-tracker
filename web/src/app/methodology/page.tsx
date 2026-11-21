@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 import { Hero, WRAP } from "@/components/ui";
+import { teamVars } from "@/design/tokens";
 import { getSnapshot } from "@/lib/data";
 import { money, pct, stampLabel } from "@/lib/format";
 
@@ -10,6 +12,7 @@ export default async function MethodologyPage() {
   const s = await getSnapshot();
   const rec = s.reconcile;
   const teamName = Object.fromEntries(s.teams.map((t) => [t.team, t.name]));
+  const teamOf = Object.fromEntries(s.teams.map((t) => [t.team, t]));
   const estimated = s.summary.reduce((a, t) => a + t.players_estimated, 0);
   const derived = s.summary.reduce((a, t) => a + (t.players_rookie_derived ?? 0), 0);
 
@@ -211,7 +214,12 @@ export default async function MethodologyPage() {
                         .map((t) => (
                           <tr key={t.team}>
                             <td>
-                              <Link href={`/team/${t.team}`} className="text-ink hover:underline">
+                              <Link
+                                href={`/team/${t.team}`}
+                                className="tc inline-flex items-center gap-2 text-ink hover:underline"
+                                style={teamOf[t.team] ? teamVars(teamOf[t.team]) : undefined}
+                              >
+                                <Logo src={teamOf[t.team]?.logo_url} size={18} />
                                 {teamName[t.team] ?? t.team}
                               </Link>
                             </td>

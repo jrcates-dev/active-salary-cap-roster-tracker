@@ -15,6 +15,7 @@ import { Segmented } from "../ui/controls";
 export interface AgeRow extends TeamAge {
   nick: string;
   name: string;
+  logo: string | null;
   vars: CSSProperties;
 }
 
@@ -113,7 +114,7 @@ export function TeamAgesBoard({ rows, league, asOf }: { rows: AgeRow[]; league: 
           return (
             <li key={r.team} className={COLS}>
               <span className="num text-right text-xs text-ink-3">{i + 1}</span>
-              <TeamChip team={r.team} nick={r.nick} vars={r.vars} size="sm" />
+              <TeamChip team={r.team} nick={r.nick} logo={r.logo} vars={r.vars} size="sm" />
               <Tip
                 className="relative h-5"
                 content={

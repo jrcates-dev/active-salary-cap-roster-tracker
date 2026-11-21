@@ -15,6 +15,7 @@ export interface UnitRow {
   team: string;
   nick: string;
   name: string;
+  logo: string | null;
   vars: CSSProperties;
   unitCap: Record<Unit, number>;
   total: number;
@@ -95,7 +96,7 @@ export function OffenseShareBoard({ rows }: { rows: UnitRow[] }) {
         {sorted.map((r, i) => (
           <li key={r.team} className="grid grid-cols-[1.25rem_5.25rem_minmax(0,1fr)_2.75rem] items-center gap-x-3 sm:grid-cols-[1.5rem_7.5rem_minmax(0,1fr)_3rem]">
             <span className="num text-right text-xs text-ink-3">{i + 1}</span>
-            <TeamChip team={r.team} nick={r.nick} vars={r.vars} size="sm" />
+            <TeamChip team={r.team} nick={r.nick} logo={r.logo} vars={r.vars} size="sm" />
             <div className="relative h-2.5">
               <div className={`flex h-full gap-[2px] ${animate ? "bar-grow" : ""}`}>
                 {order.map((u) => (

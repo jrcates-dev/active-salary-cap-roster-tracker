@@ -1,7 +1,8 @@
 import Link from "next/link";
 import type { CardGame, CardSide, CardTeams } from "@/lib/schedule";
+import { Logo } from "./Logo";
 
-/** One game: both teams, kickoff or final score, and the biggest money edge. */
+/** One game: both teams with their logos, kickoff or final score, and the biggest money edge. */
 export function GameCard({ game: g, teams }: { game: CardGame; teams: CardTeams }) {
   const winner = g.final
     ? g.away.score! > g.home.score!
@@ -15,7 +16,7 @@ export function GameCard({ game: g, teams }: { game: CardGame; teams: CardTeams 
     const team = teams[t.abbr];
     return (
       <span className="tc flex items-center gap-2.5" style={team?.vars}>
-        <span aria-hidden className="h-5 w-1.5 shrink-0 rounded-[2px]" style={{ background: "var(--team)" }} />
+        <Logo src={team?.logo} size={22} />
         <span className={`flex-1 truncate text-[15px] ${won || !g.final ? "font-semibold text-ink" : "font-medium text-ink-3"}`}>
           {team?.nick ?? t.abbr}
         </span>

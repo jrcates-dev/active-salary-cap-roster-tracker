@@ -15,6 +15,7 @@ export interface HeatRow {
   team: string;
   nick: string;
   name: string;
+  logo: string | null;
   vars: CSSProperties;
   total: number;
   cells: Record<string, { cap: number; inactive: number }>;
@@ -113,7 +114,7 @@ export function Heatmap({ groups, rows }: { groups: Group[]; rows: HeatRow[] }) 
             {sorted.map((r) => (
               <tr key={r.team}>
                 <th scope="row" className="sticky left-0 z-10 bg-bg pr-2 text-left font-normal">
-                  <TeamChip team={r.team} nick={r.nick} vars={r.vars} size="sm" />
+                  <TeamChip team={r.team} nick={r.nick} logo={r.logo} vars={r.vars} size="sm" />
                 </th>
                 {groups.map((g, i) => {
                   const cell = r.cells[g.code] ?? { cap: 0, inactive: 0 };

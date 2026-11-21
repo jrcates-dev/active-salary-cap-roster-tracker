@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { useViewState } from "@/lib/viewState";
-import { money } from "@/lib/format";
+import { ageLabel, money } from "@/lib/format";
 import { OUT_NOTE, statusText, YEAR_NOTE } from "@/lib/availability";
 import type { Player } from "@/lib/types";
 import { Swatch } from "../Availability";
@@ -66,7 +66,7 @@ export function PlayersOut({ week, out, forSeason }: { week: number; out: OutRow
                   <Link href={`/team/${p.team}`} className="text-ink-2 underline decoration-line-2 underline-offset-2 hover:decoration-ink">
                     {nick}
                   </Link>
-                  {` · ${p.group ?? p.pos ?? ""} · ${statusText(p)}`}
+                  {` · ${p.group ?? p.pos ?? ""}${p.age != null ? ` · Age ${ageLabel(p.age)}` : ""} · ${statusText(p)}`}
                   {p.outlook_note ? ` · ${p.outlook_note}` : p.injury ? ` · ${p.injury}` : ""}
                   {p.outlook_basis === "return_window_closed" ? " · window closed" : ""}
                 </p>

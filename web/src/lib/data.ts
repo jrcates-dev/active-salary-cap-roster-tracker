@@ -4,6 +4,7 @@ import { teamVars } from "@/design/tokens";
 import { biggestEdges, edgeShort, gameEdges } from "./matchup";
 import type { CardGame, CardSide, CardTeams, WeekSlate } from "./schedule";
 import { outTag } from "./availability";
+import { ageOn, exactAge } from "./format";
 import type { Game, HistoryPlayer, HistoryRow, Player, RollupRow, Snapshot, Team, TeamSummary } from "./types";
 
 /**
@@ -43,15 +44,26 @@ async function readSnapshot(): Promise<Snapshot> {
   throw new Error("No data snapshot found. Run `captracker export` in pipeline/.");
 }
 
+/**
+ * The day ages are worked out for: the day the data was pulled, which the daily
+ * build moves forward. The synthetic fixture has no date, so it uses the build's.
+ */
+export function ageDate(s: Pick<Snapshot, "generated_at">): Date {
+  const d = new Date(s.generated_at);
+  return Number.isNaN(d.getTime()) ? new Date() : d;
+}
+
 /** Fill fields an older snapshot may lack, so pages never branch on them. */
 function normalize(s: Snapshot): Snapshot {
   const history_players = s.history_players ?? [];
   const tag = outTagger(s.games, history_players);
+  const on = ageDate(s);
+  const aged = <T extends Pick<Player, "birth_date">>(p: T): T & { age: number | null } => ({ ...p, age: ageOn(p.birth_date, on) });
   return {
     ...s,
-    players: s.players.map((p) => (p.flag === "inactive" ? { ...p, out_tag: tag(p, s.week) } : p)),
+    players: s.players.map((p) => aged(p.flag === "inactive" ? { ...p, out_tag: tag(p, s.week) } : p)),
     history: s.history ?? [],
-    history_players: history_players.map((h) => (h.flag === "inactive" ? { ...h, out_tag: tag(h, h.week) } : h)),
+    history_players: history_players.map((h) => aged(h.flag === "inactive" ? { ...h, out_tag: tag(h, h.week) } : h)),
     dead_charges: s.dead_charges ?? [],
     contracts: s.contracts ?? [],
     freshness: s.freshness ?? null,
@@ -97,6 +109,52 @@ function outTagger(games: Game[], history: HistoryPlayer[]) {
   };
   return (p: Pick<Player, "key" | "team" | "flag" | "absence" | "reason" | "outlook_basis">, week: number) =>
     outTag(p, week, p.absence === "season" ? returnWeek(p, week) : null);
+}
+
+/** What a team's average age is taken over: the whole team, or one side of the ball. */
+export type AgeScope = "all" | "offense" | "defense";
+export const AGE_SCOPES: AgeScope[] = ["all", "offense", "defense"];
+
+/**
+ * Who a team's average age counts: everyone on the roster or a reserve list, leaving
+ * out the practice squad and the specialists (kickers, punters, long snappers), whose
+ * long careers would pull a team older.
+ */
+export const countsForTeamAge = (p: Pick<Player, "roster_status" | "unit">) =>
+  p.roster_status !== "DEV" && p.unit !== "special_teams";
+
+export interface TeamAge {
+  team: string;
+  /** Mean exact age of the players counted; null when none has a birth date. */
+  age: Record<AgeScope, number | null>;
+  players: Record<AgeScope, number>;
+}
+
+/** Each team's average age, whole team and by side of the ball, and the league's over every player counted. */
+export function teamAges(s: Snapshot): { teams: TeamAge[]; league: Record<AgeScope, number | null> } {
+  const on = ageDate(s);
+  const blank = () => ({ all: { sum: 0, n: 0 }, offense: { sum: 0, n: 0 }, defense: { sum: 0, n: 0 } });
+  const league = blank();
+  const byTeam = new Map(s.teams.map((t) => [t.team, blank()]));
+  for (const p of s.players) {
+    const a = countsForTeamAge(p) ? exactAge(p.birth_date, on) : null;
+    const t = byTeam.get(p.team);
+    if (a == null || !t) continue;
+    for (const scope of AGE_SCOPES) {
+      if (scope !== "all" && p.unit !== scope) continue;
+      t[scope].sum += a;
+      t[scope].n += 1;
+      league[scope].sum += a;
+      league[scope].n += 1;
+    }
+  }
+  const mean = (x: { sum: number; n: number }) => (x.n ? x.sum / x.n : null);
+  const of = <T,>(acc: ReturnType<typeof blank>, f: (x: { sum: number; n: number }) => T) =>
+    Object.fromEntries(AGE_SCOPES.map((k) => [k, f(acc[k])])) as Record<AgeScope, T>;
+  return {
+    teams: [...byTeam].map(([team, acc]) => ({ team, age: of(acc, mean), players: of(acc, (x) => x.n) })),
+    league: of(league, mean),
+  };
 }
 
 export interface TeamView {

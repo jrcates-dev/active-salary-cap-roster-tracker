@@ -39,7 +39,7 @@ publishing fake numbers.
 
 | Route | What |
 | --- | --- |
-| `/` | League: the share of the cap that is active as the headline, on the tape (one league-wide availability bar with a figure per status under it), this week's games with their biggest edge as a ticker, money out by team with a week picker beside the most expensive players out, the 32 × 13 heatmap, offense/defense split |
+| `/` | League: the share of the cap that is active as the headline, on the tape (one league-wide availability bar with a figure per status under it), this week's games with their biggest edge as a ticker, money out by team with a week picker beside the most expensive players out, the 32 × 13 heatmap, offense/defense split, team ages (whole team, offense or defense, youngest or oldest first) |
 | `/teams` | All 32 teams by division: counted cap and the availability bar on one dollar scale, each segment opening that roster |
 | `/matchups` | Any week of the season: scores for played games, an early look at future ones |
 | `/team/[abbr]` | Team: team strip for stepping sideways, last result and this week's game, counted cap and cap space with a $ / % toggle and the same tape as the league page (each figure opens those players), all on the team's band, position groups against the league median, player treemap, week-by-week money out, sortable roster |
@@ -57,7 +57,7 @@ Any page takes `?player=<gsis id>`, which opens that player's contract sheet ove
 | `src/design/tokens.ts` | Per-team color math: `teamVars` writes a light and a dark team color (each clearing 3:1 on its surface) and the ink that reads on it; `matchupVars` picks two teams' colors as a pair so they never look alike; unit marks; ramp step |
 | `src/lib/types.ts` | Shapes of the snapshot JSON |
 | `src/lib/data.ts` | Snapshot loader and per-team and league helpers |
-| `src/lib/format.ts` | Money, percent, date and label formatting |
+| `src/lib/format.ts` | Money, percent, date, age and label formatting. Ages are to the tenth of a year, rounded down (`ageOn`), for the day the data was pulled (`ageDate` in data.ts) |
 | `src/lib/viewState.ts` | `useViewState`: a toggle, tab, sort or zoomed group remembered for the visit (sessionStorage, per page), so Back returns to the same view |
 | `src/lib/availability.ts` | Availability states (active, questionable, out, out for season, practice squad, dead), the per-player out tag ("IR, eligible week 12") and other per-player helpers, usable from server pages |
 | `src/lib/matchup.ts` | Position matchup pairs, group money, league ranks and edge picks |
@@ -68,7 +68,7 @@ Any page takes `?player=<gsis id>`, which opens that player's contract sheet ove
 | `src/components/Tip.tsx` | Tooltip: follows the mouse, opens on tap, and on keyboard focus |
 | `src/components/Sort.tsx` | One sort pattern for every ranked list: column headers and legend chips |
 | `src/components/team/` | Team page pieces: money mode toggle, group breakdown, treemap, week-by-week trend, player table |
-| `src/components/league/` | League pieces: money-out board with week picker, players out, heatmap, offense share |
+| `src/components/league/` | League pieces: money-out board with week picker, players out, heatmap, offense share, team ages |
 | `src/components/matchup/` | The mirrored matchup chart |
 | `src/lib/contract.ts` | The contract sheet's address (`?player=`), the open event, the per-player file's URL and fetch cache, and contract labels |
 | `src/components/contract/` | The contract sheet, mounted once in the layout: `ContractLink` (any player name), the sheet itself (a panel from the right, a bottom sheet on a phone), the header and key figures, the cap-number-by-season chart, the season-by-season ledger, release costs and contract history |

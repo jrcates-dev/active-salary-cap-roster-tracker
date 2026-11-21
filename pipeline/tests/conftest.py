@@ -141,7 +141,7 @@ def players_df() -> pl.DataFrame:
             "latest_team": ["NE"] * 5,
             "status": ["ACT", "ACT", "RES", "ACT", "RET"],
             "headshot": [None] * 5,
-            "birth_date": [None] * 5,
+            "birth_date": ["1996-05-21", "1999-11-02", None, "1990-02-14", "1985-07-30"],
             "rookie_season": [2020] * 5,
             "draft_year": [2020] * 5,
             "draft_round": [1] * 5,

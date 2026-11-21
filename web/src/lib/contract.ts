@@ -20,6 +20,7 @@ export type ContractPlayer = Pick<
   | "key"
   | "team"
   | "name"
+  | "age"
   | "pos"
   | "group"
   | "unit"
@@ -46,6 +47,7 @@ export function contractPreview(p: ContractPlayer): ContractPlayer {
     key: p.key,
     team: p.team,
     name: p.name,
+    age: p.age ?? null,
     pos: p.pos,
     group: p.group,
     unit: p.unit,
@@ -132,16 +134,6 @@ export const otherBonuses = (y: ContractYear) => (y.roster ?? 0) + (y.workout ??
 
 /** All bonus proration charged in a season: signing, restructure and option bonuses. */
 export const proration = (y: ContractYear) => y.prorated + (y.option ?? 0);
-
-/** Whole years old on a date. */
-export function ageOn(birth: string | null, on: Date): number | null {
-  if (!birth) return null;
-  const b = new Date(`${birth.slice(0, 10)}T12:00:00Z`);
-  if (Number.isNaN(b.getTime())) return null;
-  let age = on.getUTCFullYear() - b.getUTCFullYear();
-  if (on.getUTCMonth() < b.getUTCMonth() || (on.getUTCMonth() === b.getUTCMonth() && on.getUTCDate() < b.getUTCDate())) age -= 1;
-  return age;
-}
 
 /** 77 -> 6′5″ */
 export const heightLabel = (inches: number | null) => (inches ? `${Math.floor(inches / 12)}′${inches % 12}″` : null);

@@ -3,7 +3,7 @@
 import { hierarchy, treemap, treemapSquarify, type HierarchyRectangularNode } from "d3-hierarchy";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { useViewState } from "@/lib/viewState";
-import { money, pct } from "@/lib/format";
+import { ageLabel, money, pct } from "@/lib/format";
 import type { Group, Player, Unit } from "@/lib/types";
 import { playerSlice, sliceClass, Swatch } from "../Availability";
 import { ChartLink } from "../ChartLink";
@@ -189,7 +189,10 @@ export function Treemap({ team, groups, players, teamTotal }: { team: string; gr
                     {p.name}
                   </ContractLink>
                   <StarterMark player={p} />
-                  <span className="ml-1 truncate text-ink-3">{statusText(p)}</span>
+                  <span className="ml-1 truncate text-ink-3">
+                    {p.age != null && `Age ${ageLabel(p.age)} · `}
+                    {statusText(p)}
+                  </span>
                 </span>
                 <span className="num font-medium">{money(p.cap)}</span>
               </li>
@@ -278,6 +281,7 @@ function Leaf({
           </TipTitle>
           <TipRow label="Cap" value={money(p.cap)} />
           <TipRow label="Share of team" value={pct(p.cap / teamTotal)} />
+          {p.age != null && <TipRow label="Age" value={ageLabel(p.age)} />}
           <TipRow label={status} value="" swatch={<Swatch k={k} />} />
           {(p.outlook_note ?? p.injury) && <TipRow label="Injury" value={p.outlook_note ?? p.injury} />}
           {depthText(p) && <TipRow label={depthText(p)} value="" />}

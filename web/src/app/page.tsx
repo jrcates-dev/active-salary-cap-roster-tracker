@@ -3,6 +3,7 @@ import { Heatmap, type HeatRow } from "@/components/league/Heatmap";
 import { InactiveBoard } from "@/components/league/InactiveBoard";
 import { OffenseShare } from "@/components/league/OffenseShare";
 import { PlayersOut, type OutRow } from "@/components/league/PlayersOut";
+import { TeamAges } from "@/components/league/TeamAges";
 import { Tape } from "@/components/Tape";
 import { WeekGames } from "@/components/WeekGames";
 import { SectionNav } from "@/components/site/SectionNav";
@@ -113,6 +114,7 @@ export default async function LeaguePage() {
           { id: "players-out", label: "Players out" },
           { id: "groups", label: "Position groups" },
           { id: "offense-defense", label: "Offense vs defense" },
+          { id: "ages", label: "Team ages" },
         ]}
       />
       <main className={`${WRAP} space-y-14 pt-8 pb-8 sm:pb-10`}>
@@ -147,6 +149,11 @@ export default async function LeaguePage() {
         <section id="offense-defense" className="max-w-3xl scroll-mt-28">
           <SectionHead title="Offense vs defense" />
           <OffenseShare s={s} />
+        </section>
+
+        <section id="ages" className="max-w-3xl scroll-mt-28">
+          <SectionHead title="Team ages" />
+          <TeamAges s={s} />
         </section>
     </main>
     </>

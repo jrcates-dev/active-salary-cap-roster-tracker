@@ -98,3 +98,21 @@ def test_week_out_players_match_the_week_totals(
         assert all(r["week"] == week for r in out)
         assert sum(r["cap"] for r in out) == team["cap_inactive"] + team["cap_questionable"]
         assert set(out[0]) == set(export.HISTORY_PLAYER_FIELDS)
+
+
+def test_player_records_carry_birth_dates(
+    contracts_df, players_df, rosters_df, injuries_df, teams_map
+):
+    """The site works out each player's age from the players file's birth date."""
+    from captracker import export
+
+    cy, cw, status, _, _ = _frames(contracts_df, players_df, rosters_df, injuries_df, teams_map, 9)
+    fact = rollup.player_week_cap(
+        rollup.assign_groups(contracts.with_player_key(cy), cw), status, 9
+    )
+    rows = {r["key"]: r for r in export.player_records(fact, 2026).iter_rows(named=True)}
+    by_gsis = dict(zip(fact["gsis_id"].to_list(), fact["player_key"].to_list(), strict=True))
+    assert rows[by_gsis["00-QB"]]["birth_date"] == "1996-05-21"
+    assert rows[by_gsis["00-WR2"]]["birth_date"] is None
+    out = {r["key"]: r for r in export.week_out_players(fact, 2026)}
+    assert out[by_gsis["00-WR1"]]["birth_date"] == "1999-11-02"

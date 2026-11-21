@@ -55,6 +55,7 @@ export interface BoardTeam {
   team: string;
   nick: string;
   name: string;
+  logo: string | null;
   vars: CSSProperties;
   /** Dead money for the year, 0 when the hand-entered team totals lack it. */
   dead: number;
@@ -156,7 +157,7 @@ export function InactiveBoard({
               style={t.vars}
             >
               <span className="num text-right text-xs text-ink-3">{i + 1}</span>
-              <TeamChip team={t.team} nick={t.nick} vars={t.vars} size="sm" />
+              <TeamChip team={t.team} nick={t.nick} logo={t.logo} vars={t.vars} size="sm" />
               <AvailabilityBar
                 scale={scale}
                 height={10}

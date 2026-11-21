@@ -8,6 +8,7 @@ import { statusHrefs, type RosterStatus } from "@/lib/rosterLink";
 import type { GroupMoney, MatchupMode } from "@/lib/matchup";
 import { SEGMENT_LINK, sliceClass, Swatch, type SliceKey } from "../Availability";
 import { ChartLink } from "../ChartLink";
+import { Logo } from "../Logo";
 import { Tip, TipHint, TipRow, TipTitle } from "../Tip";
 import { Segmented } from "../ui/controls";
 
@@ -27,6 +28,7 @@ export interface MatchupRow {
 export interface MatchupSide {
   abbr: string;
   nick: string;
+  logo: string | null;
   vars: CSSProperties;
 }
 
@@ -74,17 +76,30 @@ export function MatchupChart({ halves }: { halves: MatchupHalf[] }) {
       {halves.map((h) => (
         <section key={h.title} aria-label={h.title}>
           <div className="mb-4 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 border-b border-line pb-2.5">
-            <p className="tc display flex flex-wrap items-center justify-end gap-x-2 text-right text-[20px] leading-none sm:text-[22px]" style={h.offTeam.vars}>
-              <span>
-                {h.offTeam.nick} <span className="text-ink-3">offense</span>
+            {/* Logo, name and color key stay on one line; on a phone the name takes two lines, team over unit. */}
+            <p className="tc display flex items-center justify-end gap-x-1.5 text-right text-[20px] leading-none sm:gap-x-2 sm:text-[22px]" style={h.offTeam.vars}>
+              <span className="hidden sm:block">
+                <Logo src={h.offTeam.logo} size={24} />
               </span>
-              <span aria-hidden className="h-4 w-1.5 rounded-[2px]" style={{ background: "var(--team)" }} />
+              <span className="sm:hidden">
+                <Logo src={h.offTeam.logo} size={20} />
+              </span>
+              <span className="flex min-w-0 flex-col items-end gap-y-0.5 sm:block">
+                <span>{h.offTeam.nick}</span> <span className="text-ink-3">offense</span>
+              </span>
+              <span aria-hidden className="h-4 w-1.5 shrink-0 rounded-[2px]" style={{ background: "var(--team)" }} />
             </p>
             <span className="display w-[3.25rem] text-center text-sm text-ink-3">vs</span>
-            <p className="tc display flex flex-wrap items-center gap-x-2 text-[20px] leading-none sm:text-[22px]" style={h.defTeam.vars}>
-              <span aria-hidden className="h-4 w-1.5 rounded-[2px]" style={{ background: "var(--team)" }} />
-              <span>
-                {h.defTeam.nick} <span className="text-ink-3">defense</span>
+            <p className="tc display flex items-center gap-x-1.5 text-[20px] leading-none sm:gap-x-2 sm:text-[22px]" style={h.defTeam.vars}>
+              <span aria-hidden className="h-4 w-1.5 shrink-0 rounded-[2px]" style={{ background: "var(--team)" }} />
+              <span className="flex min-w-0 flex-col items-start gap-y-0.5 sm:block">
+                <span>{h.defTeam.nick}</span> <span className="text-ink-3">defense</span>
+              </span>
+              <span className="hidden sm:block">
+                <Logo src={h.defTeam.logo} size={24} />
+              </span>
+              <span className="sm:hidden">
+                <Logo src={h.defTeam.logo} size={20} />
               </span>
             </p>
           </div>

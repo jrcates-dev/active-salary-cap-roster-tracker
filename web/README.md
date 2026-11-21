@@ -66,6 +66,7 @@ Any page takes `?player=<gsis id>`, which opens that player's contract sheet ove
 | `src/components/Tape.tsx` | The tape: an availability bar with its ledger under it, one cell per money status, keyed by that status's fill |
 | `src/components/Availability.tsx` | The segmented availability bar (thin in rows, tall with shares printed inside), swatches and legend |
 | `src/components/Tip.tsx` | Tooltip: follows the mouse, opens on tap, and on keyboard focus |
+| `src/components/Logo.tsx` | Team logo beside a team's name (tables, game cards, headers, the switcher and strips). Hotlinked from ESPN's CDN as the nflverse team table gives it: a small resized copy for small logos, the dark-background version in the dark theme and on the board, and a block of the team color if nothing loads. `TeamChip` is the logo and nickname as one link |
 | `src/components/Sort.tsx` | One sort pattern for every ranked list: column headers and legend chips |
 | `src/components/team/` | Team page pieces: money mode toggle, group breakdown, treemap, week-by-week trend, player table |
 | `src/components/league/` | League pieces: money-out board with week picker, players out, heatmap, offense share, team ages |

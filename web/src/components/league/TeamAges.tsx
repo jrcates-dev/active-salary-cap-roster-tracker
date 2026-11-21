@@ -10,7 +10,7 @@ export function TeamAges({ s }: { s: Snapshot }) {
   const byAbbr = new Map(s.teams.map((t) => [t.team, t]));
   const rows: AgeRow[] = teams.map((a) => {
     const t = byAbbr.get(a.team)!;
-    return { ...a, nick: t.nick, name: t.name, vars: teamVars(t) };
+    return { ...a, nick: t.nick, name: t.name, logo: t.logo_url, vars: teamVars(t) };
   });
   return <TeamAgesBoard rows={rows} league={league} asOf={dayLabel(ageDate(s).toISOString().slice(0, 10))} />;
 }

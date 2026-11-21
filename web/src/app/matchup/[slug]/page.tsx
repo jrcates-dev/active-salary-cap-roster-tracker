@@ -91,8 +91,8 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
     }));
     return {
       title: `${off.nick} offense vs ${def.nick} defense`,
-      offTeam: { abbr: offAbbr, nick: off.nick, vars: varsOf(offAbbr) },
-      defTeam: { abbr: defAbbr, nick: def.nick, vars: varsOf(defAbbr) },
+      offTeam: { abbr: offAbbr, nick: off.nick, logo: off.logo_url, vars: varsOf(offAbbr) },
+      defTeam: { abbr: defAbbr, nick: def.nick, logo: def.logo_url, vars: varsOf(defAbbr) },
       rows,
     };
   };
@@ -193,8 +193,9 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
                 return (
                   <div key={t.team} className="tc border-t-[3px] pt-3" style={{ ...varsOf(t.team), borderColor: "var(--team)" }}>
                     <div className="mb-2.5 flex items-end justify-between gap-3">
-                      <Link href={`/team/${t.team}`} className="text-[15px] font-semibold hover:underline">
-                        {t.name}
+                      <Link href={`/team/${t.team}`} className="flex min-w-0 items-center gap-2 text-[15px] font-semibold hover:underline">
+                        <Logo src={t.logo_url} size={24} />
+                        <span className="truncate">{t.name}</span>
                       </Link>
                       <span className="fig text-[30px] leading-none sm:text-[34px]">{money(rostered(sum))}</span>
                     </div>
@@ -261,10 +262,10 @@ function TeamHead({
       style={vars}
     >
       <span className="hidden sm:block">
-        <Logo src={t.logo_url} size={64} fallback={abbr} />
+        <Logo src={t.logo_url} size={64} tone="board" fallback={abbr} />
       </span>
       <span className="sm:hidden">
-        <Logo src={t.logo_url} size={36} fallback={abbr} />
+        <Logo src={t.logo_url} size={36} tone="board" fallback={abbr} />
       </span>
       <span className="min-w-0">
         <span className={`display block truncate text-[28px] leading-none sm:text-[52px] ${dim ? "text-ink-3" : ""}`}>{t.nick}</span>
@@ -296,7 +297,15 @@ function KeyAbsences({ s, abbr, vars }: { s: Snapshot; abbr: string; vars: CSSPr
   const total = thisGame.length + forSeason.length;
   return (
     <div className="tc" style={vars}>
-      <SectionHead title={`${t.nick} out`} count={total || undefined} />
+      <SectionHead
+        title={
+          <>
+            <Logo src={t.logo_url} size={26} className="self-center" />
+            {t.nick} out
+          </>
+        }
+        count={total || undefined}
+      />
       {total === 0 ? (
         <p className="card px-4 py-5 text-center text-sm text-ink-3">Everyone available</p>
       ) : (

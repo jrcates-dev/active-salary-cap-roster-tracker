@@ -60,7 +60,7 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
   const weeks = [...new Set([...trend.map((h) => h.week), s.week])].sort((a, b) => a - b);
   const strip = [...s.teams]
     .sort((a, b) => a.division.localeCompare(b.division) || a.nick.localeCompare(b.nick))
-    .map((t) => ({ key: t.team, href: `/team/${t.team}`, label: t.team, title: t.name, vars: teamVars(t), current: t.team === team.team }));
+    .map((t) => ({ key: t.team, href: `/team/${t.team}`, label: t.team, title: t.name, vars: teamVars(t), logo: t.logo_url, current: t.team === team.team }));
 
   return (
     <MoneyModeProvider base={base}>
@@ -69,7 +69,7 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
           <header className="flex flex-wrap items-center gap-x-6 gap-y-5">
             {/* Logo and name stay on one line; only the game cards wrap below. */}
             <div className="flex min-w-0 items-center gap-4 sm:gap-6">
-              <Logo src={team.logo_url} size={72} fallback={team.team} />
+              <Logo src={team.logo_url} size={72} tone="board" fallback={team.team} />
               <div className="min-w-0">
                 <p className="eyebrow mb-1">{team.division}</p>
                 <h1 className="display text-[36px] leading-[0.92] sm:text-[60px]">{team.name}</h1>
@@ -131,7 +131,7 @@ export default async function TeamPage({ params }: { params: Promise<{ abbr: str
         </Hero>
 
         <SectionNav
-          crumbs={[{ label: "League", href: "/" }, { label: team.division }, { label: team.nick, vars }]}
+          crumbs={[{ label: "League", href: "/" }, { label: team.division }, { label: team.nick, vars, logo: team.logo_url }]}
           items={[
             { id: "summary", label: "Summary" },
             { id: "groups", label: "Position groups" },
@@ -198,8 +198,9 @@ function Games({ s, abbr }: { s: Snapshot; abbr: string }) {
   const last = teamGame(s, abbr, s.week - 1);
   const now = teamGame(s, abbr, s.week);
   const next = now ? null : teamGame(s, abbr, s.week + 1);
+  const teamOf = (t: string) => s.teams.find((x) => x.team === t);
   const varsOf = (t: string) => {
-    const team = s.teams.find((x) => x.team === t);
+    const team = teamOf(t);
     return team ? teamVars(team) : {};
   };
   const result = (g: NonNullable<ReturnType<typeof teamGame>>) => (
@@ -211,7 +212,7 @@ function Games({ s, abbr }: { s: Snapshot; abbr: string }) {
   const vs = (g: NonNullable<ReturnType<typeof teamGame>>, link = true) => (
     <>
       <span className="text-xs text-ink-3">{g.home ? "vs" : "at"}</span>
-      <TeamChip team={g.opponent} vars={varsOf(g.opponent)} size="sm" href={link} />
+      <TeamChip team={g.opponent} logo={teamOf(g.opponent)?.logo_url ?? null} vars={varsOf(g.opponent)} size="sm" tone="board" href={link} />
     </>
   );
   const upcoming = now ?? next;
@@ -237,10 +238,11 @@ function Games({ s, abbr }: { s: Snapshot; abbr: string }) {
           <p className="num text-[11px] text-ink-3">
             Week {upcoming.week} · {upcoming.played ? "Final" : kickoffLabel(upcoming)}
           </p>
-          <div className="mt-0.5 flex items-center gap-2">
+          {/* On a phone the link text drops to its own line rather than cut the team short. */}
+          <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5">
             {vs(upcoming, false)}
             {upcoming.played && result(upcoming)}
-            <span className="ml-1 text-xs font-medium text-ink-2">Matchup →</span>
+            <span className="ml-1 whitespace-nowrap text-xs font-medium text-ink-2">Matchup →</span>
           </div>
         </Link>
       )}

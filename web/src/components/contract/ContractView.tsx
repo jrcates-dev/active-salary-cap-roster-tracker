@@ -72,7 +72,7 @@ export function ContractHeader({
           <Headshot src={p.headshot ?? null} name={p.name} />
           <div className="min-w-0">
             <p className="flex items-center gap-2 text-[13px] text-ink-2">
-              {team && <Logo src={team.logo_url} size={18} fallback={team.abbr} />}
+              {team && <Logo src={team.logo_url} size={18} tone="board" fallback={team.abbr} />}
               <span className="truncate">
                 {[team?.nick ?? p.team, p.pos ?? p.group, bio?.jersey ? `#${bio.jersey}` : null].filter(Boolean).join(" · ")}
               </span>

@@ -284,7 +284,7 @@ export function cardGame(s: Snapshot, g: Game): CardGame {
 
 /** Name and colors for every team, for game cards. */
 export function cardTeams(s: Snapshot): CardTeams {
-  return Object.fromEntries(s.teams.map((t) => [t.team, { nick: t.nick, vars: teamVars(t) }]));
+  return Object.fromEntries(s.teams.map((t) => [t.team, { nick: t.nick, logo: t.logo_url, vars: teamVars(t) }]));
 }
 
 /** Every week of the schedule, each with its games as cards and its byes. */

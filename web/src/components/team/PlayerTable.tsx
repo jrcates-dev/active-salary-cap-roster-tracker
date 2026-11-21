@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useViewState } from "@/lib/viewState";
 import { OUT_NOTE, statusText, YEAR_NOTE } from "@/lib/availability";
-import { parseRosterFilter, PAST_STATUSES, ROSTER_EVENT, ROSTER_ID, rosterQuery, scrollToRoster, type RosterFilter } from "@/lib/rosterLink";
+import { parseRosterFilter, PAST_STATUSES, ROSTER_EVENT, ROSTER_ID, rosterQuery, scrollToRoster, statusesOf, type RosterFilter } from "@/lib/rosterLink";
 import { UNIT_LABEL, ageLabel, money } from "@/lib/format";
 import type { Group, HistoryPlayer, Player, Unit } from "@/lib/types";
 import { playerSlice, SLICE_SHORT, Swatch, type SliceKey } from "../Availability";
@@ -38,12 +38,30 @@ const UNIT_KEYS: Unit[] = ["offense", "defense", "special_teams"];
 type Pos = "all" | Unit | `g:${string}`;
 const posOf = (f: RosterFilter): Pos => (f.groups?.length ? `g:${f.groups.join(",")}` : (f.unit ?? "all"));
 const groupsOf = (pos: Pos) => (pos.startsWith("g:") ? pos.slice(2).split(",") : null);
-const filterOf = (flag: Filter | "all", pos: Pos, week?: number): RosterFilter => ({
+const filterOf = (flags: Filter[], pos: Pos, week?: number): RosterFilter => ({
   week,
-  status: flag === "all" ? undefined : flag,
+  status: flags.length ? flags : undefined,
   groups: groupsOf(pos) ?? undefined,
   unit: pos !== "all" && !pos.startsWith("g:") ? (pos as Unit) : undefined,
 });
+
+/**
+ * The statuses picked, in chip order, keeping only those the week offers. None means
+ * every player ("All"), which is also what picking every status chip comes to.
+ */
+function keepOffered(picked: readonly string[], offered: readonly (Filter | "all")[]): Filter[] {
+  const kept = offered.filter((f): f is Filter => f !== "all" && picked.includes(f));
+  return kept.length === offered.length - 1 ? [] : kept;
+}
+
+const noChange = () => () => {};
+/** Macs say Cmd-click where everyone else says Ctrl-click. */
+const useMac = () =>
+  useSyncExternalStore(
+    noChange,
+    () => /Mac|iPhone|iPad/.test(navigator.platform),
+    () => false,
+  );
 
 /**
  * An earlier week's row as a roster row: that week's cap number and status, with the
@@ -88,7 +106,9 @@ export function PlayerTable({
   const { fmt } = useMoneyMode();
   const [shown, setShown] = useState(week);
   const [sort, setSort] = useViewState<{ key: SortKey; dir: SortDir }>("roster-sort", { key: "cap", dir: "desc" });
-  const [flag, setFlag] = useState<Filter | "all">("all");
+  /** The status chips picked; none is "All". Ctrl-click or a hold picks several. */
+  const [flags, setFlags] = useState<Filter[]>([]);
+  const mac = useMac();
   const [pos, setPos] = useState<Pos>("all");
   const [query, setQuery] = useState("");
   const [showAll, setShowAll] = useState(false);
@@ -102,9 +122,9 @@ export function PlayerTable({
       applied.current = rosterQuery(f);
       const w = f.week && weeks.includes(f.week) ? f.week : week;
       setShown(w);
-      setFlag(w !== week && f.status && !PAST_STATUSES.includes(f.status) ? "all" : (f.status ?? "all"));
-    setPos(posOf(f));
-    setQuery("");
+      setFlags(keepOffered(statusesOf(f), w !== week ? PAST_FILTERS : FILTERS));
+      setPos(posOf(f));
+      setQuery("");
       setShowAll(false);
     },
     [week, weeks],
@@ -141,14 +161,14 @@ export function PlayerTable({
   }, [apply]);
 
   /** Keeps the address in step with the filters the reader picks, so it can be shared. */
-  const pick = (nextFlag: Filter | "all", nextPos: Pos, nextWeek = shown) => {
+  const pick = (nextFlags: Filter[], nextPos: Pos, nextWeek = shown) => {
     // Active and practice squad players are not kept for earlier weeks.
-    const flagFor = nextWeek !== week && nextFlag !== "all" && !PAST_STATUSES.includes(nextFlag) ? "all" : nextFlag;
+    const kept = keepOffered(nextFlags, nextWeek !== week ? PAST_FILTERS : FILTERS);
     setShown(nextWeek);
-    setFlag(flagFor);
+    setFlags(kept);
     setPos(nextPos);
     if (nextWeek !== shown) setShowAll(false);
-    const query = rosterQuery(filterOf(flagFor, nextPos, nextWeek === week ? undefined : nextWeek));
+    const query = rosterQuery(filterOf(kept, nextPos, nextWeek === week ? undefined : nextWeek));
     applied.current = query;
     window.history.replaceState(null, "", `${window.location.pathname}${query}${window.location.hash}`);
   };
@@ -163,6 +183,12 @@ export function PlayerTable({
     return pastOut.filter((h) => h.week === shown).map((h) => pastRow(h, now.get(h.key)));
   }, [players, pastOut, shown, week]);
   const filters = past ? PAST_FILTERS : FILTERS;
+  /** A chip on its own (a plain click), or added to or taken from those picked. */
+  const choose = (f: Filter | "all", add = false) => {
+    if (f === "all") return pick([], pos);
+    if (!add) return pick([f], pos);
+    pick(flags.includes(f) ? flags.filter((x) => x !== f) : [...flags, f], pos);
+  };
 
   const groupOrder = useMemo(() => {
     const unitRank: Record<string, number> = { offense: 0, defense: 1, special_teams: 2 };
@@ -183,7 +209,7 @@ export function PlayerTable({
     const codes = groupsOf(pos);
     const filtered = source.filter(
       (p) =>
-        (flag === "all" || playerSlice(p) === flag) &&
+        (!flags.length || flags.includes(playerSlice(p) as Filter)) &&
         (codes ? codes.includes(p.group ?? "") : pos === "all" || p.unit === pos) &&
         (!q || p.name.toLowerCase().includes(q) || (p.pos ?? "").toLowerCase() === q),
     );
@@ -212,10 +238,10 @@ export function PlayerTable({
       const c = typeof va === "string" ? va.localeCompare(vb as string) : va - (vb as number);
       return c !== 0 ? c * dir : b.cap - a.cap;
     });
-  }, [source, flag, pos, query, sort, groupOrder]);
+  }, [source, flags, pos, query, sort, groupOrder]);
 
   const total = rows.reduce((acc, p) => acc + p.cap, 0);
-  const filtered = flag !== "all" || pos !== "all" || query.trim() !== "";
+  const filtered = flags.length > 0 || pos !== "all" || query.trim() !== "";
   const pickedGroups = groupsOf(pos);
   // A link can ask for several groups at once (a matchup's defensive front); the
   // select gets an option for that set so it always shows what is applied.
@@ -252,8 +278,8 @@ export function PlayerTable({
           <>
             {weeks.length > 1 && (
               <div className="flex items-center gap-1" role="group" aria-label="Week">
-                <StepButton dir="prev" label="Previous week" disabled={pastIdx <= 0} onClick={() => pick(flag, pos, weeks[pastIdx - 1])} />
-                <Select label="Show week" value={shown} onChange={(v) => pick(flag, pos, Number(v))}>
+                <StepButton dir="prev" label="Previous week" disabled={pastIdx <= 0} onClick={() => pick(flags, pos, weeks[pastIdx - 1])} />
+                <Select label="Show week" value={shown} onChange={(v) => pick(flags, pos, Number(v))}>
                   {[...weeks].reverse().map((w) => (
                     <option key={w} value={w}>
                       Week {w}
@@ -265,11 +291,11 @@ export function PlayerTable({
                   dir="next"
                   label="Next week"
                   disabled={pastIdx < 0 || pastIdx >= weeks.length - 1}
-                  onClick={() => pick(flag, pos, weeks[pastIdx + 1])}
+                  onClick={() => pick(flags, pos, weeks[pastIdx + 1])}
                 />
               </div>
             )}
-            <Select label="Filter by position" value={pos} onChange={(v) => pick(flag, v as Pos)}>
+            <Select label="Filter by position" value={pos} onChange={(v) => pick(flags, v as Pos)}>
               <option value="all">All positions</option>
               {combo && <option value={combo}>{pickedGroups!.join(" + ")}</option>}
               {UNIT_KEYS.map((u) => (
@@ -296,8 +322,9 @@ export function PlayerTable({
           {filters.map((f) => (
             <Chip
               key={f}
-              active={flag === f}
-              onClick={() => pick(f, pos)}
+              active={f === "all" ? !flags.length : flags.includes(f)}
+              onClick={() => choose(f)}
+              onAdd={() => choose(f, true)}
               count={counts[f] ?? 0}
               title={f === "all" ? undefined : FILTER_TITLE[f]}
               swatch={f !== "all" ? <Swatch k={f} size={10} /> : undefined}
@@ -305,12 +332,16 @@ export function PlayerTable({
               {f === "all" ? (past ? "All out" : "All") : SLICE_SHORT[f]}
             </Chip>
           ))}
+          <span className="self-center pl-1 text-xs whitespace-nowrap text-ink-3">
+            <span className="pointer-coarse:hidden">{mac ? "⌘" : "Ctrl"}-click to pick more than one</span>
+            <span className="hidden pointer-coarse:inline">Press and hold to pick more than one</span>
+          </span>
         </div>
       </div>
       {past && (
         <p className="mb-3 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-[13px] text-ink-2">
           <span>Players who were out or questionable in week {shown}, at this season&rsquo;s cap numbers.</span>
-          <button type="button" onClick={() => pick("all", pos, week)} className="font-medium text-ink underline-offset-4 hover:underline">
+          <button type="button" onClick={() => pick([], pos, week)} className="font-medium text-ink underline-offset-4 hover:underline">
             Back to the week {week} roster
           </button>
         </p>

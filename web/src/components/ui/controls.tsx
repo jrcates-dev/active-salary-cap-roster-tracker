@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, type ReactNode } from "react";
+import { useEffect, useRef, type MouseEvent, type PointerEvent, type ReactNode } from "react";
 
 /**
  * A tap on a field's invisible touch margin (the wrapper's `.hit` area, outside the
@@ -56,10 +56,21 @@ export function Segmented<T extends string>({
   );
 }
 
-/** Pill filter with an optional count (or any short figure, such as a dollar total). */
+/** How long a finger rests on a chip before it adds to the picked chips. */
+const HOLD_MS = 450;
+/** How far a finger may drift (px) and still count as holding, not scrolling. */
+const HOLD_SLOP = 8;
+
+/**
+ * Pill filter with an optional count (or any short figure, such as a dollar total).
+ * With `onAdd`, the chip can join the chips already picked rather than replace them:
+ * Ctrl-click or Cmd-click (Ctrl-click on a Mac too, which the browser turns into a
+ * right click), or on a touch screen, press and hold.
+ */
 export function Chip({
   active,
   onClick,
+  onAdd,
   children,
   count,
   title,
@@ -67,20 +78,76 @@ export function Chip({
 }: {
   active: boolean;
   onClick: () => void;
+  onAdd?: () => void;
   children: ReactNode;
   count?: ReactNode;
   title?: string;
   swatch?: ReactNode;
 }) {
+  const hold = useRef<{ timer: number; x: number; y: number } | null>(null);
+  /** A hold just added this chip, so the click that ends it does nothing more. */
+  const held = useRef(false);
+  const touch = useRef(false);
+  const letGo = () => {
+    if (hold.current) window.clearTimeout(hold.current.timer);
+    hold.current = null;
+  };
+  useEffect(() => letGo, []);
+
+  const adds = onAdd
+    ? {
+        onPointerDown: (e: PointerEvent<HTMLButtonElement>) => {
+          held.current = false;
+          touch.current = e.pointerType !== "mouse";
+          letGo();
+          if (!touch.current) return;
+          const timer = window.setTimeout(() => {
+            hold.current = null;
+            held.current = true;
+            navigator.vibrate?.(10);
+            onAdd();
+          }, HOLD_MS);
+          hold.current = { timer, x: e.clientX, y: e.clientY };
+        },
+        // Sliding the row sideways is a scroll, not a hold.
+        onPointerMove: (e: PointerEvent<HTMLButtonElement>) => {
+          const h = hold.current;
+          if (h && Math.hypot(e.clientX - h.x, e.clientY - h.y) > HOLD_SLOP) letGo();
+        },
+        onPointerUp: letGo,
+        onPointerCancel: letGo,
+        onPointerLeave: letGo,
+        onKeyDown: () => {
+          held.current = false;
+        },
+        onContextMenu: (e: MouseEvent<HTMLButtonElement>) => {
+          // A long press on Android opens the menu; the hold handles it instead.
+          if (touch.current) return e.preventDefault();
+          if (e.ctrlKey) {
+            e.preventDefault();
+            onAdd();
+          }
+        },
+      }
+    : {};
+
   return (
     <button
       type="button"
       aria-pressed={active}
       title={title}
-      onClick={onClick}
+      {...adds}
+      onClick={(e) => {
+        if (held.current) {
+          held.current = false;
+          return;
+        }
+        if (onAdd && (e.ctrlKey || e.metaKey)) return onAdd();
+        onClick();
+      }}
       className={`hit flex h-7 items-center gap-1.5 rounded-full border px-2.5 text-[13px] whitespace-nowrap transition-colors duration-(--dur-1) ${
-        active ? "border-ink bg-ink text-bg" : "border-line text-ink-2 hover:border-line-2 hover:text-ink"
-      }`}
+        onAdd ? "select-none [-webkit-touch-callout:none]" : ""
+      } ${active ? "border-ink bg-ink text-bg" : "border-line text-ink-2 hover:border-line-2 hover:text-ink"}`}
     >
       {swatch}
       {children}

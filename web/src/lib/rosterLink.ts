@@ -1,8 +1,9 @@
 /**
  * Deep links into a team's roster table. Every chart segment that stands for a set
  * of players links here: `/team/SEA/?status=inactive`, `/team/LA/?unit=defense`,
- * `/team/NE/?group=IDL,EDGE&status=inactive`. `week` opens an earlier week's list of
- * who was out: `/team/GB/?week=3&status=year`. The roster reads these on load, sets
+ * `/team/NE/?group=IDL,EDGE&status=inactive`. `status` can name several at once:
+ * `/team/GB/?status=inactive,year` lists everyone out. `week` opens an earlier week's
+ * list of who was out: `/team/GB/?week=3&status=year`. The roster reads these on load, sets
  * its filters and scrolls itself into view. Kept free of "use client" so server
  * pages can build links too.
  */
@@ -29,17 +30,24 @@ const UNITS: Unit[] = ["offense", "defense", "special_teams"];
 export interface RosterFilter {
   /** An earlier week. Left out for the current week, whose roster is the default. */
   week?: number;
-  status?: RosterStatus;
+  /** One status, or several (the reader picked more than one chip): players in any of them. */
+  status?: RosterStatus | RosterStatus[];
   unit?: Unit;
   /** Position-group codes. A matchup side can span several (IDL and EDGE). */
   groups?: string[];
 }
 
+/** A filter's statuses as a list, empty when it has none. */
+export function statusesOf(f: RosterFilter): RosterStatus[] {
+  return f.status === undefined ? [] : Array.isArray(f.status) ? f.status : [f.status];
+}
+
 /** The query string for a filter, "" when nothing is filtered. Groups win over unit. */
 export function rosterQuery(f: RosterFilter): string {
   const parts: string[] = [];
+  const statuses = statusesOf(f);
   if (f.week) parts.push(`week=${f.week}`);
-  if (f.status) parts.push(`status=${f.status}`);
+  if (statuses.length) parts.push(`status=${statuses.join(",")}`);
   if (f.groups?.length) parts.push(`group=${f.groups.map(encodeURIComponent).join(",")}`);
   else if (f.unit) parts.push(`unit=${f.unit}`);
   return parts.length ? `?${parts.join("&")}` : "";
@@ -75,8 +83,12 @@ export function parseRosterFilter(search: string): RosterFilter | null {
   if (Number.isInteger(week) && week > 0) out.week = week;
   // "season" (out long-term) was its own filter before it joined "inactive" (out);
   // links shared from then still open the right list.
-  const status = p.get("status") === "season" ? "inactive" : p.get("status");
-  if (status && (ROSTER_STATUSES as string[]).includes(status)) out.status = status as RosterStatus;
+  const statuses = (p.get("status") ?? "")
+    .split(",")
+    .map((s) => (s.trim() === "season" ? "inactive" : s.trim()))
+    .filter((s): s is RosterStatus => (ROSTER_STATUSES as string[]).includes(s));
+  const unique = [...new Set(statuses)];
+  if (unique.length) out.status = unique.length === 1 ? unique[0] : unique;
   const groups = (p.get("group") ?? "")
     .split(",")
     .map((g) => g.trim().toUpperCase())

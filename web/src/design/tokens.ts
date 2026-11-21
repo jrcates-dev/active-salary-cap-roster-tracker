@@ -94,15 +94,97 @@ function saturation(hex: string): number {
   return (max - min) / (1 - Math.abs(2 * l - 1));
 }
 
-/** Mix toward white (t > 0) or black (t < 0). */
-function shade(hex: string, t: number): string {
-  const target = t > 0 ? 255 : 0;
-  const k = Math.abs(t);
-  return toHex(rgb(hex).map((v) => v + (target - v) * k) as [number, number, number]);
+/** A real hue, not black, white, gray or silver. */
+function isHue(hex: string): boolean {
+  return saturation(hex) >= 0.25;
+}
+
+/** OKLCH for a hex color: lightness in [0, 1], chroma, hue in radians. */
+function oklch(hex: string): [number, number, number] {
+  const [r, g, b] = rgb(hex).map((v) => {
+    const c = v / 255;
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  const L = 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s;
+  const A = 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s;
+  const B = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s;
+  return [L, Math.hypot(A, B), Math.atan2(B, A)];
+}
+
+/** Linear sRGB for an OKLCH color; a channel outside [0, 1] is out of gamut. */
+function oklchToLinear(L: number, C: number, h: number): [number, number, number] {
+  const A = C * Math.cos(h);
+  const B = C * Math.sin(h);
+  const l = (L + 0.3963377774 * A + 0.2158037573 * B) ** 3;
+  const m = (L - 0.1055613458 * A - 0.0638541728 * B) ** 3;
+  const s = (L - 0.0894841775 * A - 1.291485548 * B) ** 3;
+  return [
+    4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+    -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+    -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s,
+  ];
+}
+
+/** Hex for an OKLCH color, giving up chroma (never hue or lightness) to fit sRGB. */
+function fromOklch(L: number, C: number, h: number): string {
+  const fits = (c: number) => oklchToLinear(L, c, h).every((v) => v >= -1e-4 && v <= 1 + 1e-4);
+  let chroma = C;
+  if (!fits(chroma)) {
+    let [lo, hi] = [0, C];
+    for (let i = 0; i < 24; i++) {
+      const mid = (lo + hi) / 2;
+      if (fits(mid)) lo = mid;
+      else hi = mid;
+    }
+    chroma = lo;
+  }
+  const encode = (v: number) => {
+    const c = Math.min(1, Math.max(0, v));
+    return 255 * (c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055);
+  };
+  return toHex(oklchToLinear(L, chroma, h).map(encode) as [number, number, number]);
 }
 
 const MIN_CONTRAST = 3;
 const HEX = /^#[0-9a-f]{6}$/i;
+
+/** Chroma a lifted hue keeps at least, so a navy lifts to a clear blue, not slate. */
+const LIFT_MIN_CHROMA = 0.08;
+
+/**
+ * Dark-theme lifts picked by eye, where holding the hue is not enough. A deep indigo
+ * reads as purple but turns periwinkle once lightened, so the Ravens' purple lifts
+ * toward violet instead. Keyed by the source color; each clears 3:1 on SURFACE.dark.
+ */
+const DARK_LIFT: Record<string, string> = {
+  "#241773": "#6c4bd1",
+};
+
+/**
+ * `hex` as it should read on a theme's surface: unchanged when it already clears
+ * 3:1, else moved in lightness only, hue held, until it does (darker on light,
+ * lighter on dark). A lighter color with the same chroma reads grayer, so a lift
+ * raises chroma in step and to a floor: the Cowboys' navy lifts to a navy blue
+ * rather than slate, and the Packers' green to a green rather than sage.
+ */
+function readable(hex: string, theme: Theme): string {
+  const surface = SURFACE[theme];
+  if (contrast(hex, surface) >= MIN_CONTRAST) return hex;
+  if (theme === "dark" && DARK_LIFT[hex.toLowerCase()]) return DARK_LIFT[hex.toLowerCase()];
+  const [L, C, h] = oklch(hex);
+  const floor = C >= 0.02 ? LIFT_MIN_CHROMA : 0;
+  for (let step = 1; step <= 200; step++) {
+    const L2 = theme === "dark" ? L + step * 0.005 : L - step * 0.005;
+    if (L2 <= 0 || L2 >= 1) break;
+    const C2 = theme === "dark" ? Math.max(C * (1 + (0.5 * (L2 - L)) / Math.max(L, 0.1)), floor) : C;
+    const c = fromOklch(L2, C2, h);
+    if (contrast(c, surface) >= MIN_CONTRAST) return c;
+  }
+  return theme === "dark" ? "#8a94a6" : "#64748b";
+}
 
 export interface TeamColors {
   color_primary: string;
@@ -112,46 +194,33 @@ export interface TeamColors {
 }
 
 /**
- * The team color to draw marks with on a theme's surface.
+ * The team color to draw marks with on a theme's surface: the team's primary color
+ * in both themes, so a team looks the same everywhere (PLAN.md, "Color system": the
+ * secondary is an accent only).
  *
- * Light: the first listed color that clears 3:1 on white and is either a real hue
- * or near-black (Steelers and Raiders black is identity too; silver is not). Most
- * primaries pass as they are. A team whose hues are all too light (none today) has
- * its primary darkened until it reads.
+ * Most primaries read on white as they are; one too light for white (the Saints'
+ * gold) is darkened, hue held, until it clears 3:1. On near-black many primaries
+ * (Rams and Bills blue, Ravens and Vikings purple, Commanders burgundy, Packers and
+ * Eagles green, every navy) nearly vanish, so they are lightened the same way rather
+ * than swapped for a gold or orange secondary that reads as a different team.
  *
- * Dark: several primaries (Eagles green, Giants and Colts blue, Cowboys and Texans
- * navy) nearly vanish on near-black, so prefer the first real hue that clears 3:1;
- * if none does, lighten the main hue until it does rather than fall back to a
- * silver secondary that reads as "no team". Only a team with no hue at all gets gray.
+ * A black primary is identity on white (Steelers, Raiders). On near-black it cannot
+ * be lightened into anything but gray, so there the team takes its first other hue
+ * (Steelers gold), or with none, its first color that reads (Raiders silver).
  */
 export function displayColor(t: TeamColors, theme: Theme = "dark"): string {
   const surface = SURFACE[theme];
   const options = [t.color_primary, t.color_secondary, t.color_3, t.color_4].filter(
     (c): c is string => !!c && HEX.test(c),
   );
-  const hued = options.filter((c) => saturation(c) >= 0.25);
-  if (theme === "light") {
-    const identity = options.filter((c) => saturation(c) >= 0.25 || luminance(c) <= 0.03);
-    const ok = identity.find((c) => contrast(c, surface) >= MIN_CONTRAST);
-    if (ok) return ok;
-    const base = hued[0] ?? options[0];
-    if (base) {
-      for (let step = 1; step <= 20; step++) {
-        const c = shade(base, -step * 0.05);
-        if (contrast(c, surface) >= MIN_CONTRAST) return c;
-      }
-    }
-    return "#64748b";
-  }
+  const primary = options[0];
+  if (primary && isHue(primary)) return readable(primary, theme);
+  if (primary && theme === "light" && luminance(primary) <= 0.03) return primary;
+  const hued = options.filter(isHue);
   const ok = hued.find((c) => contrast(c, surface) >= MIN_CONTRAST);
   if (ok) return ok;
-  if (hued.length > 0) {
-    for (let step = 1; step <= 20; step++) {
-      const c = shade(hued[0], step * 0.05);
-      if (contrast(c, surface) >= MIN_CONTRAST) return c;
-    }
-  }
-  return options.find((c) => contrast(c, surface) >= MIN_CONTRAST) ?? "#8a94a6";
+  if (hued.length > 0) return readable(hued[0], theme);
+  return options.find((c) => contrast(c, surface) >= MIN_CONTRAST) ?? (theme === "dark" ? "#8a94a6" : "#64748b");
 }
 
 /**
@@ -159,8 +228,10 @@ export function displayColor(t: TeamColors, theme: Theme = "dark"): string {
  * picks `--team` and `--team-ink` from these in globals.css.
  */
 export function teamVars(t: TeamColors): CSSProperties {
-  const light = displayColor(t, "light");
-  const dark = displayColor(t, "dark");
+  return varsFor(displayColor(t, "light"), displayColor(t, "dark"));
+}
+
+function varsFor(light: string, dark: string): CSSProperties {
   return {
     "--tc": light,
     "--tc-ink": textOn(light),
@@ -195,45 +266,37 @@ const MIN_TEAM_DISTANCE = 25;
 /**
  * A color for `t` on `theme` that reads on the surface and stands apart from
  * `other`: its usual display color when that is already far enough, else its
- * other hues (each lightened or darkened until it clears 3:1), the first that is.
+ * other hues (each made readable the same way), the first that is.
  */
 function distinctColor(t: TeamColors, theme: Theme, other: string): string {
   const usual = displayColor(t, theme);
   if (deltaE(usual, other) >= MIN_TEAM_DISTANCE) return usual;
-  const surface = SURFACE[theme];
-  const dir = theme === "dark" ? 1 : -1;
   const hued = [t.color_primary, t.color_secondary, t.color_3, t.color_4].filter(
-    (c): c is string => !!c && HEX.test(c) && saturation(c) >= 0.25,
+    (c): c is string => !!c && HEX.test(c) && isHue(c),
   );
   for (const c of hued) {
-    for (let step = 0; step <= 20; step++) {
-      const v = shade(c, dir * step * 0.05);
-      if (contrast(v, surface) >= MIN_CONTRAST) {
-        if (deltaE(v, other) >= MIN_TEAM_DISTANCE) return v;
-        break;
-      }
-    }
+    const v = readable(c, theme);
+    if (deltaE(v, other) >= MIN_TEAM_DISTANCE) return v;
   }
   return usual;
 }
 
 /**
  * Team variables for the two teams of a matchup, where every chart wears both
- * colors. Some pairs land on nearly the same color in a theme (in dark mode the
- * Jaguars and Ravens both fall back to their gold), so the home team takes its
- * next hue that stands apart, per theme. Elsewhere teams keep `teamVars`.
+ * colors. Some pairs land on nearly the same color in a theme (Cowboys and
+ * Seahawks share a navy, Packers and Jets a dark green), so the home team takes its
+ * next hue that stands apart, per theme. When the home team has none (the Jets have
+ * only green and black), the away team takes its next hue instead (Packers gold).
+ * Elsewhere teams keep `teamVars`.
  */
 export function matchupVars(away: TeamColors, home: TeamColors): [CSSProperties, CSSProperties] {
-  const a = teamVars(away);
-  const light = distinctColor(home, "light", displayColor(away, "light"));
-  const dark = distinctColor(home, "dark", displayColor(away, "dark"));
-  return [
-    a,
-    {
-      "--tc": light,
-      "--tc-ink": textOn(light),
-      "--tc-d": dark,
-      "--tc-d-ink": textOn(dark),
-    } as CSSProperties,
-  ];
+  const pair = (theme: Theme): [string, string] => {
+    const a = displayColor(away, theme);
+    const h = distinctColor(home, theme, a);
+    if (deltaE(a, h) >= MIN_TEAM_DISTANCE) return [a, h];
+    return [distinctColor(away, theme, h), h];
+  };
+  const [aLight, hLight] = pair("light");
+  const [aDark, hDark] = pair("dark");
+  return [varsFor(aLight, aDark), varsFor(hLight, hDark)];
 }

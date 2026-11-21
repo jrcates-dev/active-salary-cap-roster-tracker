@@ -10,6 +10,15 @@ from . import sources
 # the current code so every season uses one key per team.
 LEGACY_ABBR = {"OAK": "LV", "SD": "LAC", "STL": "LA", "LAR": "LA", "WSH": "WAS"}
 
+# Where nflverse's first color is not the one the team leads with. nflverse gives the
+# Buccaneers the Falcons' red (#A71930); the Bucs' own red is #D50A0A. It lists the
+# Broncos' navy first, but the Broncos lead with orange. The site draws every team in
+# its primary color, so the primary has to be the one fans know the team by.
+COLOR_FIXES: dict[str, dict[str, str]] = {
+    "TB": {"color_primary": "#D50A0A"},
+    "DEN": {"color_primary": "#FB4F14", "color_secondary": "#002244"},
+}
+
 TEAM_COLUMNS = [
     "team_abbr",
     "team_name",
@@ -48,7 +57,18 @@ def load_teams() -> pl.DataFrame:
             }
         )
         .sort("team")
+        .pipe(fix_colors)
     )
+
+
+def fix_colors(teams: pl.DataFrame) -> pl.DataFrame:
+    """Apply COLOR_FIXES over the nflverse colors."""
+    for abbr, fixes in COLOR_FIXES.items():
+        teams = teams.with_columns(
+            pl.when(pl.col("team") == abbr).then(pl.lit(value)).otherwise(pl.col(col)).alias(col)
+            for col, value in fixes.items()
+        )
+    return teams
 
 
 def nick_to_abbr(teams: pl.DataFrame) -> dict[str, str]:

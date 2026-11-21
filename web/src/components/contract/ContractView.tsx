@@ -2,8 +2,8 @@
 
 import { useState, type CSSProperties, type ReactNode } from "react";
 import { statusText } from "@/lib/availability";
-import { ageOn, dealTypeLabel, heightLabel, otherBonuses, proration, type ContractFile, type ContractPlayer } from "@/lib/contract";
-import { money, ordinal, pct } from "@/lib/format";
+import { dealTypeLabel, heightLabel, otherBonuses, proration, type ContractFile, type ContractPlayer } from "@/lib/contract";
+import { ageLabel, ageOn, money, ordinal, pct } from "@/lib/format";
 import type { CareerContract, ContractRecord, ContractYear } from "@/lib/types";
 import { playerSlice, Swatch } from "../Availability";
 import { Logo } from "../Logo";
@@ -35,9 +35,10 @@ export function ContractHeader({
   const c = file?.contract ?? null;
   const vars = (team?.vars ?? {}) as CSSProperties;
   const bio = c?.bio;
-  const age = ageOn(bio?.birth_date ?? null, new Date());
+  // Worked out at build time for the day the data was pulled, like every age on the site.
+  const age = p.age ?? ageOn(bio?.birth_date, new Date());
   const facts = [
-    age != null ? `Age ${age}` : null,
+    age != null ? `Age ${ageLabel(age)}` : null,
     [heightLabel(bio?.height ?? null), bio?.weight ? `${bio.weight} lb` : null].filter(Boolean).join(", ") || null,
     bio?.college ? bio.college.split(";")[0] : null,
     bio?.draft_year

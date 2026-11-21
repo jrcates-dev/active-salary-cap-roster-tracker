@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import json
 import random
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 import polars as pl
@@ -58,12 +58,14 @@ def _games(games: pl.DataFrame, season: int) -> list[dict]:
 
 
 # What the site shows for a player in an earlier week: who he is, his cap number and
-# why he was out. Contract terms and headshots come from the current week's rows.
+# why he was out. Contract terms and headshots come from the current week's rows; the
+# birth date rides along so a player since released still shows his age.
 HISTORY_PLAYER_FIELDS = [
     "week",
     "team",
     "key",
     "name",
+    "birth_date",
     "pos",
     "group",
     "unit",
@@ -151,6 +153,8 @@ def player_records(
             "team",
             pl.col("player_key").alias("key"),
             pl.coalesce("name", "player_name").alias("name"),
+            # From the nflverse players file; the site works out his age from it.
+            pl.col("birth_date").cast(pl.String),
             pl.coalesce("contract_position", "players_position").alias("pos"),
             pl.col("position_group").alias("group"),
             "unit",
@@ -254,6 +258,9 @@ def build_fixture(real: dict, seed: int = 7) -> dict:
     and every dollar figure is replaced, so the fixture can live in a public repo.
     """
     rng = random.Random(seed)
+    # Birth dates draw from their own stream, so adding them left every other value alone.
+    births = random.Random(seed + 1)
+    kickoff = date(real["season"], 9, 1)
     flags = ["active"] * 14 + ["inactive"] * 3 + ["questionable"] * 2 + ["unknown"]
     reasons = {"inactive": ["injured_reserve", "injured_reserve", "out", "inactive_list"]}
     absence_of = {"out": "week", "inactive_list": "week"}
@@ -292,6 +299,10 @@ def build_fixture(real: dict, seed: int = 7) -> dict:
                         "team": abbr,
                         "key": f"{abbr}-{code}-{i}",
                         "name": f"{abbr} {code} {i + 1}",
+                        # 21 to 36 at kickoff, most in their mid-twenties, like a real roster.
+                        "birth_date": (
+                            kickoff - timedelta(days=int(births.triangular(21, 36, 25) * 365.25))
+                        ).isoformat(),
                         "pos": code,
                         "group": code,
                         "unit": group_unit[code],
@@ -547,7 +558,7 @@ def _fixture_contract(p: dict, season: int, rng: random.Random) -> dict:
         "basis": "contract",
         "otc_url": None,
         "bio": {
-            "birth_date": f"{season - rng.randint(22, 34)}-0{rng.randint(1, 9)}-15",
+            "birth_date": p["birth_date"],
             "height": rng.randint(70, 78),
             "weight": rng.randint(185, 330),
             "college": "Synthetic State",

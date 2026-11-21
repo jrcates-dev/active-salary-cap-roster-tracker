@@ -14,7 +14,7 @@ import { matchupVars } from "@/design/tokens";
 import { outOf, playerSlice, slicesOf, statusText, YEAR_NOTE } from "@/lib/availability";
 import { contractPreview } from "@/lib/contract";
 import { getSnapshot, kickoffLabel, matchupHref, weekGames } from "@/lib/data";
-import { money, ordinal } from "@/lib/format";
+import { ageLabel, money, ordinal } from "@/lib/format";
 import { statusHrefs } from "@/lib/rosterLink";
 import { biggestEdges, edgeSides, gameEdges, groupMoney, leagueRanks, PAIRS } from "@/lib/matchup";
 import type { Game, Player, Snapshot } from "@/lib/types";
@@ -345,7 +345,8 @@ function AbsenceList({
                 </ContractLink>
                 <StarterMark player={p} />
                 <span className="ml-1 truncate text-ink-3">
-                  {p.group} · {statusText(p)}
+                  {p.group}
+                  {p.age != null && ` · Age ${ageLabel(p.age)}`} · {statusText(p)}
                 </span>
               </span>
               <span className="num font-medium">{money(p.cap)}</span>

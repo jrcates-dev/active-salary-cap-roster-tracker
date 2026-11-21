@@ -105,6 +105,18 @@ export default async function MethodologyPage() {
           </li>
         </Section>
 
+        <Section title="Ages">
+          <li>
+            Ages come from the birth dates in the nflverse players file and are worked out for the day the data was pulled, so they move forward with
+            each daily build. A player&apos;s age is to the tenth of a year and rounded down, the way ages are: he reads 30.0 from his 30th birthday
+            until about five weeks after it.
+          </li>
+          <li>
+            <B>Team ages</B> average everyone on the roster or a reserve list, leaving out the practice squad and the kickers, punters and long
+            snappers, whose long careers would pull a team older. Each player counts at his exact age; the average is rounded to a tenth.
+          </li>
+        </Section>
+
         <Section title="Week by week">
           <li>
             Past weeks are rebuilt daily from the nflverse roster and injury files, which keep each week. They use today&apos;s contracts, so a player

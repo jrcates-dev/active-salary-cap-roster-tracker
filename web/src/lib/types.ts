@@ -97,6 +97,13 @@ export interface Player {
   team: string;
   key: string;
   name: string;
+  /** From the nflverse players file. Older snapshots lack it. */
+  birth_date?: string | null;
+  /**
+   * Age to the tenth of a year on the day the data was pulled, rounded down the way
+   * ages are (`ageOn`). Filled in when the snapshot is read (data.ts), not by the pipeline.
+   */
+  age?: number | null;
   pos: string | null;
   group: string | null;
   unit: Unit | null;
@@ -199,6 +206,8 @@ export type HistoryPlayer = Pick<
   | "team"
   | "key"
   | "name"
+  | "birth_date"
+  | "age"
   | "pos"
   | "group"
   | "unit"

@@ -17,6 +17,7 @@ def assign_groups(contract_years: pl.DataFrame, crosswalk: pl.DataFrame) -> pl.D
         "name",
         "espn_id",
         "headshot",
+        "birth_date",
         "players_status",
         "latest_team",
     ).unique(subset=["gsis_id"], keep="first")

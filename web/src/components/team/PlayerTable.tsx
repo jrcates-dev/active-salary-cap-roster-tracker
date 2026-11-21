@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useViewState } from "@/lib/viewState";
 import { OUT_NOTE, statusText, YEAR_NOTE } from "@/lib/availability";
 import { parseRosterFilter, PAST_STATUSES, ROSTER_EVENT, ROSTER_ID, rosterQuery, scrollToRoster, type RosterFilter } from "@/lib/rosterLink";
-import { UNIT_LABEL, money } from "@/lib/format";
+import { UNIT_LABEL, ageLabel, money } from "@/lib/format";
 import type { Group, HistoryPlayer, Player, Unit } from "@/lib/types";
 import { playerSlice, SLICE_SHORT, Swatch, type SliceKey } from "../Availability";
 import { ariaSort, SortHeader, type SortDir } from "../Sort";
@@ -15,7 +15,7 @@ import { ContractLink } from "../contract/ContractLink";
 import { useMoneyMode } from "./MoneyMode";
 import { ContractCell, PerYearCell, StripKey } from "./PerYear";
 
-type SortKey = "name" | "group" | "cap" | "per_year" | "flag" | "years_left";
+type SortKey = "name" | "group" | "age" | "cap" | "per_year" | "flag" | "years_left";
 
 type Filter = Exclude<SliceKey, "dead">;
 const SLICE_RANK: Record<Filter, number> = { inactive: 0, year: 1, questionable: 2, active: 3, unknown: 4 };
@@ -194,6 +194,8 @@ export function PlayerTable({
           return p.name;
         case "group":
           return groupOrder[p.group ?? ""] ?? 99;
+        case "age":
+          return p.age ?? -1;
         case "cap":
           return p.cap;
         case "per_year":
@@ -219,13 +221,20 @@ export function PlayerTable({
   // select gets an option for that set so it always shows what is applied.
   const combo = pickedGroups && pickedGroups.length > 1 ? pos : null;
 
-  const header = (key: SortKey, label: string, align: "left" | "right" = "left", natural: SortDir = "asc") => (
+  const header = (
+    key: SortKey,
+    label: string,
+    align: "left" | "right" = "left",
+    natural: SortDir = "asc",
+    words?: { ascLabel: string; descLabel: string },
+  ) => (
     <th scope="col" aria-sort={ariaSort(sort.key === key, sort.dir)} className={align === "right" ? "text-right" : "text-left"}>
       <SortHeader
         active={sort.key === key}
         dir={sort.dir}
         label={label}
         align={align}
+        {...words}
         onClick={() => setSort((s) => ({ key, dir: s.key === key ? (s.dir === "desc" ? "asc" : "desc") : natural }))}
       >
         {label}
@@ -309,11 +318,12 @@ export function PlayerTable({
       <StarterKey className="mb-2" />
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="tbl w-full min-w-[760px] text-sm">
+          <table className="tbl w-full min-w-[820px] text-sm">
             <thead className="bg-surface-2">
               <tr>
                 {header("name", "Player")}
                 {header("group", "Group")}
+                {header("age", "Age", "right", "desc", { ascLabel: "youngest first", descLabel: "oldest first" })}
                 {header("cap", "Cap", "right", "desc")}
                 {header("per_year", "Per year", "right", "desc")}
                 {header("flag", "Status")}
@@ -352,6 +362,7 @@ export function PlayerTable({
                     <span className="num font-medium text-ink">{p.group ?? "?"}</span>
                     {p.pos && p.pos !== p.group && <span className="ml-1.5 text-xs">{p.pos}</span>}
                   </td>
+                  <td className="num text-right text-ink-2">{p.age != null ? ageLabel(p.age) : <span className="text-ink-3">–</span>}</td>
                   <td className="num text-right font-medium">
                     {fmt(p.cap)}
                     {p.cap !== p.contract_cap && (
@@ -374,7 +385,7 @@ export function PlayerTable({
             </tbody>
             <tfoot className="border-t border-line bg-surface-2 text-ink-2">
               <tr>
-                <td colSpan={2} className="num">
+                <td colSpan={3} className="num">
                   {rows.length} players{filtered ? " match" : ""}
                 </td>
                 <td className="num text-right font-semibold text-ink">{fmt(total)}</td>

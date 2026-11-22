@@ -163,6 +163,8 @@ def player_records(
             pl.col("cap_source").alias("source"),
             pl.col("gameday_flag").alias("flag"),
             pl.col("inactive_reason").alias("reason"),
+            # "gameday" when a posted gameday list (ESPN, unofficial) settled the flag.
+            pl.col("flag_source").alias("flag_source"),
             "absence",
             "outlook_basis",
             "outlook_note",
@@ -220,6 +222,7 @@ def build_export(
     dead_charges: list[dict] | None = None,
     outlook: pl.DataFrame | None = None,
     contracts: list[dict] | None = None,
+    gameday: dict | None = None,
 ) -> dict:
     players = player_records(fact, season, depth_roles, outlook)
     return {
@@ -242,6 +245,8 @@ def build_export(
         "history_players": history_players or [],
         "dead_charges": dead_charges or [],
         "contracts": contracts or [],
+        # Which games' gameday inactive lists are in (`gameday.site_summary`), or None.
+        "gameday": gameday,
     }
 
 

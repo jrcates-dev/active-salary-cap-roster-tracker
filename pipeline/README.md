@@ -28,6 +28,7 @@ captracker export                   # web/data/snapshot.json (gitignored), total
 captracker export --previous-totals prev.json   # same, plus the day-over-day drift check
 captracker export --fixture --out ../web/data/fixture.json   # synthetic copy, safe to commit
 captracker health                   # print the health report; in GitHub Actions also annotations and a status output
+captracker gameday --previous prev_gameday.json   # gameday inactive lists (ESPN, unofficial) -> web/public/data/gameday.json
 pytest                              # position mapping, accounting rules, week handling, rollup on a fixture
 ```
 
@@ -48,6 +49,30 @@ fails the run if a check failed (which emails the repo owner):
 
 ```bash
 ```
+
+## Gameday inactives (unofficial)
+
+Teams post their inactives 90 minutes before kickoff; nflverse only adds them (INA) to the
+roster file after the game. `captracker gameday` reads them earlier from ESPN's per-game
+rosters (`gameday.py`, the only code that knows ESPN's shape) and writes
+`web/public/data/gameday.json`, which `build` and `export` pick up and the site publishes.
+
+- **Field:** ESPN's `didNotPlay`. After games in Weeks 8 to 11 it flagged 545 of 547
+  official inactives. Its `active` flag is false for everyone and is not used.
+- **When a list counts:** until a team's new list is posted ESPN still shows last game's,
+  so a list counts once it is due (kickoff minus 90 minutes) and names someone last
+  game's list did not, or from kickoff minus 60 minutes whatever it holds.
+- **Frozen at kickoff:** during a game `didNotPlay` starts meaning "has not played yet",
+  so a game under way keeps the last list seen before kickoff (`--previous` is the
+  published `data/gameday.json`). Final games are left to nflverse's official INA rows.
+- **What a list changes** (`rosters.player_week_status`): a flagged player on this week's
+  injury report becomes inactive (`gameday_inactive`); a Questionable or Doubtful player
+  listed and not flagged becomes active; a flagged player not on the report is a healthy
+  scratch and stays active. Out, reserve lists and practice squad never change. Rows it
+  settled carry `flag_source: "gameday"`, and the snapshot's `gameday` block says which
+  games' lists are in.
+- **When ESPN fails:** the game is left out (or keeps its last list) and the site shows
+  Friday's report, as it did before.
 
 ## Out for season
 

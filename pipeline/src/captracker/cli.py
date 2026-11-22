@@ -5,7 +5,9 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 
 import polars as pl
@@ -16,6 +18,7 @@ from . import (
     crosswalk,
     depth,
     estimates,
+    gameday,
     health,
     reconcile,
     rollup,
@@ -44,6 +47,14 @@ def cmd_check_contracts(args: argparse.Namespace) -> int:
     return 0 if info["has_per_year_cap_number"] else 1
 
 
+def _gameday_doc(season: int, week: int, path: Path | None = None) -> dict | None:
+    """The gameday lists for this week, if a `gameday` run left them."""
+    doc = gameday.read(path or gameday.DEFAULT_PATH)
+    if doc and doc.get("season") == season and doc.get("week") == week:
+        return doc
+    return None
+
+
 def _shared_frames(season: int, week: int | None) -> dict:
     """Everything that does not depend on the week being rolled up."""
     games = sources.read("games")
@@ -52,6 +63,7 @@ def _shared_frames(season: int, week: int | None) -> dict:
     injuries = sources.read("injuries", season)
     cy = contracts.load_contract_years(season)
     cy = crosswalk.fill_gsis_by_name(cy, roster_raw)
+    gameday_doc = _gameday_doc(season, wk)
     status = rosters.player_week_status(
         roster_raw,
         injuries,
@@ -59,6 +71,7 @@ def _shared_frames(season: int, week: int | None) -> dict:
         games=games,
         through_week=wk,
         outlook=rosters.load_season_outlook(season),
+        gameday=gameday.to_frame(gameday_doc),
     )
     return {
         "season": season,
@@ -72,6 +85,7 @@ def _shared_frames(season: int, week: int | None) -> dict:
         "outlook": contracts.load_contract_outlook(season),
         "status": status,
         "depth_chart": depth.load_chart(season),
+        "gameday": gameday_doc,
     }
 
 
@@ -271,6 +285,7 @@ def cmd_export(args: argparse.Namespace) -> int:
         dead_charges=reconcile.load_dead_charges(f["season"]),
         outlook=f["outlook"],
         contracts=contract_detail.load_contract_details(f["fact"], f["season"]),
+        gameday=gameday.site_summary(f["gameday"]),
     )
     out = Path(args.out)
     if args.fixture:
@@ -292,6 +307,43 @@ def cmd_export(args: argparse.Namespace) -> int:
     health.write_totals(Path(args.totals_out), data, totals)
     health.write_report(Path(args.health_out), issues)
     print(health.format_issues(issues))
+    return 0
+
+
+def cmd_gameday(args: argparse.Namespace) -> int:
+    """Read the gameday inactive lists for games in their window; write data/gameday.json.
+
+    In GitHub Actions it also sets a `changed` output, so a game-day run can skip the
+    rebuild when no list moved since the last published document.
+    """
+    games = sources.read("games")
+    week = args.week or rosters.current_week(games, args.season)
+    previous = gameday.read(Path(args.previous)) if args.previous else None
+    now = datetime.fromisoformat(args.now.replace("Z", "+00:00")) if args.now else None
+    doc = gameday.collect(
+        games=games,
+        players=sources.read("players"),
+        season=args.season,
+        week=week,
+        now=now or datetime.now(UTC),
+        previous=previous,
+    )
+    gameday.write(doc, Path(args.out))
+    moved = gameday.changed(doc, previous)
+    for g in doc["games"]:
+        lists = ", ".join(
+            f"{t['team']} {len(t['inactive'])} out" if t["posted"] else f"{t['team']} not yet"
+            for t in g["teams"]
+        )
+        print(f"{g['game_id']}: {lists}{' (frozen at kickoff)' if g.get('frozen') else ''}")
+    if not doc["games"]:
+        print("no game in its inactives window")
+    print(f"lists changed since the last published run: {'yes' if moved else 'no'}")
+    out = os.environ.get("GITHUB_OUTPUT")
+    if out:
+        with open(out, "a") as fh:
+            fh.write(f"changed={'true' if moved else 'false'}\n")
+            fh.write(f"games={len(doc['games'])}\n")
     return 0
 
 
@@ -350,6 +402,16 @@ def main(argv: list[str] | None = None) -> int:
     )
     p.add_argument("--health-out", default=str(OUT_DIR / "health.json"))
     p.set_defaults(func=cmd_export)
+
+    p = sub.add_parser("gameday", help="read gameday inactive lists (ESPN, unofficial)")
+    p.add_argument("--out", default=str(gameday.DEFAULT_PATH))
+    p.add_argument(
+        "--previous",
+        default=None,
+        help="data/gameday.json from the last published run, to keep lists frozen at kickoff",
+    )
+    p.add_argument("--now", default=None, help="pretend it is this UTC time (ISO 8601)")
+    p.set_defaults(func=cmd_gameday)
 
     p = sub.add_parser("health", help="report the export's health checks (GitHub-aware)")
     p.add_argument("--report", default=str(OUT_DIR / "health.json"))

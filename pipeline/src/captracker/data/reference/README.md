@@ -20,6 +20,11 @@ Base salary cap for 2026: $301,200,000.
 
 Columns: `cap_space`, `active_cap_spending` and `dead_money` are whole dollars.
 
+The league table and a team's own page can be cached at different times. When a team
+page is newer (its cap space differs and its rosters add up to a different active total),
+use the team page's figures for that team and say so in `source`, so the totals match
+the dead money rows read from the same page.
+
 `otc_dead_money_<season>.csv` lists the charges behind each team's dead money, one
 row per charge, read by hand from the Dead Money table on each OverTheCap team page
 (overthecap.com/salary-cap/<team>). OverTheCap itemizes charges of $100K and up, so a

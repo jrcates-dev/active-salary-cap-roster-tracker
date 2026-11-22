@@ -5,6 +5,17 @@ the reconciliation gate. These are typed in by hand from the public team salary 
 page, with the date they were read in `as_of`. Nothing in the pipeline fetches
 OverTheCap; refresh this file by hand when the check drifts.
 
+The gate fails the daily run only while this file is fresh (7 days or newer, set by
+`REFERENCE_FRESH_DAYS`) and a team is more than 1% off with no roster move since
+`as_of` to explain it. Trades, cuts and new contracts after `as_of` move a team's total
+here and on OverTheCap alike, so once a team has made a $1M+ roster move, or the file
+is older than 7 days, its gap is reported as "moved since the reference" (a warning,
+with the moves) instead of failing the run. Refreshing the file re-arms the gate for
+every team; the push that commits it runs the check at once.
+
+`known_gaps_<season>.csv` lists teams whose gap against this file is understood; they
+pass within their own allowance. Review it whenever the totals are refreshed.
+
 Base salary cap for 2026: $301,200,000.
 
 Columns: `cap_space`, `active_cap_spending` and `dead_money` are whole dollars.

@@ -125,6 +125,7 @@ const RESERVE_SHORT: Record<string, string> = {
   nfi: "NFI",
   suspended: "Suspended",
   reserve_other: "Reserve list",
+  exempt: "Exempt list",
 };
 
 /** Why he is out when out (`out_tag`), the report designation when questionable, else the flag. */

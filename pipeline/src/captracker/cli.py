@@ -6,6 +6,7 @@ import argparse
 import json
 import logging
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 
 import polars as pl
@@ -150,11 +151,25 @@ def _build_frames(season: int, week: int | None) -> dict:
 def _reconcile(f: dict) -> reconcile.ReconcileReport | None:
     if f["reference"] is None:
         return None
+    as_of = reconcile.reference_date(f["reference"])
+    since = reconcile.reference_week(f["games"], f["season"], as_of) if as_of else None
+    # Count moves from the roster before the reference week: the weekly roster file and
+    # the day the reference was read rarely line up within a week, so a cut or trade
+    # that week may or may not be in OverTheCap's figure.
+    base = max(since - 1, 1) if since else None
+    moves = (
+        reconcile.roster_moves(f["status"], f["fact"], base, f["week"])
+        if base and base < f["week"]
+        else {}
+    )
     return reconcile.reconcile(
         _team_totals(f["rollup"]),
         f["reference"],
         f["season"],
         known_gaps=reconcile.load_known_gaps(f["season"]),
+        moves=moves,
+        since_week=since,
+        today=datetime.now(UTC).date(),
     )
 
 

@@ -39,8 +39,9 @@ MINIMUM_SALARY_2026_VETERAN = 1_300_000  # 7+ credited seasons
 PRACTICE_SQUAD_2026 = 247_500
 
 # Roster statuses whose salary counts against the cap. Suspended players are not
-# paid and do not count; cut, retired and exempt players are off the books.
-CAP_COUNTING = {"ACT", "INA", "RES", "PUP", "NFI", "DEV"}
+# paid and do not count; cut and retired players are off the books. The exempt list
+# (EXE) still counts against the cap.
+CAP_COUNTING = {"ACT", "INA", "RES", "PUP", "NFI", "DEV", "EXE"}
 
 
 def minimum_for(years_exp: int | None, roster_status: str) -> int:

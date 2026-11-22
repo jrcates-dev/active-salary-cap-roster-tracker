@@ -1,7 +1,7 @@
 """Weekly player status: roster status + injury report -> one row per player per week.
 
 Gameday flag rules (from the accounting rules in PLAN.md):
-  inactive     roster status RES / PUP / NFI / SUS, INA when he was on that week's
+  inactive     roster status RES / PUP / NFI / SUS / EXE, INA when he was on that week's
                injury report, or (before the game) report status Out / Doubtful, or
                (before the game) out of his team's last game hurt with no game status yet
                on this week's report (`out_last_game`)
@@ -13,7 +13,7 @@ Gameday flag rules (from the accounting rules in PLAN.md):
 Each inactive row carries a reason so the UI can say why, and an absence type:
   week         this game only: ruled Out, Doubtful, a gameday inactive who was on the
                injury report, or still out from last game
-  season       a reserve list (IR, PUP, NFI, suspension, other reserve): out for weeks,
+  season       a reserve list (IR, PUP, NFI, suspension, exempt, other reserve): out for weeks,
                but able to come back this season
   year         a reserve list, and done for the season (see `season_outlook`)
 
@@ -58,16 +58,17 @@ INACTIVE_ROSTER = {
     "INA": "inactive_list",
     "RSN": "reserve_other",
     "RSR": "reserve_other",
+    "EXE": "exempt",
 }
 ACTIVE_ROSTER = {"ACT"}
-# Practice squad (DEV), cut, retired, exempt and trade codes never count toward a unit.
+# Practice squad (DEV), cut, retired and trade codes never count toward a unit.
 
 REPORT_INACTIVE = {"Out": "out", "Doubtful": "doubtful"}
 # Missed the team's last game hurt, and the new week's report has no game status yet.
 OUT_LAST_GAME = "out_last_game"
 
 # Reserve lists: the player is out for weeks, not just this game.
-SEASON_LONG_ROSTER = {"RES", "PUP", "NFI", "SUS", "RSN", "RSR"}
+SEASON_LONG_ROSTER = {"RES", "PUP", "NFI", "SUS", "RSN", "RSR", "EXE"}
 
 # Detail codes (`status_description_abbr`) for a reserve player whose 21-day return
 # window is open: Reserve/Injured or Reserve/PUP, designated for return.

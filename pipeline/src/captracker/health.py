@@ -4,8 +4,10 @@ The daily job publishes the site first and checks second, so a problem never tak
 site down; a failed check fails the workflow run afterwards, which emails the repo owner.
 
   error    a source stopped updating, or a team falls outside the reconciliation gate
-  warning  a team's total moved more than 1% since the last published run, or the
-           hand-entered OverTheCap reference is more than 30 days old
+           while the reference is fresh and no roster move explains it
+  warning  teams that moved more than 1% from the OverTheCap reference since it was
+           entered (trades, cuts, new contracts), a team's total moved more than 1%
+           since the last published run, or the reference is more than 30 days old
   notice   known, disclosed gaps (data/reference/known_gaps_<season>.csv)
 """
 
@@ -85,6 +87,8 @@ def evaluate(
 
     # 2. Reconciliation against the hand-entered OverTheCap totals.
     if reconcile_report:
+        as_of = reconcile_report.get("reference_as_of")
+        moved: list[str] = []
         for t in reconcile_report["teams"]:
             if not t["ok"]:
                 allowed = max(reconcile_report["tolerance"], t.get("allowance") or 0)
@@ -93,11 +97,15 @@ def evaluate(
                         "error",
                         f"{t['team']} outside the reconciliation gate",
                         f"{t['team']} counts ${t['nflverse_total']:,} against OverTheCap's "
-                        f"${t['otc_active']:,} ({t['diff_pct']:+.1%}, allowed {allowed:.1%}). "
-                        "A trade or release since the reference date can cause this; refresh "
-                        "the reference table if so.",
+                        f"${t['otc_active']:,} ({t['diff_pct']:+.1%}, allowed {allowed:.1%}), "
+                        f"and no roster move since {as_of} explains it. Check the contracts "
+                        "file, or refresh the reference if a player there signed a new "
+                        "contract since.",
                     )
                 )
+            elif t.get("moved"):
+                why = f": {', '.join(t['moves'][:3])}" if t.get("moves") else ""
+                moved.append(f"{t['team']} {t['diff_pct']:+.1%}{why}")
             elif t.get("allowance"):
                 issues.append(
                     Issue(
@@ -107,7 +115,20 @@ def evaluate(
                         f"disclosed allowance of {t['allowance']:.1%}.",
                     )
                 )
-        as_of = reconcile_report.get("reference_as_of")
+        if moved:
+            issues.append(
+                Issue(
+                    "warning",
+                    f"{len(moved)} team{'' if len(moved) == 1 else 's'} moved since the "
+                    "OverTheCap reference",
+                    f"These teams are more than 1% from OverTheCap's {as_of} figures: "
+                    + "; ".join(moved)
+                    + ". Trades, cuts and new contracts move a team's total and OverTheCap's "
+                    "figure together, so the old figure cannot check them; refresh "
+                    "pipeline/src/captracker/data/reference/otc_team_totals_*.csv to "
+                    "re-check them.",
+                )
+            )
         try:
             age = (today - date.fromisoformat(as_of)).days if as_of else None
         except ValueError:

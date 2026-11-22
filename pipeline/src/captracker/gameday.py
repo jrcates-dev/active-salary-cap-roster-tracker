@@ -217,6 +217,7 @@ def collect(
     ids = _espn_to_gsis(players)
     teams_by_event: dict[str, dict[str, str]] | None = None
     out_games = []
+    missing: list[str] = []  # games in their window that ESPN could not answer for
     for game in week_games(games, season, week):
         if game["final"] or now < game["kickoff"] - WINDOW_OPENS:
             continue
@@ -226,9 +227,17 @@ def collect(
                 out_games.append({**kept, "frozen": True})
             continue
         if teams_by_event is None:
-            teams_by_event = _competitors(fetch, season, week)
+            try:
+                teams_by_event = _competitors(fetch, season, week)
+            except RuntimeError as exc:
+                log.warning("ESPN scoreboard unavailable: %s", exc)
+                teams_by_event = {}
         if game["espn_id"] not in teams_by_event:
             log.warning("ESPN scoreboard has no event %s (%s)", game["espn_id"], game["game_id"])
+            missing.append(game["game_id"])
+            kept = prev_games.get(game["game_id"])
+            if kept is not None:
+                out_games.append(kept)
             continue
         try:
             entries = [
@@ -236,6 +245,7 @@ def collect(
             ]
         except (RuntimeError, KeyError) as exc:
             log.warning("ESPN roster for %s unavailable: %s", game["game_id"], exc)
+            missing.append(game["game_id"])
             kept = prev_games.get(game["game_id"])
             if kept is not None:
                 out_games.append(kept)
@@ -256,6 +266,7 @@ def collect(
         "checked_at": _iso(now),
         "source": SOURCE,
         "games": out_games,
+        "missing": missing,
     }
 
 

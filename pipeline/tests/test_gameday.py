@@ -306,3 +306,11 @@ def test_the_list_stops_mattering_once_the_game_is_final():
     s = _week11(final=True)
     assert s["00-Q-SITS"]["gameday_flag"] == "active"  # the roster file's INA decides now
     assert s["00-Q-SITS"]["flag_source"] is None
+
+
+def test_a_game_espn_cannot_answer_for_is_reported_missing():
+    def down(url: str) -> dict:
+        raise RuntimeError("could not fetch")
+
+    doc = _collect(KICKOFF - timedelta(minutes=50), down)
+    assert doc["games"] == [] and doc["missing"] == ["2026_11_MIA_BUF"]

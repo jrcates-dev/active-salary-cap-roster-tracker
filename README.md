@@ -24,6 +24,43 @@ unit and position group, rebuilds earlier weeks for the trend views, and checks 
 team's total against OverTheCap's published figure. The site is built from that one
 snapshot and published to GitHub Pages; health checks run after it goes live.
 
+On game days the site also picks up each team's inactive list, which teams post 90
+minutes before kickoff, from ESPN's game rosters (unofficial; see
+[pipeline/README.md](pipeline/README.md#gameday-inactives-unofficial)). That needs a run
+every 10 minutes, set up below.
+
+## Game-day refreshes
+
+GitHub's own schedule has started the daily run 7 to 10 hours late, so an outside
+scheduler starts the workflow instead. Each run reads the lists for games whose window is
+open and stops in under a minute unless a list moved; then it rebuilds and redeploys. It
+also rebuilds when the published site is more than 20 hours old, which keeps the daily
+refresh on time too. One-time setup, about 15 minutes:
+
+1. **A token that can only start this repo's workflows.** GitHub > Settings > Developer
+   settings > Personal access tokens > Fine-grained tokens > Generate new token.
+   - Repository access: *Only select repositories* > `active-salary-cap-roster-tracker`.
+   - Repository permissions: *Actions* > **Read and write** (Metadata read-only is added
+     for you). Nothing else.
+   - Expiration: up to a year. Note the date; the game-day runs stop when it expires.
+2. **The schedule.** Make a free account at [cron-job.org](https://cron-job.org) and
+   create a cron job:
+   - URL: `https://api.github.com/repos/jrcates-dev/active-salary-cap-roster-tracker/actions/workflows/ingest.yml/dispatches`
+   - Schedule: every 10 minutes, every day, from 7 AM to 9 PM, time zone
+     *America/New_York* (London games kick off at 9:30 AM ET; the last night game at
+     8:20 PM).
+   - Advanced > Request method: **POST**. Headers:
+     - `Accept: application/vnd.github+json`
+     - `Authorization: Bearer <the token>`
+     - `X-GitHub-Api-Version: 2022-11-28`
+     - `Content-Type: application/json`
+   - Request body: `{"ref": "main", "inputs": {"mode": "gameday"}}`
+3. **Check it.** GitHub answers `204 No Content` (cron-job.org's history shows it), and
+   the Actions tab shows a *Daily ingest and deploy* run every 10 minutes. Its
+   *gameday* job logs each game's lists and `rebuild=true|false`.
+
+Turn the cron job off after the Super Bowl. Without it the site still updates once a day.
+
 ## Status
 
 Phases 0 and 1 are live, plus the matchup page (planned for Phase 3) and the weekly

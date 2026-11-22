@@ -330,6 +330,10 @@ def cmd_gameday(args: argparse.Namespace) -> int:
     )
     gameday.write(doc, Path(args.out))
     moved = gameday.changed(doc, previous)
+    in_actions = os.environ.get("GITHUB_ACTIONS") == "true"
+    for game_id in doc["missing"]:
+        msg = f"No gameday list from ESPN for {game_id}; the site shows Friday's report."
+        print(f"::warning title=Gameday list missing::{msg}" if in_actions else msg)
     for g in doc["games"]:
         lists = ", ".join(
             f"{t['team']} {len(t['inactive'])} out" if t["posted"] else f"{t['team']} not yet"

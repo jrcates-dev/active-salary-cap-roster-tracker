@@ -4,6 +4,12 @@ name: Daily ingest and deploy
 # (PLAN.md, "Ingestion schedule"). A push to main redeploys with fresh data too,
 # and manual runs are allowed for a specific week.
 #
+# Game days: an outside scheduler (cron-job.org, see README "Game-day refreshes")
+# starts this workflow with mode=gameday every 10 minutes, because GitHub's own
+# schedule has run hours late. A gameday run reads the inactive lists teams post 90
+# minutes before kickoff (pipeline `captracker gameday`) and rebuilds the site only
+# when a list moved, or when the published site is more than STALE_HOURS old.
+#
 # How the site is published depends on the repository's visibility:
 # - Public repo: the site is built here and deployed to GitHub Pages. The data
 #   snapshot is never committed; it only exists inside the build.
@@ -28,6 +34,11 @@ on:
         description: "Write the snapshot even if the 1% reconciliation check fails"
         type: boolean
         default: true
+      mode:
+        description: "daily = always rebuild; gameday = rebuild only if an inactive list moved"
+        type: choice
+        options: [daily, gameday]
+        default: daily
 
 # Two runs must never race to push the snapshot or deploy.
 concurrency:
@@ -39,8 +50,77 @@ permissions:
   pages: write
   id-token: write
 
+env:
+  # A gameday run also rebuilds when the published site is older than this.
+  STALE_HOURS: "20"
+
 jobs:
+  # Reads gameday inactive lists (ESPN, unofficial) for games in their window and decides
+  # whether the site needs a rebuild. Every run does this, so a daily build keeps the
+  # lists already posted and the ones frozen at kickoff.
+  gameday:
+    runs-on: ubuntu-latest
+    outputs:
+      proceed: ${{ steps.decide.outputs.proceed }}
+    defaults:
+      run:
+        working-directory: pipeline
+    env:
+      CAPTRACKER_SEASON: ${{ inputs.season || '2026' }}
+      WEEK_INPUT: ${{ inputs.week }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+          cache-dependency-glob: pipeline/pyproject.toml
+      - run: uv pip install -e .
+
+      - name: Fetch the last published gameday lists and totals
+        run: |
+          base="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/data"
+          curl -fsSL "$base/gameday.json" -o previous_gameday.json || echo "No published gameday lists yet."
+          curl -fsSL "$base/totals.json" -o previous_totals.json || echo "No published totals yet."
+
+      - name: Read gameday inactive lists
+        id: lists
+        run: |
+          WEEK_ARG=""
+          if [ -n "$WEEK_INPUT" ]; then WEEK_ARG="--week $WEEK_INPUT"; fi
+          PREV=""
+          if [ -s previous_gameday.json ]; then PREV="--previous previous_gameday.json"; fi
+          captracker $WEEK_ARG gameday $PREV --out gameday.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gameday-${{ github.run_id }}
+          path: pipeline/gameday.json
+          retention-days: 14
+
+      - name: Decide whether to rebuild
+        id: decide
+        env:
+          MODE: ${{ inputs.mode || 'daily' }}
+          CHANGED: ${{ steps.lists.outputs.changed }}
+        run: |
+          stale=$(python3 -c "
+          import json, os, sys
+          from datetime import datetime, timezone
+          try:
+              t = json.load(open('previous_totals.json'))['generated_at']
+              age = (datetime.now(timezone.utc) - datetime.fromisoformat(t)).total_seconds() / 3600
+          except Exception:
+              age = 1e9
+          print('true' if age > float(os.environ['STALE_HOURS']) else 'false')
+          ")
+          proceed=false
+          if [ "$MODE" != "gameday" ] || [ "$CHANGED" = "true" ] || [ "$stale" = "true" ]; then proceed=true; fi
+          echo "mode=$MODE lists_changed=$CHANGED site_stale=$stale -> rebuild=$proceed"
+          echo "proceed=$proceed" >> "$GITHUB_OUTPUT"
+
   ingest:
+    needs: gameday
+    if: needs.gameday.outputs.proceed == 'true'
     runs-on: ubuntu-latest
     outputs:
       public: ${{ steps.visibility.outputs.public }}
@@ -74,6 +154,13 @@ jobs:
 
       - name: Fetch nflverse sources
         run: captracker fetch
+
+      # The lists the gameday job read; build and export pick them up from here, and the
+      # site publishes them as data/gameday.json for the next run.
+      - uses: actions/download-artifact@v4
+        with:
+          name: gameday-${{ github.run_id }}
+          path: web/public/data
 
       - name: Build snapshot and reconcile
         # All 32 teams pass: 30 within 1%, Baltimore and Indianapolis within their

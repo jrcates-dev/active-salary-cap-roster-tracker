@@ -1,0 +1,14 @@
+name: ESPN inactives probe (temporary)
+
+on:
+  push:
+    branches: [claude/project-thread-ndlm83]
+    paths: [".github/probe/**", ".github/workflows/espn-probe.yml"]
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 .github/probe/espn_probe.py 2045

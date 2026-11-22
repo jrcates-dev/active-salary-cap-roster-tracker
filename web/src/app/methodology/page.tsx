@@ -57,6 +57,13 @@ export default async function MethodologyPage() {
             A healthy scratch, inactive on gameday without being on the injury report, counts as active.
           </li>
           <li>
+            <B>Gameday inactives</B>: teams post their inactives 90 minutes before kickoff, and the official list only reaches the free data after
+            the game. On game days the site reads each team&apos;s list from ESPN&apos;s game rosters every 10 minutes and marks it unofficial: a
+            player on the injury report who is on the list is out for the game (&ldquo;Inactive today&rdquo;), and a questionable or doubtful player
+            who is dressing counts as active. Players ruled out, on a reserve list or on the practice squad stay as they are, and a healthy scratch
+            still counts as active. Each matchup says whether its lists are in. The official list replaces ESPN&apos;s the morning after the game.
+          </li>
+          <li>
             A player who missed his team&apos;s last game hurt (ruled out, or listed doubtful or questionable and then inactive) stays out between games, tagged &ldquo;Out last game&rdquo;, until the new week&apos;s
             report says otherwise: listed questionable moves him to Questionable, ruled out or doubtful keeps him out, and a game-status report
             without him on it means he was cleared and counts as active. A bye in between does not reset it.
@@ -76,7 +83,8 @@ export default async function MethodologyPage() {
             stays in &ldquo;Out&rdquo; until it is updated.
           </li>
           <li>
-            <B>Questionable</B>: listed questionable on the latest report for a game not yet played. Counts as on the field until ruled out. Once a
+            <B>Questionable</B>: listed questionable on the latest report for a game not yet played. Counts as on the field until ruled out or until his
+            team&apos;s inactive list is in. Once a
             game is final, everyone not on the inactive list counts as active, and so does a healthy scratch.
           </li>
           <li>

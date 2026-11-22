@@ -13,7 +13,7 @@ import { Hero, SectionHead, WRAP } from "@/components/ui";
 import { matchupVars } from "@/design/tokens";
 import { outOf, playerSlice, slicesOf, statusText, YEAR_NOTE } from "@/lib/availability";
 import { contractPreview } from "@/lib/contract";
-import { getSnapshot, kickoffLabel, matchupHref, weekGames } from "@/lib/data";
+import { getSnapshot, inactivesLine, kickoffLabel, matchupHref, weekGames } from "@/lib/data";
 import { ageLabel, money, ordinal } from "@/lib/format";
 import { statusHrefs } from "@/lib/rosterLink";
 import { biggestEdges, edgeSides, gameEdges, groupMoney, leagueRanks, PAIRS } from "@/lib/matchup";
@@ -65,6 +65,7 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
   const final = g.away_score !== null && g.home_score !== null;
   const future = g.week > s.week;
   const past = g.week < s.week;
+  const inactives = inactivesLine(s, g);
 
   const ranks = Object.fromEntries(
     PAIRS.flatMap((p) => [
@@ -117,6 +118,7 @@ export default async function MatchupPage({ params }: { params: Promise<{ slug: 
             · {final ? "Final" : kickoffLabel(g)}
             {future && " · early look"}
           </p>
+          {inactives && <p className="-mt-3 text-center text-[13px] text-ink-3">{inactives}</p>}
           {(future || past) && (
             <p className="mx-auto max-w-xl text-center text-[13px] text-ink-3">
               {future

@@ -4,7 +4,7 @@ import { teamVars } from "@/design/tokens";
 import { biggestEdges, edgeShort, gameEdges } from "./matchup";
 import type { CardGame, CardSide, CardTeams, WeekSlate } from "./schedule";
 import { outTag } from "./availability";
-import { ageOn, exactAge } from "./format";
+import { ageOn, etTimeLabel, exactAge } from "./format";
 import type { Game, HistoryPlayer, HistoryRow, Player, RollupRow, Snapshot, Team, TeamSummary } from "./types";
 
 /**
@@ -67,6 +67,7 @@ function normalize(s: Snapshot): Snapshot {
     dead_charges: s.dead_charges ?? [],
     contracts: s.contracts ?? [],
     freshness: s.freshness ?? null,
+    gameday: s.gameday ?? null,
   };
 }
 
@@ -263,6 +264,36 @@ export function kickoffLabel(g: { gameday: string; gametime: string | null }) {
   const [h, m] = g.gametime.split(":").map(Number);
   const hour = ((h + 11) % 12) + 1;
   return `${day} · ${hour}:${String(m).padStart(2, "0")} ${h >= 12 ? "PM" : "AM"} ET`;
+}
+
+/** Kickoff minus 90 minutes, when teams post inactives: "11:30 AM ET" from "13:00". */
+function inactivesDue(gametime: string): string {
+  const [h, m] = gametime.split(":").map(Number);
+  const t = (h * 60 + m - 90 + 24 * 60) % (24 * 60);
+  const hh = Math.floor(t / 60);
+  return `${((hh + 11) % 12) + 1}:${String(t % 60).padStart(2, "0")} ${hh >= 12 ? "PM" : "AM"} ET`;
+}
+
+/**
+ * Where a game's inactive lists stand, for the line under the matchup header: due 90
+ * minutes before kickoff, then in for one team or both (from ESPN's game rosters, so
+ * unofficial until the game is played). Null once the game is final or for another week.
+ */
+export function inactivesLine(s: Snapshot, g: Game): string | null {
+  const final = g.away_score !== null && g.home_score !== null;
+  if (final || g.week !== s.week) return null;
+  const entry = s.gameday?.games.find((x) => x.game_id === g.game_id);
+  const sides = [g.away_team, g.home_team];
+  const posted = entry ? sides.filter((t) => entry.posted[t]) : [];
+  if (entry && posted.length === 2) {
+    return `Inactives in as of ${etTimeLabel(entry.fetched_at)} (unofficial, via ESPN)`;
+  }
+  if (entry && posted.length === 1) {
+    const waiting = sides.find((t) => !entry.posted[t]);
+    return `${posted[0]} inactives in, ${waiting} not yet, as of ${etTimeLabel(entry.fetched_at)} (unofficial, via ESPN)`;
+  }
+  if (!g.gametime) return null;
+  return `Inactives due ${inactivesDue(g.gametime)}. Until then the injury report decides.`;
 }
 
 /** A game as a card shows it: plain data, with the money edge from today's rosters. */

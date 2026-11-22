@@ -1,4 +1,5 @@
 team,allowance,note
 # Understood gaps, disclosed on the methodology page. A listed team passes within its own
 # allowance instead of the 1% tolerance; the gate still fails if the gap grows past it.
-IND,0.025,"About $4.0M under OverTheCap; likely a contract the free file prices low"
+IND,0.02,"About $2.3M over OverTheCap: nflverse still lists Daniel Jones on the roster after OverTheCap shows him released, and three mid-season signings count a full-season salary"
+LAC,0.02,"About $4.0M under OverTheCap: Daiyan Henley's new contract is not in the free contracts file yet, so he counts at the minimum (about $2.8M low)"

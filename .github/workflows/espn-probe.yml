@@ -9,20 +9,19 @@ permissions:
   contents: write
 
 jobs:
-  backtest:
+  full:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - run: |
           mkdir -p probe-out
-          python3 .github/probe/espn_backtest.py 8 9 10 11 > probe-out/backtest.txt
-          tail -3 probe-out/backtest.txt
+          python3 .github/probe/espn_probe.py 0000 > probe-out/full-now.txt
       - run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add probe-out
-          git commit -m "probe output backtest"
+          git commit -m "probe output full roster"
           for i in 1 2 3 4 5; do
             git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && break
             sleep $((i * 5))

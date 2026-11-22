@@ -52,8 +52,9 @@ def one_pass():
             entries = r.get("entries", [])
             dnp = [e for e in entries if e.get("didNotPlay")]
             print(f"POLL {now()} {ev['shortName']} kick={ev['date']} state={state} {abbr} n={len(entries)} dnp={len(dnp)}")
-            for e in dnp:
-                print(f"DNP {now()} {abbr} {e.get('playerId')} {e.get('displayName')} valid={e.get('valid')} starter={e.get('starter')}")
+            for e in entries:
+                tag = "DNP" if e.get("didNotPlay") else "DRESS"
+                print(f"{tag} {now()} {abbr} {e.get('playerId')} {e.get('displayName')} valid={e.get('valid')} starter={e.get('starter')}")
     sys.stdout.flush()
 
 

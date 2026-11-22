@@ -101,6 +101,8 @@ def week_games(games: pl.DataFrame, season: int, week: int) -> list[dict]:
     ).sort("week")
     out = []
     for g in reg.filter(pl.col("week") == week).iter_rows(named=True):
+        if not g["gametime"]:  # kickoff not set yet (a flexed game): nothing is due
+            continue
         prev = {}
         for team in (g["away_team"], g["home_team"]):
             earlier = by_team.filter((pl.col("team") == team) & (pl.col("week") < week))

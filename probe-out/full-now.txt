@@ -1,0 +1,1403 @@
+INJ 17:34:30 BUF 4684527 T.J. Sanders | Out | 2026-11-22T17:08Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:30 BUF 4683153 Skyler Bell | Out | 2026-11-22T16:55Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:30 BUF 4568624 Dorian Williams | Out | 2026-11-22T16:37Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:30 BUF 3915487 Mike Danna | Out | 2026-11-22T16:37Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:30 BUF 4379778 Christian Benford | Out | 2026-11-22T16:37Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:30 MIA 4431664 Dante Trader Jr. | Out | 2026-11-22T17:06Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:30 MIA 4567225 Jaylin Simpson | Out | 2026-11-22T16:40Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:30 MIA 4426446 Caedan Wallace | Out | 2026-11-22T16:40Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:30 MIA 4430681 Jared Wayne | Out | 2026-11-22T16:40Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:30 MIA 4912052 Justin Joly | Out | 2026-11-22T16:40Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+POLL 17:34:30 MIA @ BUF kick=2026-11-22T18:00Z state=pre BUF n=57 dnp=10
+DRESS 17:34:30 BUF 3051324 Dawkins valid=True starter=True
+DRESS 17:34:30 BUF 3116733 Chubb valid=True starter=True
+DRESS 17:34:30 BUF 3915416 Moore valid=True starter=True
+DRESS 17:34:30 BUF 3918298 J. Allen valid=True starter=True
+DRESS 17:34:30 BUF 3930086 Knox valid=True starter=True
+DRESS 17:34:30 BUF 4030899 Brown valid=True starter=True
+DRESS 17:34:30 BUF 4033748 McGovern valid=True starter=True
+DRESS 17:34:30 BUF 4036134 Hooker valid=True starter=True
+DRESS 17:34:30 BUF 4039303 Oliver valid=True starter=True
+DRESS 17:34:30 BUF 4259166 Bernard valid=True starter=True
+DRESS 17:34:30 BUF 4362506 Rousseau valid=True starter=True
+DRESS 17:34:30 BUF 4367203 Anderson valid=True starter=True
+DRESS 17:34:30 BUF 4379399 Cook III valid=True starter=True
+DRESS 17:34:30 BUF 4401823 Alford valid=True starter=True
+DRESS 17:34:30 BUF 4428696 Torrence valid=True starter=True
+DRESS 17:34:30 BUF 4432715 Jackson valid=True starter=True
+DRESS 17:34:30 BUF 4635008 Coleman valid=True starter=True
+DRESS 17:34:30 BUF 4676004 Bishop valid=True starter=True
+DRESS 17:34:30 BUF 4831989 D. Walker valid=True starter=True
+DRESS 17:34:30 BUF 4832035 Igbinosun valid=True starter=True
+DRESS 17:34:30 BUF 2976549 Ferguson valid=True starter=False
+DRESS 17:34:30 BUF 2978313 Thompson valid=False starter=False
+DRESS 17:34:30 BUF 3042717 White valid=False starter=False
+DRESS 17:34:30 BUF 3056608 Corbett valid=True starter=False
+DRESS 17:34:30 BUF 3115293 K. Allen valid=True starter=False
+DNP 17:34:30 BUF 3127294 Gaines valid=False starter=False
+DRESS 17:34:30 BUF 3915411 Johnson valid=True starter=False
+DNP 17:34:30 BUF 3915487 Danna valid=False starter=False
+DRESS 17:34:30 BUF 3917232 Bass valid=True starter=False
+DRESS 17:34:30 BUF 4033234 Hoecht valid=True starter=False
+DRESS 17:34:30 BUF 4035448 Cushenberry III valid=True starter=False
+DRESS 17:34:30 BUF 4036060 Hamlin valid=True starter=False
+DRESS 17:34:30 BUF 4037235 Dortch valid=True starter=False
+DNP 17:34:30 BUF 4039034 Buechele valid=False starter=False
+DRESS 17:34:30 BUF 4044133 Franklin Jr. valid=False starter=False
+DRESS 17:34:30 BUF 4241476 Shavers valid=False starter=False
+DRESS 17:34:30 BUF 4366349 Andreessen valid=True starter=False
+DRESS 17:34:30 BUF 4368828 Grable valid=True starter=False
+DRESS 17:34:30 BUF 4373678 Shakir valid=True starter=False
+DNP 17:34:30 BUF 4379778 Benford valid=False starter=False
+DNP 17:34:30 BUF 4385690 Kincaid valid=False starter=False
+DRESS 17:34:30 BUF 4426883 Carter valid=True starter=False
+DRESS 17:34:30 BUF 4428548 Solomon valid=True starter=False
+DRESS 17:34:30 BUF 4429501 Davis valid=True starter=False
+DNP 17:34:30 BUF 4568624 Williams valid=False starter=False
+DRESS 17:34:30 BUF 4573699 Hawes valid=True starter=False
+DRESS 17:34:30 BUF 4594321 Elarms-Orr valid=True starter=False
+DRESS 17:34:30 BUF 4596480 Hancock valid=True starter=False
+DRESS 17:34:30 BUF 4682749 K. Walker valid=False starter=False
+DRESS 17:34:30 BUF 4682758 Doman Jr. valid=True starter=False
+DNP 17:34:30 BUF 4683153 Bell valid=False starter=False
+DNP 17:34:30 BUF 4684527 Sanders valid=False starter=False
+DRESS 17:34:30 BUF 4688552 Latu valid=True starter=False
+DRESS 17:34:30 BUF 4688931 Hairston valid=True starter=False
+DNP 17:34:30 BUF 4869533 Bowry valid=False starter=False
+DRESS 17:34:30 BUF 4870886 Parker valid=True starter=False
+DNP 17:34:30 BUF 5076951 Kilgore valid=False starter=False
+POLL 17:34:30 MIA @ BUF kick=2026-11-22T18:00Z state=pre MIA n=58 dnp=10
+DRESS 17:34:30 MIA 4043130 Brooks valid=True starter=True
+DRESS 17:34:30 MIA 4046528 Uche valid=True starter=True
+DRESS 17:34:30 MIA 4271632 Jackson valid=True starter=True
+DRESS 17:34:30 MIA 4360488 Brents valid=True starter=True
+DRESS 17:34:30 MIA 4362064 Meyer valid=True starter=True
+DRESS 17:34:30 MIA 4367209 Dulcich valid=True starter=True
+DRESS 17:34:30 MIA 4431586 Robinson valid=True starter=True
+DRESS 17:34:30 MIA 4433971 McCord valid=True starter=True
+DRESS 17:34:30 MIA 4566094 Rodriguez valid=True starter=True
+DRESS 17:34:30 MIA 4567493 Paul valid=True starter=True
+DRESS 17:34:30 MIA 4569603 M. Washington valid=True starter=True
+DRESS 17:34:30 MIA 4685116 Herman valid=True starter=True
+DRESS 17:34:30 MIA 4711533 Gordon II valid=True starter=True
+DRESS 17:34:30 MIA 4819257 Savaiinaea valid=True starter=True
+DRESS 17:34:30 MIA 4869579 Johnson valid=True starter=True
+DRESS 17:34:30 MIA 4869645 Douglas valid=True starter=True
+DRESS 17:34:30 MIA 4870976 Proctor valid=True starter=True
+DRESS 17:34:30 MIA 4880273 Louis valid=True starter=True
+DRESS 17:34:30 MIA 4880346 Taaffe valid=True starter=True
+DRESS 17:34:30 MIA 4894654 Grant valid=True starter=True
+DNP 17:34:30 MIA 2977680 Pinion valid=False starter=False
+DRESS 17:34:30 MIA 3051909 Carlson valid=False starter=False
+DRESS 17:34:30 MIA 3932335 Z. Anderson valid=True starter=False
+DRESS 17:34:30 MIA 4034729 Addington valid=True starter=False
+DRESS 17:34:30 MIA 4036660 Baker Jr. valid=False starter=False
+DNP 17:34:30 MIA 4040537 Brewer valid=False starter=False
+DRESS 17:34:30 MIA 4241802 Reagor valid=True starter=False
+DRESS 17:34:30 MIA 4248425 C. Washington Jr. valid=False starter=False
+DRESS 17:34:30 MIA 4249417 Tolbert valid=True starter=False
+DRESS 17:34:30 MIA 4259547 Herring valid=True starter=False
+DRESS 17:34:30 MIA 4259804 Gay Jr. valid=True starter=False
+DRESS 17:34:30 MIA 4360413 Heyward valid=True starter=False
+DNP 17:34:30 MIA 4362135 Haynes valid=False starter=False
+DRESS 17:34:30 MIA 4368056 L. Anderson valid=False starter=False
+DRESS 17:34:30 MIA 4373474 Kingston valid=True starter=False
+DNP 17:34:30 MIA 4426446 Wallace valid=False starter=False
+DRESS 17:34:30 MIA 4429435 Cook valid=False starter=False
+DNP 17:34:30 MIA 4430681 Wayne valid=False starter=False
+DNP 17:34:30 MIA 4431664 Trader Jr. valid=False starter=False
+DRESS 17:34:30 MIA 4432730 Marshall Jr. valid=True starter=False
+DRESS 17:34:30 MIA 4433974 McGraw valid=True starter=False
+DNP 17:34:30 MIA 4567225 Simpson valid=False starter=False
+DRESS 17:34:30 MIA 4569016 Watts valid=False starter=False
+DRESS 17:34:30 MIA 4569448 Jefferson valid=False starter=False
+DRESS 17:34:30 MIA 4682745 Wright valid=True starter=False
+DRESS 17:34:30 MIA 4683101 Llewellyn valid=False starter=False
+DRESS 17:34:30 MIA 4685246 Allen valid=True starter=False
+DRESS 17:34:30 MIA 4685307 Coleman Jr. valid=True starter=False
+DRESS 17:34:30 MIA 4685637 Woodard valid=True starter=False
+DRESS 17:34:30 MIA 4712462 Cooper Jr. valid=True starter=False
+DRESS 17:34:30 MIA 4714379 Traore valid=True starter=False
+DNP 17:34:30 MIA 4869961 Bell valid=False starter=False
+DRESS 17:34:30 MIA 4872841 Wood valid=True starter=False
+DNP 17:34:30 MIA 4875079 Dial Jr. valid=False starter=False
+DRESS 17:34:30 MIA 4876013 Browning valid=False starter=False
+DRESS 17:34:30 MIA 4880236 Kacmarek valid=True starter=False
+DNP 17:34:30 MIA 4912052 Joly valid=False starter=False
+DRESS 17:34:30 MIA 5144457 Godrick valid=True starter=False
+INJ 17:34:30 CHI 15168 Case Keenum | Out | 2026-11-22T16:56Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:30 CHI 4877376 Jayden Loving | Out | 2026-11-22T16:40Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:30 CHI 4360319 Jordan McFadden | Out | 2026-11-22T16:40Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:30 CHI 4911952 Keyshaun Elliott | Out | 2026-11-22T16:40Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:30 CHI 4361093 Kyler Gordon | Out | 2026-11-22T16:40Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:30 NO 4361259 Zach Wilson | Out | 2026-11-22T16:48Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:30 NO 4241993 Pete Werner | Out | 2026-11-22T16:45Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:30 NO 4569682 Audric Estime | Out | 2026-11-22T16:43Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:30 NO 3917331 Erik McCoy | Out | 2026-11-22T16:39Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:30 NO 4430379 Asim Richards | Out | 2026-11-22T16:39Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+POLL 17:34:31 NO @ CHI kick=2026-11-22T18:00Z state=pre CHI n=56 dnp=7
+DRESS 17:34:31 CHI 2576492 Jarrett valid=True starter=True
+DRESS 17:34:31 CHI 2577773 Thuney valid=True starter=True
+DRESS 17:34:31 CHI 2973405 Raymond valid=True starter=True
+DRESS 17:34:31 CHI 3116729 Bradbury valid=True starter=True
+DRESS 17:34:31 CHI 3121544 Edwards valid=True starter=True
+DRESS 17:34:31 CHI 3134690 Sweat valid=True starter=True
+DRESS 17:34:31 CHI 3916577 Lewis valid=True starter=True
+DRESS 17:34:31 CHI 3930040 J. Jackson valid=True starter=True
+DRESS 17:34:31 CHI 4035369 Simmons valid=True starter=True
+DRESS 17:34:31 CHI 4036261 Bush valid=True starter=True
+DRESS 17:34:31 CHI 4243253 J. Johnson valid=True starter=True
+DRESS 17:34:31 CHI 4259181 Lynch valid=True starter=True
+DRESS 17:34:31 CHI 4259545 Swift valid=True starter=True
+DRESS 17:34:31 CHI 4426358 Wright valid=True starter=True
+DRESS 17:34:31 CHI 4426374 Stevenson valid=True starter=True
+DRESS 17:34:31 CHI 4431299 Odunze valid=True starter=True
+DRESS 17:34:31 CHI 4431611 Williams valid=True starter=True
+DRESS 17:34:31 CHI 4685278 Burden III valid=True starter=True
+DRESS 17:34:31 CHI 4723086 Loveland valid=True starter=True
+DRESS 17:34:31 CHI 4954445 Thieneman valid=True starter=True
+DRESS 17:34:31 CHI 5125873 Benedet valid=True starter=True
+DNP 17:34:31 CHI 15168 Keenum valid=False starter=False
+DRESS 17:34:31 CHI 17427 Santos valid=True starter=False
+DRESS 17:34:31 CHI 2980138 Daly valid=True starter=False
+DRESS 17:34:31 CHI 3124058 Davenport valid=False starter=False
+DRESS 17:34:31 CHI 3892883 Gallimore valid=True starter=False
+DRESS 17:34:31 CHI 3948283 Carlson valid=True starter=False
+DRESS 17:34:31 CHI 4240459 Blackwell valid=True starter=False
+DRESS 17:34:31 CHI 4241007 D. Jackson valid=True starter=False
+DRESS 17:34:31 CHI 4242402 Hicks valid=True starter=False
+DRESS 17:34:31 CHI 4243315 Ahmed valid=True starter=False
+DNP 17:34:31 CHI 4360319 McFadden valid=False starter=False
+DNP 17:34:31 CHI 4361093 Gordon valid=False starter=False
+DRESS 17:34:31 CHI 4365629 Hardy valid=True starter=False
+DRESS 17:34:31 CHI 4372576 Sanborn valid=True starter=False
+DRESS 17:34:31 CHI 4426386 R. Johnson valid=True starter=False
+DRESS 17:34:31 CHI 4429067 Phillips III valid=True starter=False
+DRESS 17:34:31 CHI 4430822 No. Sewell valid=True starter=False
+DRESS 17:34:31 CHI 4431580 Moss valid=False starter=False
+DRESS 17:34:31 CHI 4432595 Trapilo valid=True starter=False
+DRESS 17:34:31 CHI 4432804 Turner valid=True starter=False
+DRESS 17:34:31 CHI 4434153 Bagent valid=False starter=False
+DNP 17:34:31 CHI 4608686 Monangai valid=False starter=False
+DRESS 17:34:31 CHI 4683553 Booker valid=True starter=False
+DRESS 17:34:31 CHI 4685504 Roush valid=True starter=False
+DRESS 17:34:31 CHI 4686889 Taylor valid=True starter=False
+DRESS 17:34:31 CHI 4686907 L. Jones valid=True starter=False
+DRESS 17:34:31 CHI 4695895 Newman valid=True starter=False
+DRESS 17:34:31 CHI 4869748 Z. Thomas valid=True starter=False
+DNP 17:34:31 CHI 4870953 Muhammad valid=False starter=False
+DRESS 17:34:31 CHI 4875381 van den Berg valid=True starter=False
+DNP 17:34:31 CHI 4877376 Loving valid=False starter=False
+DRESS 17:34:31 CHI 4879561 S. Thomas valid=True starter=False
+DNP 17:34:31 CHI 4911952 Elliott valid=False starter=False
+DRESS 17:34:31 CHI 5065495 Davis valid=False starter=False
+DRESS 17:34:31 CHI 5160110 Walker valid=True starter=False
+POLL 17:34:31 NO @ CHI kick=2026-11-22T18:00Z state=pre NO n=58 dnp=10
+DRESS 17:34:31 NO 3124890 Elliss valid=True starter=True
+DRESS 17:34:31 NO 3917660 Edwards valid=True starter=True
+DRESS 17:34:31 NO 3918310 Granderson valid=True starter=True
+DRESS 17:34:31 NO 3929645 Johnson valid=True starter=True
+DRESS 17:34:31 NO 4035661 Blackmon valid=True starter=True
+DRESS 17:34:31 NO 4036131 Fant valid=True starter=True
+DRESS 17:34:31 NO 4076951 Shepherd valid=True starter=True
+DRESS 17:34:31 NO 4239996 Etienne Jr. valid=True starter=True
+DRESS 17:34:31 NO 4241986 Young valid=True starter=True
+DRESS 17:34:31 NO 4258199 Ruiz valid=True starter=True
+DRESS 17:34:31 NO 4360689 Shough valid=True starter=True
+DRESS 17:34:31 NO 4361370 Olave valid=True starter=True
+DRESS 17:34:31 NO 4429040 Broughton valid=True starter=True
+DRESS 17:34:31 NO 4433938 J. Wright valid=True starter=True
+DRESS 17:34:31 NO 4433975 McKinstry valid=True starter=True
+DRESS 17:34:31 NO 4569559 Vele valid=True starter=True
+DRESS 17:34:31 NO 4683813 Sanker valid=True starter=True
+DRESS 17:34:31 NO 4685260 Banks Jr. valid=True starter=True
+DRESS 17:34:31 NO 13971 Jordan valid=True starter=False
+DRESS 17:34:31 NO 2575788 Wood valid=True starter=False
+DRESS 17:34:31 NO 3054850 Kamara valid=True starter=False
+DNP 17:34:31 NO 3917331 McCoy valid=False starter=False
+DRESS 17:34:31 NO 3925350 Jennings valid=True starter=False
+DRESS 17:34:31 NO 4240475 Rumph II valid=True starter=False
+DNP 17:34:31 NO 4241993 Werner valid=False starter=False
+DRESS 17:34:31 NO 4243186 Sherman valid=True starter=False
+DRESS 17:34:31 NO 4248047 Ridgeway III valid=True starter=False
+DRESS 17:34:31 NO 4360949 Howden valid=True starter=False
+DRESS 17:34:31 NO 4361194 Stalbird valid=True starter=False
+DNP 17:34:31 NO 4361259 Z. Wilson valid=False starter=False
+DRESS 17:34:31 NO 4361777 White valid=False starter=False
+DRESS 17:34:31 NO 4361823 Ry. Wright valid=True starter=False
+DRESS 17:34:31 NO 4367775 Sorsdal valid=False starter=False
+DRESS 17:34:31 NO 4369863 Tillman valid=False starter=False
+DRESS 17:34:31 NO 4372533 T. Wilson valid=True starter=False
+DRESS 17:34:31 NO 4384595 Boyd valid=True starter=False
+DRESS 17:34:31 NO 4426339 Rattler valid=False starter=False
+DRESS 17:34:31 NO 4426990 Cropper valid=False starter=False
+DRESS 17:34:31 NO 4428350 Riley valid=True starter=False
+DNP 17:34:31 NO 4429568 Emerson Jr. valid=False starter=False
+DNP 17:34:31 NO 4430379 Richards valid=False starter=False
+DRESS 17:34:31 NO 4432768 Styles Jr. valid=True starter=False
+DNP 17:34:31 NO 4566088 Ford valid=False starter=False
+DRESS 17:34:31 NO 4567224 Wooden valid=True starter=False
+DNP 17:34:31 NO 4569682 Estimé valid=False starter=False
+DRESS 17:34:31 NO 4605498 Richardson valid=True starter=False
+DNP 17:34:31 NO 4606711 Fuaga valid=False starter=False
+DRESS 17:34:31 NO 4682479 Murphy valid=True starter=False
+DRESS 17:34:31 NO 4683215 Stutsman valid=True starter=False
+DRESS 17:34:31 NO 4696488 Kilty valid=True starter=False
+DRESS 17:34:31 NO 4698597 Brown valid=True starter=False
+DRESS 17:34:31 NO 4702559 Delp valid=True starter=False
+DNP 17:34:31 NO 4775268 Reid valid=False starter=False
+DRESS 17:34:31 NO 4873075 Hall valid=False starter=False
+DRESS 17:34:31 NO 4879276 Lance valid=True starter=False
+DRESS 17:34:31 NO 4880281 Tyson valid=True starter=False
+DNP 17:34:31 NO 5081999 Donaldson valid=False starter=False
+DRESS 17:34:31 NO 5208518 Smyth valid=True starter=False
+INJ 17:34:31 DAL 4685266 Jaishawn Barham | Out | 2026-11-22T17:16Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 DAL 3929850 P.J. Locke | Out | 2026-11-22T16:31Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 DAL 4426485 Jonathan Mingo | Out | 2026-11-22T16:31Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 DAL 4242355 Jake Ferguson | Out | 2026-11-22T16:31Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 DAL 4685263 Tyler Booker | Out | 2026-11-22T16:31Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 TEN 4240532 Tony Adams | Questionable | 2026-11-22T17:00Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 17:34:31 TEN 4685555 Nicholas Singleton | Out | 2026-11-22T16:55Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 TEN 4685145 Jaylon Jones | Out | 2026-11-22T16:36Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 TEN 5081785 Jackie Marshall | Out | 2026-11-22T16:36Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 TEN 4426987 Brandon Crenshaw-Dickson | Out | 2026-11-22T16:36Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+POLL 17:34:31 TEN @ DAL kick=2026-11-22T18:00Z state=pre DAL n=57 dnp=10
+DRESS 17:34:31 DAL 13976 Miller valid=True starter=True
+DRESS 17:34:31 DAL 2577417 Prescott valid=True starter=True
+DRESS 17:34:31 DAL 3121415 Hooker valid=True starter=True
+DRESS 17:34:31 DAL 3122752 K. Clark valid=True starter=True
+DRESS 17:34:31 DAL 3915834 Steele valid=True starter=True
+DRESS 17:34:31 DAL 4040982 Q. Williams valid=True starter=True
+DRESS 17:34:31 DAL 4046523 Gary valid=True starter=True
+DRESS 17:34:31 DAL 4241389 Lamb valid=True starter=True
+DRESS 17:34:31 DAL 4241921 Bell valid=True starter=True
+DRESS 17:34:31 DAL 4360967 Spann-Ford valid=True starter=True
+DRESS 17:34:31 DAL 4361579 J. Williams valid=True starter=True
+DRESS 17:34:31 DAL 4426354 Pickens valid=True starter=True
+DRESS 17:34:31 DAL 4426506 Porter Jr. valid=True starter=True
+DRESS 17:34:31 DAL 4426663 Beebe valid=True starter=True
+DRESS 17:34:31 DAL 4428914 Winters valid=True starter=True
+DRESS 17:34:31 DAL 4568652 Smith valid=True starter=True
+DRESS 17:34:31 DAL 4609048 Guyton valid=True starter=True
+DRESS 17:34:31 DAL 4685400 James valid=True starter=True
+DRESS 17:34:31 DAL 4870706 Downs valid=True starter=True
+DRESS 17:34:31 DAL 5083754 Flournoy valid=True starter=True
+DRESS 17:34:31 DAL 14950 Anger valid=True starter=False
+DNP 17:34:31 DAL 2980097 Bullard valid=False starter=False
+DRESS 17:34:31 DAL 3052357 Sieg valid=True starter=False
+DRESS 17:34:31 DAL 3676833 Turpin valid=True starter=False
+DRESS 17:34:31 DAL 3920591 Leverett valid=False starter=False
+DNP 17:34:31 DAL 3929850 Locke valid=False starter=False
+DRESS 17:34:31 DAL 3953687 Aubrey valid=True starter=False
+DRESS 17:34:31 DAL 4039170 Garcia valid=True starter=False
+DRESS 17:34:31 DAL 4044448 Robinson valid=False starter=False
+DRESS 17:34:31 DAL 4240608 Houston valid=True starter=False
+DNP 17:34:31 DAL 4242355 Ferguson valid=False starter=False
+DRESS 17:34:31 DAL 4259546 Speed valid=True starter=False
+DNP 17:34:31 DAL 4360307 Kendrick valid=False starter=False
+DNP 17:34:31 DAL 4360590 Thomas valid=False starter=False
+DRESS 17:34:31 DAL 4361988 Mitchell valid=True starter=False
+DRESS 17:34:31 DAL 4362088 Overshown valid=True starter=False
+DRESS 17:34:31 DAL 4367210 Ogbonnia valid=True starter=False
+DRESS 17:34:31 DAL 4372096 Schoonmaker valid=True starter=False
+DRESS 17:34:31 DAL 4372519 Corbin valid=False starter=False
+DRESS 17:34:31 DAL 4383396 Luepke valid=True starter=False
+DRESS 17:34:31 DAL 4384549 Durant valid=True starter=False
+DNP 17:34:31 DAL 4426485 Mingo valid=False starter=False
+DNP 17:34:31 DAL 4426875 Howell valid=False starter=False
+DRESS 17:34:31 DAL 4427816 Liufau valid=True starter=False
+DRESS 17:34:31 DAL 4428990 Jones valid=True starter=False
+DRESS 17:34:31 DAL 4429202 Abanikanda valid=True starter=False
+DRESS 17:34:31 DAL 4429249 Barron valid=True starter=False
+DRESS 17:34:31 DAL 4595352 A. Clark valid=True starter=False
+DNP 17:34:31 DAL 4683848 Ezeiruaku valid=False starter=False
+DRESS 17:34:31 DAL 4685120 Bass valid=True starter=False
+DNP 17:34:31 DAL 4685263 Booker valid=False starter=False
+DNP 17:34:31 DAL 4685266 Barham valid=False starter=False
+DRESS 17:34:31 DAL 4685409 Hudson valid=False starter=False
+DRESS 17:34:31 DAL 4685554 Shelton valid=True starter=False
+DRESS 17:34:31 DAL 4808759 Brown valid=True starter=False
+DRESS 17:34:31 DAL 4870960 Overton valid=True starter=False
+DRESS 17:34:31 DAL 5095865 Revel Jr. valid=True starter=False
+POLL 17:34:31 TEN @ DAL kick=2026-11-22T18:00Z state=pre TEN n=56 dnp=9
+DRESS 17:34:31 TEN 3117258 Thomas valid=True starter=True
+DRESS 17:34:31 TEN 3120464 Franklin-Myers valid=True starter=True
+DRESS 17:34:31 TEN 3138764 Martin valid=True starter=True
+DRESS 17:34:31 TEN 3916148 Pollard valid=True starter=True
+DRESS 17:34:31 TEN 4038544 Schlottmann valid=True starter=True
+DRESS 17:34:31 TEN 4240532 Adams valid=True starter=True
+DRESS 17:34:31 TEN 4240920 Moore Jr. valid=True starter=True
+DRESS 17:34:31 TEN 4361516 Bellinger valid=True starter=True
+DRESS 17:34:31 TEN 4367202 Mafi valid=True starter=True
+DRESS 17:34:31 TEN 4369835 Taylor valid=True starter=True
+DRESS 17:34:31 TEN 4429607 Flott valid=True starter=True
+DRESS 17:34:31 TEN 4429834 Gray valid=True starter=True
+DRESS 17:34:31 TEN 4431268 Dike valid=True starter=True
+DRESS 17:34:31 TEN 4431437 Latham valid=True starter=True
+DRESS 17:34:31 TEN 4567962 Johnson II valid=True starter=True
+DRESS 17:34:31 TEN 4573318 Mausi valid=True starter=True
+DRESS 17:34:31 TEN 4685617 Winston Jr. valid=True starter=True
+DRESS 17:34:31 TEN 4686728 Helm valid=True starter=True
+DRESS 17:34:31 TEN 4688380 Ward valid=True starter=True
+DRESS 17:34:31 TEN 4710661 Zavala valid=True starter=True
+DRESS 17:34:31 TEN 4883647 Ayomanor valid=True starter=True
+DRESS 17:34:31 TEN 4917635 Jo. Williams valid=True starter=True
+DRESS 17:34:31 TEN 12701 Morstead valid=True starter=False
+DRESS 17:34:31 TEN 13848 Cox valid=True starter=False
+DNP 17:34:31 TEN 3039707 Trubisky valid=False starter=False
+DRESS 17:34:31 TEN 3124084 Slye valid=True starter=False
+DRESS 17:34:31 TEN 3915437 Oliver valid=True starter=False
+DRESS 17:34:31 TEN 3916566 Osborn valid=False starter=False
+DRESS 17:34:31 TEN 3925357 Ridley valid=True starter=False
+DNP 17:34:31 TEN 3926229 Barton valid=False starter=False
+DRESS 17:34:31 TEN 4035663 Burgess valid=True starter=False
+DRESS 17:34:31 TEN 4039160 Granson valid=True starter=False
+DRESS 17:34:31 TEN 4045701 Horne valid=True starter=False
+DRESS 17:34:31 TEN 4240657 Carter valid=False starter=False
+DRESS 17:34:31 TEN 4258181 Hudson III valid=True starter=False
+DRESS 17:34:31 TEN 4360978 Martin-Robinson valid=True starter=False
+DRESS 17:34:31 TEN 4361094 Hampton valid=True starter=False
+DRESS 17:34:31 TEN 4367567 Chestnut valid=True starter=False
+DRESS 17:34:31 TEN 4367828 T. Jones valid=True starter=False
+DRESS 17:34:31 TEN 4373956 Laulu valid=True starter=False
+DNP 17:34:31 TEN 4426987 Crenshaw-Dickson valid=False starter=False
+DRESS 17:34:31 TEN 4429121 Mullings valid=False starter=False
+DRESS 17:34:31 TEN 4429142 Stackhouse valid=True starter=False
+DRESS 17:34:31 TEN 4431252 Dellinger valid=True starter=False
+DRESS 17:34:31 TEN 4431353 Restrepo valid=True starter=False
+DNP 17:34:31 TEN 4567403 Diabate valid=False starter=False
+DRESS 17:34:31 TEN 4570469 Harris valid=True starter=False
+DRESS 17:34:31 TEN 4596542 Coogan valid=True starter=False
+DNP 17:34:31 TEN 4685145 J. Jones valid=False starter=False
+DNP 17:34:31 TEN 4685555 Singleton valid=False starter=False
+DRESS 17:34:31 TEN 4695280 M. Robinson valid=True starter=False
+DRESS 17:34:31 TEN 4870707 Faulk valid=True starter=False
+DNP 17:34:31 TEN 4870805 Hill Jr. valid=False starter=False
+DNP 17:34:31 TEN 4871023 Tate valid=False starter=False
+DRESS 17:34:31 TEN 4876057 Oladejo valid=True starter=False
+DNP 17:34:31 TEN 5081785 Marshall valid=False starter=False
+INJ 17:34:31 DET 3139387 D.J. Reed | Out | 2026-11-22T17:06Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 DET 4586333 Mekhi Wingo | Out | 2026-11-22T16:42Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 DET 4689333 Tyrus Wheat | Out | 2026-11-22T16:42Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 DET 4038432 Amen Ogbongbemiga | Out | 2026-11-22T16:42Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 DET 4566092 Ennis Rakestraw Jr. | Out | 2026-11-22T16:42Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 TB 3120590 Easton Stick | Out | 2026-11-22T17:15Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 TB 4034790 Antoine Winfield Jr. | Out | 2026-11-22T16:44Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 TB 4685549 Billy Schrauth | Out | 2026-11-22T16:44Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 TB 4427140 Trevor Keegan | Out | 2026-11-22T16:44Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 TB 4429007 DeMonte Capehart | Out | 2026-11-22T16:44Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+POLL 17:34:31 TB @ DET kick=2026-11-22T18:00Z state=pre DET n=58 dnp=7
+DRESS 17:34:31 DET 3045463 C. Clark valid=True starter=True
+DRESS 17:34:31 DET 3046779 Goff valid=True starter=True
+DRESS 17:34:31 DET 3910229 Ya-Sin valid=True starter=True
+DRESS 17:34:31 DET 4241411 Rodriguez valid=True starter=True
+DRESS 17:34:31 DET 4260409 Barnes valid=True starter=True
+DRESS 17:34:31 DET 4361425 Scruggs valid=True starter=True
+DRESS 17:34:31 DET 4361662 McNeill valid=True starter=True
+DRESS 17:34:31 DET 4361861 Lacy valid=True starter=True
+DRESS 17:34:31 DET 4371973 McCreary valid=True starter=True
+DRESS 17:34:31 DET 4373825 Sewell valid=True starter=True
+DRESS 17:34:31 DET 4374302 St. Brown valid=True starter=True
+DRESS 17:34:31 DET 4426388 J. Williams valid=True starter=True
+DRESS 17:34:31 DET 4427864 Mahogany valid=True starter=True
+DRESS 17:34:31 DET 4429035 Ratledge valid=True starter=True
+DRESS 17:34:31 DET 4429795 Gibbs valid=True starter=True
+DRESS 17:34:31 DET 4430027 LaPorta valid=True starter=True
+DRESS 17:34:31 DET 4431615 T. Williams valid=True starter=True
+DRESS 17:34:31 DET 4692025 Branch valid=True starter=True
+DRESS 17:34:31 DET 5081450 Miller valid=True starter=True
+DRESS 17:34:31 DET 5123663 TeSlaa valid=True starter=True
+DRESS 17:34:31 DET 5144894 Nowaske valid=True starter=True
+DRESS 17:34:31 DET 2580216 Carter valid=True starter=False
+DRESS 17:34:31 DET 3044720 Dobbs valid=True starter=False
+DNP 17:34:31 DET 3139387 Reed valid=False starter=False
+DRESS 17:34:31 DET 3915486 Conklin valid=True starter=False
+DRESS 17:34:31 DET 3916370 Fox valid=True starter=False
+DRESS 17:34:31 DET 4027919 Dorsey valid=True starter=False
+DRESS 17:34:31 DET 4034861 Stille valid=False starter=False
+DRESS 17:34:31 DET 4036507 Bachie valid=True starter=False
+DNP 17:34:31 DET 4038432 Ogbongbemiga valid=False starter=False
+DRESS 17:34:31 DET 4038849 Wonnum valid=True starter=False
+DRESS 17:34:31 DET 4039020 Onwuzurike valid=True starter=False
+DRESS 17:34:31 DET 4241217 Borom valid=True starter=False
+DRESS 17:34:31 DET 4242392 Wright valid=True starter=False
+DRESS 17:34:31 DET 4242521 Britt valid=True starter=False
+DRESS 17:34:31 DET 4245144 Martin valid=True starter=False
+DRESS 17:34:31 DET 4360383 Joseph valid=False starter=False
+DRESS 17:34:31 DET 4361939 Cisco valid=True starter=False
+DRESS 17:34:31 DET 4372459 Izien valid=True starter=False
+DRESS 17:34:31 DET 4383429 Saylors valid=True starter=False
+DRESS 17:34:31 DET 4429187 McLaughlin valid=True starter=False
+DRESS 17:34:31 DET 4432545 Small valid=False starter=False
+DNP 17:34:31 DET 4566092 Rakestraw Jr. valid=False starter=False
+DRESS 17:34:31 DET 4567219 Pappoe valid=True starter=False
+DRESS 17:34:31 DET 4569323 Harper valid=False starter=False
+DRESS 17:34:31 DET 4571755 Hatten valid=True starter=False
+DNP 17:34:31 DET 4586333 Wingo valid=False starter=False
+DRESS 17:34:31 DET 4608890 Frazier valid=True starter=False
+DRESS 17:34:31 DET 4685442 Lucas valid=False starter=False
+DRESS 17:34:31 DET 4685461 Moore valid=True starter=False
+DNP 17:34:31 DET 4689333 Wheat valid=False starter=False
+DRESS 17:34:31 DET 4689936 Bates valid=True starter=False
+DNP 17:34:31 DET 4710422 Hassanein valid=False starter=False
+DRESS 17:34:31 DET 4892218 O'Neill valid=True starter=False
+DRESS 17:34:31 DET 4912274 Vaki valid=True starter=False
+DNP 17:34:31 DET 5093004 Abney II valid=False starter=False
+DRESS 17:34:31 DET 5103940 Gill-Howard valid=True starter=False
+DRESS 17:34:31 DET 5143915 Whiteside valid=True starter=False
+POLL 17:34:31 TB @ DET kick=2026-11-22T18:00Z state=pre TB n=56 dnp=7
+DRESS 17:34:31 TB 3043107 Anzalone valid=True starter=True
+DRESS 17:34:31 TB 3052587 Mayfield valid=True starter=True
+DRESS 17:34:31 TB 3116165 Godwin Jr. valid=True starter=True
+DRESS 17:34:31 TB 3134362 Vea valid=True starter=True
+DRESS 17:34:31 TB 3894856 Nelson valid=True starter=True
+DRESS 17:34:31 TB 4046551 Bredeson valid=True starter=True
+DRESS 17:34:31 TB 4240589 Wirfs valid=True starter=True
+DRESS 17:34:31 TB 4243331 Otton valid=True starter=True
+DRESS 17:34:31 TB 4248545 Mauch valid=True starter=True
+DRESS 17:34:31 TB 4250392 McCollum valid=True starter=True
+DRESS 17:34:31 TB 4371733 Gainwell valid=True starter=True
+DRESS 17:34:31 TB 4380507 Goedeke valid=True starter=True
+DRESS 17:34:31 TB 4427673 Kancey valid=True starter=True
+DRESS 17:34:31 TB 4428522 Smith valid=True starter=True
+DRESS 17:34:31 TB 4429251 Barton valid=True starter=True
+DRESS 17:34:31 TB 4567750 Egbuka valid=True starter=True
+DRESS 17:34:31 TB 4596448 Irving valid=True starter=True
+DRESS 17:34:31 TB 4870617 Bain Jr. valid=True starter=True
+DRESS 17:34:31 TB 4870998 Trotter valid=True starter=True
+DRESS 17:34:31 TB 4912847 Parrish valid=True starter=True
+DRESS 17:34:31 TB 5093694 Scott valid=True starter=True
+DRESS 17:34:31 TB 2575164 Killebrew valid=True starter=False
+DRESS 17:34:31 TB 2575453 Nuñez-Roches Sr. valid=True starter=False
+DRESS 17:34:31 TB 2577619 Dixon valid=True starter=False
+DRESS 17:34:31 TB 2979482 Feeney valid=False starter=False
+DRESS 17:34:31 TB 3051942 Muhammad valid=True starter=False
+DRESS 17:34:31 TB 3054857 Robinson valid=True starter=False
+DNP 17:34:31 TB 3120590 Stick valid=False starter=False
+DRESS 17:34:31 TB 3150744 McLaughlin valid=True starter=False
+DRESS 17:34:31 TB 3915777 Skule valid=True starter=False
+DRESS 17:34:31 TB 4034779 Kieft valid=True starter=False
+DNP 17:34:31 TB 4034790 Winfield Jr. valid=False starter=False
+DRESS 17:34:31 TB 4240401 Melifonwu valid=True starter=False
+DRESS 17:34:31 TB 4361727 Deckers valid=True starter=False
+DRESS 17:34:31 TB 4372505 Durham valid=True starter=False
+DNP 17:34:31 TB 4427140 Keegan valid=False starter=False
+DNP 17:34:31 TB 4429007 Capehart valid=False starter=False
+DRESS 17:34:31 TB 4429511 Dennis valid=True starter=False
+DRESS 17:34:31 TB 4430478 Simmons valid=True starter=False
+DRESS 17:34:31 TB 4430871 Tucker valid=True starter=False
+DRESS 17:34:31 TB 4566165 JJ Roberts valid=False starter=False
+DRESS 17:34:31 TB 4568024 Williams valid=False starter=False
+DRESS 17:34:31 TB 4596472 Daniels valid=False starter=False
+DRESS 17:34:31 TB 4602648 Knowles valid=True starter=False
+DRESS 17:34:31 TB 4608810 T. Johnson valid=True starter=False
+DRESS 17:34:31 TB 4683096 Fordham valid=False starter=False
+DNP 17:34:31 TB 4685549 Schrauth valid=False starter=False
+DNP 17:34:31 TB 4686334 Diaby valid=False starter=False
+DRESS 17:34:31 TB 4690787 Chukwuma valid=True starter=False
+DRESS 17:34:31 TB 4690795 E. Roberts valid=True starter=False
+DRESS 17:34:31 TB 4816107 Morrison valid=True starter=False
+DRESS 17:34:31 TB 4890373 Sharp valid=True starter=False
+DNP 17:34:31 TB 4890885 Garnes valid=False starter=False
+DRESS 17:34:31 TB 5085355 Walker valid=True starter=False
+DRESS 17:34:31 TB 5097554 K. Johnson valid=True starter=False
+DRESS 17:34:31 TB 5220680 Hurst III valid=True starter=False
+INJ 17:34:31 KC 4591008 Omarr Norman-Lott | Out | 2026-11-22T17:16Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 KC 4871063 Peter Woods | Out | 2026-11-22T17:13Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 KC 4567747 Garrett Nussmeier | Out | 2026-11-22T16:50Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 KC 5278708 Melvin Smith Jr. | Out | 2026-11-22T16:37Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 KC 4242459 Trey Smith | Out | 2026-11-22T16:37Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 ARI 4363408 Starling Thomas V | Out | 2026-11-22T16:34Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 ARI 4567410 Kingsley Eguakun | Out | 2026-11-22T16:34Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 ARI 4367199 Jon Gaines II | Out | 2026-11-22T16:34Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 ARI 3051775 Andrew Billings | Out | 2026-11-22T16:34Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 ARI 4430841 Carson Beck | Out | 2026-11-21T19:25Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+POLL 17:34:31 ARI @ KC kick=2026-11-22T18:00Z state=pre KC n=58 dnp=9
+DRESS 17:34:31 KC 15847 Kelce valid=True starter=True
+DRESS 17:34:31 KC 3044859 Jones valid=True starter=True
+DRESS 17:34:31 KC 3129310 Tranquill valid=True starter=True
+DRESS 17:34:31 KC 3139477 Mahomes valid=True starter=True
+DRESS 17:34:31 KC 4039413 Gilman valid=True starter=True
+DRESS 17:34:31 KC 4240472 Gray valid=True starter=True
+DRESS 17:34:31 KC 4241385 Humphrey valid=True starter=True
+DRESS 17:34:31 KC 4249766 Cochrane valid=True starter=True
+DRESS 17:34:31 KC 4256074 Tonga valid=True starter=True
+DRESS 17:34:31 KC 4361964 Conner valid=True starter=True
+DRESS 17:34:31 KC 4362759 Bolton valid=True starter=True
+DRESS 17:34:31 KC 4373280 Ezeudu valid=True starter=True
+DRESS 17:34:31 KC 4426659 Karlaftis valid=True starter=True
+DRESS 17:34:31 KC 4428331 Rice valid=True starter=True
+DRESS 17:34:31 KC 4431595 Suamataia valid=True starter=True
+DRESS 17:34:31 KC 4566190 Benson valid=True starter=True
+DRESS 17:34:31 KC 4610705 Williams valid=True starter=True
+DRESS 17:34:31 KC 4612387 Anudike-Uzomah valid=True starter=True
+DRESS 17:34:31 KC 4683062 Worthy valid=True starter=True
+DRESS 17:34:31 KC 4832955 Johnson valid=True starter=True
+DRESS 17:34:31 KC 4880124 Delane valid=True starter=True
+DRESS 17:34:31 KC 16665 Winchester valid=True starter=False
+DRESS 17:34:31 KC 3055899 Butker valid=True starter=False
+DRESS 17:34:31 KC 3118892 Watson valid=False starter=False
+DRESS 17:34:31 KC 4035433 Fulton valid=True starter=False
+DRESS 17:34:31 KC 4043039 Caliendo valid=True starter=False
+DNP 17:34:31 KC 4043041 Moore valid=False starter=False
+DNP 17:34:31 KC 4242459 T. Smith valid=False starter=False
+DRESS 17:34:31 KC 4361496 Araiza valid=True starter=False
+DRESS 17:34:31 KC 4362887 Fields valid=True starter=False
+DRESS 17:34:31 KC 4367645 Nourzad valid=True starter=False
+DNP 17:34:31 KC 4372070 VanSumeren valid=False starter=False
+DRESS 17:34:31 KC 4372716 Remigio valid=False starter=False
+DRESS 17:34:31 KC 4428383 Roland-Wallace valid=True starter=False
+DRESS 17:34:31 KC 4431196 Briningstool valid=True starter=False
+DRESS 17:34:31 KC 4431561 Eason valid=True starter=False
+DNP 17:34:31 KC 4567048 Walker III valid=False starter=False
+DNP 17:34:31 KC 4567747 Nussmeier valid=False starter=False
+DRESS 17:34:31 KC 4567826 McDonald valid=True starter=False
+DRESS 17:34:31 KC 4573152 Harris valid=True starter=False
+DNP 17:34:31 KC 4591008 Norman-Lott valid=False starter=False
+DRESS 17:34:31 KC 4602389 Bassa valid=True starter=False
+DRESS 17:34:31 KC 4602984 Pounds valid=True starter=False
+DRESS 17:34:31 KC 4605841 Carter valid=True starter=False
+DRESS 17:34:31 KC 4682626 Nygra valid=False starter=False
+DRESS 17:34:31 KC 4684432 Gillotte valid=True starter=False
+DRESS 17:34:31 KC 4685232 Hicks valid=True starter=False
+DNP 17:34:31 KC 4685489 Ott valid=False starter=False
+DRESS 17:34:31 KC 4685491 Nwankpa valid=True starter=False
+DRESS 17:34:31 KC 4688813 J. Downs valid=True starter=False
+DRESS 17:34:31 KC 4710706 Canady valid=True starter=False
+DNP 17:34:31 KC 4871063 Woods valid=False starter=False
+DRESS 17:34:31 KC 4912218 Allen valid=True starter=False
+DRESS 17:34:31 KC 5081927 Thomas valid=True starter=False
+DRESS 17:34:31 KC 5082630 Royals valid=True starter=False
+DRESS 17:34:31 KC 5093923 Armstrong valid=True starter=False
+DRESS 17:34:31 KC 5155179 De Jesus valid=True starter=False
+DNP 17:34:31 KC 5278708 M. Smith Jr. valid=False starter=False
+POLL 17:34:31 ARI @ KC kick=2026-11-22T18:00Z state=pre ARI n=58 dnp=10
+DRESS 17:34:31 ARI 2978247 Seumalo valid=True starter=True
+DRESS 17:34:31 ARI 3059839 Wilkinson valid=True starter=True
+DRESS 17:34:31 ARI 3127287 Baker valid=True starter=True
+DRESS 17:34:31 ARI 3693166 Sweat valid=True starter=True
+DRESS 17:34:31 ARI 4040983 Ma. Wilson Sr. valid=True starter=True
+DRESS 17:34:31 ARI 4239944 Long valid=True starter=True
+DRESS 17:34:31 ARI 4244606 Collins valid=True starter=True
+DRESS 17:34:31 ARI 4249739 Gibbens valid=True starter=True
+DRESS 17:34:31 ARI 4360739 Fehoko valid=True starter=True
+DRESS 17:34:31 ARI 4361307 McBride valid=True starter=True
+DRESS 17:34:31 ARI 4362225 Stills valid=True starter=True
+DRESS 17:34:31 ARI 4373626 Allgeier valid=True starter=True
+DRESS 17:34:31 ARI 4426844 Higgins valid=True starter=True
+DRESS 17:34:31 ARI 4426923 Clark valid=True starter=True
+DRESS 17:34:31 ARI 4429782 Fryar valid=True starter=True
+DRESS 17:34:31 ARI 4431214 H. Conner valid=True starter=True
+DRESS 17:34:31 ARI 4431433 King valid=True starter=True
+DRESS 17:34:31 ARI 4432668 Burke valid=True starter=True
+DRESS 17:34:31 ARI 4685503 Nolen III valid=True starter=True
+DNP 17:34:31 ARI 11394 J. Johnson valid=False starter=False
+DRESS 17:34:31 ARI 17304 Kreiter valid=True starter=False
+DNP 17:34:31 ARI 3051775 Billings valid=False starter=False
+DRESS 17:34:31 ARI 3059722 Jones valid=True starter=False
+DRESS 17:34:31 ARI 3116449 Collier valid=True starter=False
+DNP 17:34:31 ARI 3886633 Froholdt valid=False starter=False
+DRESS 17:34:31 ARI 4039050 Duvernay valid=True starter=False
+DRESS 17:34:31 ARI 4040805 Lopez valid=True starter=False
+DRESS 17:34:31 ARI 4045180 Gillikin valid=True starter=False
+DRESS 17:34:31 ARI 4241482 Wills Jr. valid=True starter=False
+DRESS 17:34:31 ARI 4241987 Browning valid=True starter=False
+DNP 17:34:31 ARI 4361272 Leota valid=False starter=False
+DNP 17:34:31 ARI 4363408 Thomas V valid=False starter=False
+DRESS 17:34:31 ARI 4363538 Ryland valid=True starter=False
+DRESS 17:34:31 ARI 4366910 Bowman valid=False starter=False
+DNP 17:34:31 ARI 4367199 Gaines II valid=False starter=False
+DRESS 17:34:31 ARI 4372019 Ford valid=False starter=False
+DRESS 17:34:31 ARI 4374045 Quitoriano valid=True starter=False
+DRESS 17:34:31 ARI 4427401 Harrison-Hunte valid=False starter=False
+DRESS 17:34:31 ARI 4427728 Knight valid=True starter=False
+DRESS 17:34:31 ARI 4428633 Taylor-Demerson valid=True starter=False
+DRESS 17:34:31 ARI 4429071 Simon valid=True starter=False
+DRESS 17:34:31 ARI 4430821 Crawford valid=True starter=False
+DNP 17:34:31 ARI 4430841 Beck valid=False starter=False
+DNP 17:34:31 ARI 4567410 Eguakun valid=False starter=False
+DRESS 17:34:31 ARI 4568506 G. Williams valid=True starter=False
+DRESS 17:34:31 ARI 4569480 Robinson valid=True starter=False
+DRESS 17:34:31 ARI 4569609 Hull valid=True starter=False
+DRESS 17:34:31 ARI 4689674 Green valid=False starter=False
+DRESS 17:34:31 ARI 4692835 Brooks valid=False starter=False
+DRESS 17:34:31 ARI 4698113 Melton valid=True starter=False
+DRESS 17:34:31 ARI 4699354 Wallace III valid=True starter=False
+DRESS 17:34:31 ARI 4709695 Sharar valid=True starter=False
+DNP 17:34:31 ARI 4709718 J. Williams valid=False starter=False
+DRESS 17:34:31 ARI 4869132 Virgil valid=True starter=False
+DRESS 17:34:31 ARI 4900789 Robertson valid=False starter=False
+DRESS 17:34:31 ARI 5084939 Adams valid=False starter=False
+DRESS 17:34:31 ARI 5099542 W. Williams Jr. valid=False starter=False
+DNP 17:34:31 ARI 5151948 Aguilar valid=False starter=False
+INJ 17:34:31 PHI 4431573 Smael Mondon Jr. | Out | 2026-11-22T16:40Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 PHI 4879250 Cole Payton | Out | 2026-11-22T16:38Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 PHI 4430814 Jake Majors | Out | 2026-11-22T16:33Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 PHI 4689651 Mac McWilliams | Out | 2026-11-22T16:33Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 PHI 4696203 Ajani Cornelius | Out | 2026-11-22T16:33Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 PIT 5081338 Kaden Wetjen | Out | 2026-11-22T17:19Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 PIT 4429955 Will Howard | Out | 2026-11-22T16:51Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 PIT 4431533 Gabriel Rubio | Out | 2026-11-22T16:39Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 PIT 3932886 Sean Murphy-Bunting | Out | 2026-11-22T16:39Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 PIT 5081508 Eli Heidenreich | Out | 2026-11-22T16:39Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+POLL 17:34:31 PIT @ PHI kick=2026-11-22T18:00Z state=pre PHI n=59 dnp=11
+DRESS 17:34:31 PHI 3121023 Goedert valid=True starter=True
+DRESS 17:34:31 PHI 3916409 Greenard valid=True starter=True
+DRESS 17:34:31 PHI 3929630 Barkley valid=True starter=True
+DRESS 17:34:31 PHI 4035624 Dickerson valid=True starter=True
+DRESS 17:34:31 PHI 4245185 Woolen valid=True starter=True
+DRESS 17:34:31 PHI 4334215 Mailata valid=True starter=True
+DRESS 17:34:31 PHI 4360698 Milton III valid=True starter=True
+DRESS 17:34:31 PHI 4362116 Ojomo valid=True starter=True
+DRESS 17:34:31 PHI 4362805 Steen valid=True starter=True
+DRESS 17:34:31 PHI 4426331 N. Smith Jr. valid=True starter=True
+DRESS 17:34:31 PHI 4432777 Trotter Jr. valid=True starter=True
+DRESS 17:34:31 PHI 4567802 Kendall valid=True starter=True
+DRESS 17:34:31 PHI 4602197 Mukuba valid=True starter=True
+DRESS 17:34:31 PHI 4682618 DeJean valid=True starter=True
+DRESS 17:34:31 PHI 4685759 J. Carter valid=True starter=True
+DRESS 17:34:31 PHI 4686273 Q. Mitchell valid=True starter=True
+DRESS 17:34:31 PHI 4715355 Cooper valid=True starter=True
+DRESS 17:34:31 PHI 4870795 Lemon valid=True starter=True
+DRESS 17:34:31 PHI 5219831 Bell valid=True starter=True
+DNP 17:34:31 PHI 15797 Johnson valid=False starter=False
+DRESS 17:34:31 PHI 15835 Ertz valid=False starter=False
+DNP 17:34:31 PHI 2971027 Jones valid=False starter=False
+DRESS 17:34:31 PHI 3050478 Elliott valid=True starter=False
+DRESS 17:34:31 PHI 3052096 Mundt valid=True starter=False
+DRESS 17:34:31 PHI 3139368 Epps valid=True starter=False
+DNP 17:34:31 PHI 3926231 Covey valid=False starter=False
+DRESS 17:34:31 PHI 4035239 Mann valid=True starter=False
+DRESS 17:34:31 PHI 4218312 K. Moore II valid=True starter=False
+DRESS 17:34:31 PHI 4240015 Ojukwu valid=False starter=False
+DNP 17:34:31 PHI 4240456 M. Carter II valid=False starter=False
+DRESS 17:34:31 PHI 4240585 Epenesa valid=True starter=False
+DRESS 17:34:31 PHI 4241374 Calcaterra valid=True starter=False
+DNP 17:34:31 PHI 4241478 D. Smith valid=False starter=False
+DRESS 17:34:31 PHI 4241555 E. Mitchell valid=True starter=False
+DRESS 17:34:31 PHI 4257591 Ebiketie valid=True starter=False
+DRESS 17:34:31 PHI 4360238 Pierce valid=False starter=False
+DRESS 17:34:31 PHI 4372414 E. Moore valid=True starter=False
+DRESS 17:34:31 PHI 4428992 Ringo valid=True starter=False
+DRESS 17:34:31 PHI 4429013 Bigsby valid=False starter=False
+DRESS 17:34:31 PHI 4429731 Hall valid=False starter=False
+DNP 17:34:31 PHI 4430814 Majors valid=False starter=False
+DRESS 17:34:31 PHI 4431545 Shipley valid=False starter=False
+DNP 17:34:31 PHI 4431573 Mondon Jr. valid=False starter=False
+DRESS 17:34:31 PHI 4431574 Stowers valid=True starter=False
+DRESS 17:34:31 PHI 4432738 Morris valid=True starter=False
+DRESS 17:34:31 PHI 4567123 Young valid=True starter=False
+DRESS 17:34:31 PHI 4567535 Orji valid=False starter=False
+DRESS 17:34:31 PHI 4569586 Robinson valid=True starter=False
+DRESS 17:34:31 PHI 4571162 Hunt valid=True starter=False
+DRESS 17:34:31 PHI 4582836 Lampkin valid=True starter=False
+DRESS 17:34:31 PHI 4685201 McKee valid=False starter=False
+DRESS 17:34:31 PHI 4685279 Blue valid=True starter=False
+DNP 17:34:31 PHI 4685287 Campbell valid=False starter=False
+DRESS 17:34:31 PHI 4686566 Underwood valid=True starter=False
+DNP 17:34:31 PHI 4689651 McWilliams valid=False starter=False
+DRESS 17:34:31 PHI 4693345 Wisniewski valid=True starter=False
+DNP 17:34:31 PHI 4696203 Cornelius valid=False starter=False
+DNP 17:34:31 PHI 4879250 Payton valid=False starter=False
+DRESS 17:34:31 PHI 5165139 James-Newby valid=False starter=False
+POLL 17:34:31 PIT @ PHI kick=2026-11-22T18:00Z state=pre PIT n=55 dnp=7
+DRESS 17:34:31 PIT 8439 Rodgers valid=True starter=True
+DRESS 17:34:31 PIT 13977 Heyward valid=True starter=True
+DRESS 17:34:31 PIT 3045282 Watt valid=True starter=True
+DRESS 17:34:31 PIT 3045373 Ramsey valid=True starter=True
+DRESS 17:34:31 PIT 3873935 Dean valid=True starter=True
+DRESS 17:34:31 PIT 4037333 Highsmith valid=True starter=True
+DRESS 17:34:31 PIT 4047650 Metcalf valid=True starter=True
+DRESS 17:34:31 PIT 4241087 Hoffman valid=True starter=True
+DRESS 17:34:31 PIT 4242207 Queen valid=True starter=True
+DRESS 17:34:31 PIT 4361411 Freiermuth valid=True starter=True
+DRESS 17:34:31 PIT 4361652 P. Wilson valid=True starter=True
+DRESS 17:34:31 PIT 4363034 Samuel Jr. valid=True starter=True
+DRESS 17:34:31 PIT 4426694 Benton valid=True starter=True
+DRESS 17:34:31 PIT 4427170 Fautanu valid=True starter=True
+DRESS 17:34:31 PIT 4429775 Frazier valid=True starter=True
+DRESS 17:34:31 PIT 4430802 Washington valid=True starter=True
+DRESS 17:34:31 PIT 4569987 Warren valid=True starter=True
+DRESS 17:34:31 PIT 4570044 Brisker valid=True starter=True
+DRESS 17:34:31 PIT 4685261 Bernard valid=True starter=True
+DRESS 17:34:31 PIT 4820584 Spears-Jennings valid=True starter=True
+DRESS 17:34:31 PIT 5150136 Iheanachor valid=True starter=True
+DRESS 17:34:31 PIT 17372 Boswell valid=True starter=False
+DRESS 17:34:31 PIT 2975674 Tonyan valid=True starter=False
+DRESS 17:34:31 PIT 2978524 Kuntz valid=True starter=False
+DRESS 17:34:31 PIT 3051397 Johnston valid=True starter=False
+DRESS 17:34:31 PIT 3116407 Rudolph valid=True starter=False
+DRESS 17:34:31 PIT 3116689 Holcomb valid=True starter=False
+DRESS 17:34:31 PIT 3929846 Elliott valid=False starter=False
+DNP 17:34:31 PIT 3932886 Murphy-Bunting valid=False starter=False
+DRESS 17:34:31 PIT 4035253 McCollum valid=True starter=False
+DRESS 17:34:31 PIT 4035656 Skowronek valid=True starter=False
+DRESS 17:34:31 PIT 4037457 Homer valid=True starter=False
+DRESS 17:34:31 PIT 4038815 Dowdle valid=True starter=False
+DRESS 17:34:31 PIT 4360308 Henry valid=False starter=False
+DRESS 17:34:31 PIT 4372056 Anderson valid=True starter=False
+DRESS 17:34:31 PIT 4426368 Nester valid=False starter=False
+DRESS 17:34:31 PIT 4428119 Nichols valid=True starter=False
+DNP 17:34:31 PIT 4429164 Herbig valid=False starter=False
+DRESS 17:34:31 PIT 4429490 Bruener valid=True starter=False
+DNP 17:34:31 PIT 4429955 Howard valid=False starter=False
+DRESS 17:34:31 PIT 4430947 Black valid=True starter=False
+DRESS 17:34:31 PIT 4431492 R. Wilson valid=False starter=False
+DNP 17:34:31 PIT 4431533 Rubio valid=False starter=False
+DRESS 17:34:31 PIT 4431590 Sawyer valid=True starter=False
+DRESS 17:34:31 PIT 4567979 Echols valid=True starter=False
+DRESS 17:34:31 PIT 4570898 Cook valid=True starter=False
+DRESS 17:34:31 PIT 4682980 Harmon valid=True starter=False
+DRESS 17:34:31 PIT 4685327 Everette valid=True starter=False
+DRESS 17:34:31 PIT 4692628 Slaughter valid=True starter=False
+DRESS 17:34:31 PIT 4693370 Nowakowski valid=True starter=False
+DRESS 17:34:31 PIT 4694237 Hurleman valid=False starter=False
+DNP 17:34:31 PIT 4714771 Allar valid=False starter=False
+DNP 17:34:31 PIT 5081338 Wetjen valid=False starter=False
+DNP 17:34:31 PIT 5081508 Heidenreich valid=False starter=False
+DRESS 17:34:31 PIT 5084849 Jobity Jr. valid=True starter=False
+INJ 17:34:31 CAR 4431588 Ja'Tavion Sanders | Out | 2026-11-22T17:25Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 CAR 4428993 Haynes King | Out | 2026-11-22T17:06Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 CAR 4240595 Marco Wilson | Out | 2026-11-22T16:46Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 CAR 3117253 Bobby Okereke | Out | 2026-11-22T16:46Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 CAR 4239934 AJ Dillon | Out | 2026-11-22T16:46Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 BAL 5088338 Elijah Sarratt | Out | 2026-11-22T16:43Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 BAL 4685526 Adam Randall | Out | 2026-11-22T16:39Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 BAL 4428512 Kedon Slovis | Out | 2026-11-22T16:35Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 BAL 4685736 Emery Jones Jr. | Out | 2026-11-22T16:32Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:31 BAL 4035245 Nnamdi Madubuike | Out | 2026-11-22T16:32Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+POLL 17:34:31 BAL @ CAR kick=2026-11-22T18:00Z state=pre CAR n=59 dnp=8
+DRESS 17:34:31 CAR 2576925 Waller valid=True starter=True
+DRESS 17:34:31 CAR 3116179 Scott valid=True starter=True
+DRESS 17:34:31 CAR 3917592 Hunt valid=True starter=True
+DRESS 17:34:31 CAR 4035048 Fortner valid=True starter=True
+DRESS 17:34:31 CAR 4035232 Dodson valid=True starter=True
+DRESS 17:34:31 CAR 4035495 D. Brown valid=True starter=True
+DRESS 17:34:31 CAR 4036063 Jones II valid=True starter=True
+DRESS 17:34:31 CAR 4058925 Wharton valid=True starter=True
+DRESS 17:34:31 CAR 4241416 Hubbard valid=True starter=True
+DRESS 17:34:31 CAR 4242975 Phillips valid=True starter=True
+DRESS 17:34:31 CAR 4243256 Lloyd valid=True starter=True
+DRESS 17:34:31 CAR 4361429 Walker valid=True starter=True
+DRESS 17:34:31 CAR 4362487 Moehrig valid=True starter=True
+DRESS 17:34:31 CAR 4362647 Lewis valid=True starter=True
+DRESS 17:34:31 CAR 4372780 Tremble valid=True starter=True
+DRESS 17:34:31 CAR 4566384 Wheatley valid=True starter=True
+DRESS 17:34:31 CAR 4685472 McMillan valid=True starter=True
+DRESS 17:34:31 CAR 4685720 Young valid=True starter=True
+DRESS 17:34:31 CAR 4695883 Coker valid=True starter=True
+DRESS 17:34:31 CAR 4697636 Smith-Wade valid=True starter=True
+DRESS 17:34:31 CAR 4870694 Freeling valid=True starter=True
+DRESS 17:34:31 CAR 11759 Jansen valid=True starter=False
+DRESS 17:34:31 CAR 15928 Martin valid=True starter=False
+DNP 17:34:31 CAR 3117253 Okereke valid=False starter=False
+DRESS 17:34:31 CAR 3917016 Gipson valid=True starter=False
+DRESS 17:34:31 CAR 3917853 M. Jackson valid=False starter=False
+DRESS 17:34:31 CAR 4034948 Franks valid=True starter=False
+DRESS 17:34:31 CAR 4034959 Moon valid=False starter=False
+DRESS 17:34:31 CAR 4034962 Forsythe valid=True starter=False
+DNP 17:34:31 CAR 4239934 Dillon valid=False starter=False
+DNP 17:34:31 CAR 4240595 Wilson valid=False starter=False
+DRESS 17:34:31 CAR 4240703 Pickett valid=False starter=False
+DRESS 17:34:31 CAR 4256062 Christensen valid=False starter=False
+DRESS 17:34:31 CAR 4360763 Tremayne valid=True starter=False
+DRESS 17:34:31 CAR 4360773 Hampton valid=True starter=False
+DRESS 17:34:31 CAR 4372518 B. Brown III valid=True starter=False
+DNP 17:34:31 CAR 4428993 King valid=False starter=False
+DRESS 17:34:31 CAR 4429110 Ransom valid=True starter=False
+DRESS 17:34:31 CAR 4429166 Umanmielen valid=True starter=False
+DRESS 17:34:31 CAR 4430034 Legette valid=True starter=False
+DNP 17:34:31 CAR 4431077 Edwards valid=False starter=False
+DRESS 17:34:31 CAR 4431426 Thornton valid=True starter=False
+DRESS 17:34:31 CAR 4431551 Hunter valid=True starter=False
+DNP 17:34:31 CAR 4431588 Sanders valid=False starter=False
+DRESS 17:34:31 CAR 4567096 Metchie III valid=True starter=False
+DRESS 17:34:31 CAR 4567416 Weston valid=False starter=False
+DRESS 17:34:31 CAR 4568263 Fitzgerald valid=True starter=False
+DRESS 17:34:31 CAR 4576075 Bullock valid=True starter=False
+DRESS 17:34:31 CAR 4602967 Hall valid=True starter=False
+DRESS 17:34:31 CAR 4683243 M. Evans valid=True starter=False
+DRESS 17:34:31 CAR 4685350 Etienne valid=True starter=False
+DRESS 17:34:31 CAR 4696902 Simpkins III valid=True starter=False
+DRESS 17:34:31 CAR 4709392 Tyus III valid=True starter=False
+DNP 17:34:31 CAR 4874515 Hecht valid=False starter=False
+DRESS 17:34:31 CAR 4875592 Kuwatch valid=True starter=False
+DRESS 17:34:31 CAR 4876995 Reed valid=False starter=False
+DRESS 17:34:31 CAR 4880613 Martin-Scott valid=True starter=False
+DNP 17:34:31 CAR 5151083 Lee III valid=False starter=False
+DRESS 17:34:31 CAR 5225251 DeWalt IV valid=True starter=False
+POLL 17:34:32 BAL @ CAR kick=2026-11-22T18:00Z state=pre BAL n=60 dnp=9
+DRESS 17:34:32 BAL 2578570 Brissett valid=True starter=True
+DRESS 17:34:32 BAL 2980153 Stanley valid=True starter=True
+DRESS 17:34:32 BAL 3043078 Henry valid=True starter=True
+DRESS 17:34:32 BAL 3052743 Hendrickson valid=True starter=True
+DRESS 17:34:32 BAL 3915189 Smith valid=True starter=True
+DRESS 17:34:32 BAL 3915837 Washington Jr. valid=True starter=True
+DRESS 17:34:32 BAL 4035479 J. Simpson valid=True starter=True
+DRESS 17:34:32 BAL 4360939 Bateman valid=True starter=True
+DRESS 17:34:32 BAL 4361178 Jurgens valid=True starter=True
+DRESS 17:34:32 BAL 4362139 T. Jones valid=True starter=True
+DRESS 17:34:32 BAL 4429615 Flowers valid=True starter=True
+DRESS 17:34:32 BAL 4430831 T. Simpson valid=True starter=True
+DRESS 17:34:32 BAL 4430876 Rosengarten valid=True starter=True
+DRESS 17:34:32 BAL 4575517 Hamilton valid=True starter=True
+DRESS 17:34:32 BAL 4601278 Wiggins valid=True starter=True
+DRESS 17:34:32 BAL 4683188 Green valid=True starter=True
+DRESS 17:34:32 BAL 4685530 Starks valid=True starter=True
+DRESS 17:34:32 BAL 4832793 Ioane valid=True starter=True
+DRESS 17:34:32 BAL 4870847 Lane valid=True starter=True
+DRESS 17:34:32 BAL 4876132 Cuevas valid=True starter=True
+DRESS 17:34:32 BAL 11284 Campbell valid=True starter=False
+DRESS 17:34:32 BAL 15846 Jenkins valid=True starter=False
+DRESS 17:34:32 BAL 2576399 Vannett valid=True starter=False
+DRESS 17:34:32 BAL 2576581 C. Moore valid=True starter=False
+DRESS 17:34:32 BAL 3042738 Pocic valid=False starter=False
+DRESS 17:34:32 BAL 3052101 Awuzie valid=True starter=False
+DRESS 17:34:32 BAL 3116365 Andrews valid=True starter=False
+DNP 17:34:32 BAL 3126356 Humphrey valid=False starter=False
+DRESS 17:34:32 BAL 3701582 Edoga valid=True starter=False
+DNP 17:34:32 BAL 3858276 Hawkins valid=False starter=False
+DRESS 17:34:32 BAL 3915184 N. Moore valid=True starter=False
+DNP 17:34:32 BAL 4035245 Madubuike valid=False starter=False
+DRESS 17:34:32 BAL 4035463 Wallace valid=True starter=False
+DRESS 17:34:32 BAL 4036444 Neuzil valid=False starter=False
+DRESS 17:34:32 BAL 4038441 Hill valid=True starter=False
+DRESS 17:34:32 BAL 4243371 Patterson valid=True starter=False
+DRESS 17:34:32 BAL 4362845 Gwyn valid=False starter=False
+DRESS 17:34:32 BAL 4426372 Isaac valid=False starter=False
+DNP 17:34:32 BAL 4428512 Slovis valid=False starter=False
+DRESS 17:34:32 BAL 4429582 Fagnano valid=False starter=False
+DRESS 17:34:32 BAL 4432260 Hibner valid=True starter=False
+DNP 17:34:32 BAL 4565311 Peebles valid=False starter=False
+DRESS 17:34:32 BAL 4565350 Higgins IV valid=True starter=False
+DRESS 17:34:32 BAL 4575483 Tampa valid=True starter=False
+DNP 17:34:32 BAL 4685526 Randall valid=False starter=False
+DNP 17:34:32 BAL 4685736 E. Jones Jr. valid=False starter=False
+DRESS 17:34:32 BAL 4686768 Lichtenhan valid=False starter=False
+DRESS 17:34:32 BAL 4690013 Ali valid=True starter=False
+DRESS 17:34:32 BAL 4690143 Wester valid=True starter=False
+DRESS 17:34:32 BAL 4694334 Martin valid=True starter=False
+DRESS 17:34:32 BAL 4696882 Walker valid=True starter=False
+DRESS 17:34:32 BAL 4698244 Buchanan valid=True starter=False
+DNP 17:34:32 BAL 4702918 Rivers valid=False starter=False
+DRESS 17:34:32 BAL 4769895 Vinson valid=True starter=False
+DRESS 17:34:32 BAL 4839501 Young valid=True starter=False
+DRESS 17:34:32 BAL 4878287 K. Jackson valid=True starter=False
+DRESS 17:34:32 BAL 4908867 Burke valid=True starter=False
+DRESS 17:34:32 BAL 5084956 Eckley valid=True starter=False
+DNP 17:34:32 BAL 5088338 Sarratt valid=False starter=False
+DRESS 17:34:32 BAL 5211114 Olajiga valid=False starter=False
+INJ 17:34:32 LAC 4612826 Ladd McConkey | Questionable | 2026-11-22T12:33Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 17:34:32 LAC 4838693 Rodney Shelley | Injured Reserve | 2026-11-22T00:49Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 17:34:32 LAC 4411189 Trey Pipkins III | Questionable | 2026-11-22T00:44Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 17:34:32 LAC 4574105 Isas Waxter | Questionable | 2026-11-21T01:40Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 17:34:32 LAC 4360745 Kendall Williamson | Out | 2026-11-21T01:31Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:32 NYJ 4243375 Dylan Parham | Questionable | 2026-11-21T01:18Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 17:34:32 NYJ 3117255 Harrison Phillips | Questionable | 2026-11-21T01:15Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 17:34:32 NYJ 4002046 David Onyemata | Injured Reserve | 2026-11-21T01:01Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 17:34:32 NYJ 4683815 Trevin Wallace | Questionable | 2026-11-20T22:59Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 17:34:32 NYJ 4569371 Isaiah Williams | Out | 2026-11-20T16:11Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+POLL 17:34:32 NYJ @ LAC kick=2026-11-22T21:05Z state=pre LAC n=58 dnp=6
+DRESS 17:34:32 LAC 16195 Jefferson valid=True starter=True
+DRESS 17:34:32 LAC 16710 Mack valid=True starter=True
+DRESS 17:34:32 LAC 2979860 Tomlinson valid=True starter=True
+DRESS 17:34:32 LAC 3843769 Jackson valid=True starter=True
+DRESS 17:34:32 LAC 4038941 J. Herbert valid=True starter=True
+DRESS 17:34:32 LAC 4051001 Strange valid=True starter=True
+DRESS 17:34:32 LAC 4240528 Phillips valid=True starter=True
+DRESS 17:34:32 LAC 4241263 Kolar valid=True starter=True
+DRESS 17:34:32 LAC 4241597 Henley valid=True starter=True
+DRESS 17:34:32 LAC 4243328 Molden valid=True starter=True
+DRESS 17:34:32 LAC 4373684 Matlock valid=True starter=True
+DRESS 17:34:32 LAC 4374269 Tart valid=True starter=True
+DRESS 17:34:32 LAC 4427404 Hart valid=True starter=True
+DRESS 17:34:32 LAC 4429025 Johnston valid=True starter=True
+DRESS 17:34:32 LAC 4431442 Tuipulotu valid=True starter=True
+DRESS 17:34:32 LAC 4432571 Still valid=True starter=True
+DRESS 17:34:32 LAC 4682506 Slaughter valid=True starter=True
+DRESS 17:34:32 LAC 4682789 L. Taylor valid=True starter=True
+DRESS 17:34:32 LAC 4683487 Alt valid=True starter=True
+DRESS 17:34:32 LAC 4685382 Hampton valid=True starter=True
+DRESS 17:34:32 LAC 4686612 T. Harris valid=True starter=True
+DRESS 17:34:32 LAC 4876658 Burke valid=True starter=True
+DRESS 17:34:32 LAC 15151 J. Harris valid=True starter=False
+DNP 17:34:32 LAC 2576702 Dupree valid=False starter=False
+DRESS 17:34:32 LAC 2579621 Perryman valid=True starter=False
+DRESS 17:34:32 LAC 3123076 Njoku valid=True starter=False
+DRESS 17:34:32 LAC 3126368 Scott valid=True starter=False
+DRESS 17:34:32 LAC 3914151 Deguara valid=False starter=False
+DRESS 17:34:32 LAC 4035788 Biadasz valid=False starter=False
+DRESS 17:34:32 LAC 4038946 Dye valid=True starter=False
+DRESS 17:34:32 LAC 4039164 Adams valid=True starter=False
+DRESS 17:34:32 LAC 4040842 Awosika valid=True starter=False
+DNP 17:34:32 LAC 4360745 Williamson valid=False starter=False
+DRESS 17:34:32 LAC 4362081 Dicker valid=True starter=False
+DRESS 17:34:32 LAC 4362477 Davis valid=True starter=False
+DRESS 17:34:32 LAC 4372017 Armour-Davis valid=False starter=False
+DRESS 17:34:32 LAC 4411189 Pipkins III valid=False starter=False
+DRESS 17:34:32 LAC 4426535 Wease Jr. valid=True starter=False
+DRESS 17:34:32 LAC 4429018 Mickens valid=True starter=False
+DRESS 17:34:32 LAC 4429020 Uiagalelei valid=False starter=False
+DRESS 17:34:32 LAC 4429190 Mesidor valid=True starter=False
+DRESS 17:34:32 LAC 4429811 P. Herbert valid=False starter=False
+DRESS 17:34:32 LAC 4430870 Lambert-Smith valid=True starter=False
+DRESS 17:34:32 LAC 4430968 Vidal valid=True starter=False
+DRESS 17:34:32 LAC 4431467 Wax valid=True starter=False
+DNP 17:34:32 LAC 4567138 Eboigbe valid=False starter=False
+DNP 17:34:32 LAC 4574105 Waxter valid=False starter=False
+DRESS 17:34:32 LAC 4595342 Gadsden valid=True starter=False
+DRESS 17:34:32 LAC 4596334 Mitchell valid=True starter=False
+DNP 17:34:32 LAC 4612826 McConkey valid=False starter=False
+DRESS 17:34:32 LAC 4682818 Barrett valid=True starter=False
+DNP 17:34:32 LAC 4685553 Thompson valid=False starter=False
+DRESS 17:34:32 LAC 4690171 Leonard valid=True starter=False
+DRESS 17:34:32 LAC 4911489 Murphy valid=True starter=False
+DRESS 17:34:32 LAC 4950551 Smith valid=True starter=False
+DRESS 17:34:32 LAC 5082312 Spomer valid=False starter=False
+DRESS 17:34:32 LAC 5082660 Harkey valid=False starter=False
+DRESS 17:34:32 LAC 5089178 Caldwell valid=True starter=False
+POLL 17:34:32 NYJ @ LAC kick=2026-11-22T21:05Z state=pre NYJ n=56 dnp=4
+DRESS 17:34:32 NYJ 14958 D. Davis valid=True starter=True
+DRESS 17:34:32 NYJ 15864 G. Smith valid=True starter=True
+DRESS 17:34:32 NYJ 3117255 Phillips valid=True starter=True
+DRESS 17:34:32 NYJ 3925345 Fitzpatrick valid=True starter=True
+DRESS 17:34:32 NYJ 4035824 Stephens valid=True starter=True
+DRESS 17:34:32 NYJ 4242000 Myers valid=True starter=True
+DRESS 17:34:32 NYJ 4243375 Parham valid=True starter=True
+DRESS 17:34:32 NYJ 4361331 Sherwood valid=True starter=True
+DRESS 17:34:32 NYJ 4362840 Enagbare valid=True starter=True
+DRESS 17:34:32 NYJ 4426676 Briggs valid=True starter=True
+DRESS 17:34:32 NYJ 4426686 Belton valid=True starter=True
+DRESS 17:34:32 NYJ 4427366 Hall valid=True starter=True
+DRESS 17:34:32 NYJ 4428681 Tippmann valid=True starter=True
+DRESS 17:34:32 NYJ 4431809 Fashanu valid=True starter=True
+DRESS 17:34:32 NYJ 4569618 Wilson valid=True starter=True
+DRESS 17:34:32 NYJ 4612836 Jackson Jr. valid=True starter=True
+DRESS 17:34:32 NYJ 4685248 Bailey valid=True starter=True
+DRESS 17:34:32 NYJ 4685596 Thomas valid=True starter=True
+DRESS 17:34:32 NYJ 4723820 O. Cooper Jr. valid=True starter=True
+DRESS 17:34:32 NYJ 4789907 Membou valid=True starter=True
+DRESS 17:34:32 NYJ 4808766 Taylor valid=True starter=True
+DRESS 17:34:32 NYJ 5083315 Sadiq valid=True starter=True
+DRESS 17:34:32 NYJ 2976592 Shepard valid=False starter=False
+DRESS 17:34:32 NYJ 2983155 Hennessy valid=True starter=False
+DRESS 17:34:32 NYJ 3116177 Reeder valid=True starter=False
+DRESS 17:34:32 NYJ 3124679 Sanders valid=True starter=False
+DRESS 17:34:32 NYJ 3125107 Beck valid=True starter=False
+DRESS 17:34:32 NYJ 3129473 Okorafor valid=True starter=False
+DRESS 17:34:32 NYJ 4035537 Nwangwu valid=True starter=False
+DRESS 17:34:32 NYJ 4039485 Heflin valid=True starter=False
+DRESS 17:34:32 NYJ 4076803 Meredith valid=True starter=False
+DNP 17:34:32 NYJ 4241410 Woods valid=False starter=False
+DRESS 17:34:32 NYJ 4361372 Ruckert valid=True starter=False
+DRESS 17:34:32 NYJ 4361418 Levis valid=False starter=False
+DRESS 17:34:32 NYJ 4361767 McDonald IV valid=True starter=False
+DRESS 17:34:32 NYJ 4362094 Ossai valid=True starter=False
+DRESS 17:34:32 NYJ 4426623 Banks valid=False starter=False
+DNP 17:34:32 NYJ 4426817 Brownlee Jr. valid=False starter=False
+DRESS 17:34:32 NYJ 4427982 McNamara valid=True starter=False
+DRESS 17:34:32 NYJ 4429636 Freeland valid=False starter=False
+DRESS 17:34:32 NYJ 4431582 Page valid=True starter=False
+DRESS 17:34:32 NYJ 4569371 Williams valid=True starter=False
+DRESS 17:34:32 NYJ 4570470 Wright valid=True starter=False
+DNP 17:34:32 NYJ 4574142 Lynn valid=False starter=False
+DRESS 17:34:32 NYJ 4597500 A. Mitchell valid=True starter=False
+DRESS 17:34:32 NYJ 4682509 McClain valid=True starter=False
+DNP 17:34:32 NYJ 4683815 Wallace valid=False starter=False
+DRESS 17:34:32 NYJ 4685247 Allen valid=True starter=False
+DRESS 17:34:32 NYJ 4685413 Klubnik valid=True starter=False
+DRESS 17:34:32 NYJ 4692024 Moore valid=True starter=False
+DRESS 17:34:32 NYJ 4695404 I. Davis valid=True starter=False
+DRESS 17:34:32 NYJ 4700136 Mauigoa valid=False starter=False
+DRESS 17:34:32 NYJ 4700756 Keller valid=True starter=False
+DRESS 17:34:32 NYJ 4837388 Payne valid=True starter=False
+DRESS 17:34:32 NYJ 5118340 Ponds valid=True starter=False
+DRESS 17:34:32 NYJ 5208977 Stiggers valid=True starter=False
+INJ 17:34:32 DEN 4432208 Caleb Lohner | Injured Reserve | 2026-11-21T00:17Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 17:34:32 DEN 4039059 Brandon Jones | Questionable | 2026-11-21T00:10Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 17:34:32 DEN 4066109 Eyioma Uwazurike | Injured Reserve | 2026-11-08T03:38Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 17:34:32 DEN 4568490 RJ Harvey | Injured Reserve | 2026-10-31T20:18Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 17:34:32 DEN 4362748 Tyler Badie | Injured Reserve | 2026-10-24T23:25Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 17:34:32 LV 4432665 Brock Bowers | Questionable | 2026-11-22T15:54Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 17:34:32 LV 3045172 Folorunso Fatukasi | Questionable | 2026-11-21T00:31Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 17:34:32 LV 4429109 Tonka Hemingway | Out | 2026-11-21T00:25Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:32 LV 4249087 Matt Gay | Questionable | 2026-11-20T18:53Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 17:34:32 LV 4243916 Patrick Johnson | Injured Reserve | 2026-11-01T02:52Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+POLL 17:34:32 LV @ DEN kick=2026-11-22T21:25Z state=pre DEN n=57 dnp=8
+DRESS 17:34:32 DEN 2612151 Singleton valid=True starter=True
+DRESS 17:34:32 DEN 3052885 McGlinchey valid=True starter=True
+DRESS 17:34:32 DEN 3128429 Sutton valid=True starter=True
+DRESS 17:34:32 DEN 3894915 D.J. Jones valid=True starter=True
+DRESS 17:34:32 DEN 3911853 Trautman valid=True starter=True
+DRESS 17:34:32 DEN 3915282 Allen valid=True starter=True
+DRESS 17:34:32 DEN 3919548 Strnad valid=True starter=True
+DRESS 17:34:32 DEN 4035662 Bolles valid=True starter=True
+DRESS 17:34:32 DEN 4037559 Key valid=True starter=True
+DRESS 17:34:32 DEN 4037650 Powers valid=True starter=True
+DRESS 17:34:32 DEN 4039018 Wattenberg valid=True starter=True
+DRESS 17:34:32 DEN 4040608 Cooper valid=True starter=True
+DRESS 17:34:32 DEN 4360259 Bonitto valid=True starter=True
+DRESS 17:34:32 DEN 4372012 Surtain II valid=True starter=True
+DRESS 17:34:32 DEN 4372016 Waddle valid=True starter=True
+DRESS 17:34:32 DEN 4382401 Moss valid=True starter=True
+DRESS 17:34:32 DEN 4426338 Nix valid=True starter=True
+DRESS 17:34:32 DEN 4428503 Skinner valid=True starter=True
+DRESS 17:34:32 DEN 4603189 S. Jones valid=True starter=True
+DRESS 17:34:32 DEN 4608138 Meinerz valid=True starter=True
+DRESS 17:34:32 DEN 4702555 Coleman valid=True starter=True
+DRESS 17:34:32 DEN 2985659 Lutz valid=True starter=False
+DRESS 17:34:32 DEN 3051876 Engram valid=True starter=False
+DRESS 17:34:32 DEN 3139166 Fraboni valid=True starter=False
+DNP 17:34:32 DEN 3892775 Stidham valid=False starter=False
+DRESS 17:34:32 DEN 3921936 Peart valid=True starter=False
+DRESS 17:34:32 DEN 3929914 Prentice valid=True starter=False
+DRESS 17:34:32 DEN 4039007 Rapp valid=True starter=False
+DNP 17:34:32 DEN 4039057 Humphrey valid=False starter=False
+DNP 17:34:32 DEN 4039059 B. Jones valid=False starter=False
+DRESS 17:34:32 DEN 4039064 Roach valid=True starter=False
+DRESS 17:34:32 DEN 4240551 Palczewski valid=True starter=False
+DNP 17:34:32 DEN 4241820 Ehlinger valid=False starter=False
+DRESS 17:34:32 DEN 4241985 Dobbins valid=True starter=False
+DRESS 17:34:32 DEN 4242503 Forsyth valid=True starter=False
+DRESS 17:34:32 DEN 4257240 Anderson valid=True starter=False
+DRESS 17:34:32 DEN 4261090 Jackson valid=True starter=False
+DNP 17:34:32 DEN 4360853 Hufanga valid=False starter=False
+DRESS 17:34:32 DEN 4383440 Adkins valid=True starter=False
+DRESS 17:34:32 DEN 4391845 Schrader valid=True starter=False
+DNP 17:34:32 DEN 4429193 Abrams-Draine valid=False starter=False
+DRESS 17:34:32 DEN 4430925 Barron valid=True starter=False
+DRESS 17:34:32 DEN 4431280 Franklin valid=True starter=False
+DRESS 17:34:32 DEN 4565769 Fresch valid=True starter=False
+DRESS 17:34:32 DEN 4567462 McMillian valid=True starter=False
+DRESS 17:34:32 DEN 4589212 Crawshaw valid=True starter=False
+DRESS 17:34:32 DEN 4683535 Onyedim valid=True starter=False
+DRESS 17:34:32 DEN 4686472 Mims Jr. valid=True starter=False
+DRESS 17:34:32 DEN 4692048 Robinson valid=True starter=False
+DRESS 17:34:32 DEN 4693373 Turner valid=True starter=False
+DNP 17:34:32 DEN 4868598 Casey valid=False starter=False
+DRESS 17:34:32 DEN 4875336 Reid valid=True starter=False
+DRESS 17:34:32 DEN 5082398 Austin valid=False starter=False
+DRESS 17:34:32 DEN 5085625 Ortega valid=False starter=False
+DNP 17:34:32 DEN 5159802 Bentley valid=False starter=False
+DRESS 17:34:32 DEN 5216101 Tillman valid=True starter=False
+DRESS 17:34:32 DEN 5225419 Katsis valid=False starter=False
+POLL 17:34:32 LV @ DEN kick=2026-11-22T21:25Z state=pre LV n=59 dnp=6
+DRESS 17:34:32 LV 2972342 Butler valid=True starter=True
+DRESS 17:34:32 LV 3045172 Fatukasi valid=True starter=True
+DRESS 17:34:32 LV 3121003 T. Johnson valid=True starter=True
+DRESS 17:34:32 LV 3134312 Miller valid=True starter=True
+DRESS 17:34:32 LV 3916655 Crosby valid=True starter=True
+DRESS 17:34:32 LV 4043169 Chinn valid=True starter=True
+DRESS 17:34:32 LV 4241961 Heyward valid=True starter=True
+DRESS 17:34:32 LV 4258194 Paye valid=True starter=True
+DRESS 17:34:32 LV 4259561 Stokes valid=True starter=True
+DRESS 17:34:32 LV 4360499 Linderbaum valid=True starter=True
+DRESS 17:34:32 LV 4362999 Burford valid=True starter=True
+DRESS 17:34:32 LV 4379416 Walker valid=True starter=True
+DRESS 17:34:32 LV 4426340 Dean valid=True starter=True
+DRESS 17:34:32 LV 4428718 Tucker valid=True starter=True
+DRESS 17:34:32 LV 4429086 Mayer valid=True starter=True
+DRESS 17:34:32 LV 4431623 Zuhn III valid=True starter=True
+DRESS 17:34:32 LV 4432665 Bowers valid=True starter=True
+DRESS 17:34:32 LV 4606683 Glaze valid=True starter=True
+DRESS 17:34:32 LV 4697757 Stukes valid=True starter=True
+DRESS 17:34:32 LV 4837248 Mendoza valid=True starter=True
+DRESS 17:34:32 LV 4890973 Jeanty valid=True starter=True
+DRESS 17:34:32 LV 4917354 Masses valid=True starter=True
+DRESS 17:34:32 LV 3138744 Myarick valid=False starter=False
+DRESS 17:34:32 LV 3686689 Cole valid=True starter=False
+DRESS 17:34:32 LV 4034530 Williams valid=False starter=False
+DRESS 17:34:32 LV 4045305 Thomas valid=True starter=False
+DRESS 17:34:32 LV 4239719 Koonce valid=True starter=False
+DRESS 17:34:32 LV 4241983 White valid=True starter=False
+DRESS 17:34:32 LV 4243545 Ward valid=True starter=False
+DRESS 17:34:32 LV 4249087 Gay valid=True starter=False
+DNP 17:34:32 LV 4250393 McCollum valid=False starter=False
+DRESS 17:34:32 LV 4259632 Pola-Mao valid=True starter=False
+DRESS 17:34:32 LV 4260394 O'Connell valid=False starter=False
+DRESS 17:34:32 LV 4260703 Olubi valid=True starter=False
+DNP 17:34:32 LV 4360749 Booker IV valid=False starter=False
+DRESS 17:34:32 LV 4366963 Laube valid=True starter=False
+DRESS 17:34:32 LV 4374187 Thompkins valid=False starter=False
+DRESS 17:34:32 LV 4382466 Nailor valid=True starter=False
+DRESS 17:34:32 LV 4401805 Young valid=True starter=False
+DRESS 17:34:32 LV 4429109 Hemingway valid=True starter=False
+DRESS 17:34:32 LV 4429560 Eichenberg valid=True starter=False
+DRESS 17:34:32 LV 4430330 Porter valid=True starter=False
+DRESS 17:34:32 LV 4430896 Pegues valid=True starter=False
+DRESS 17:34:32 LV 4431414 Keenan III valid=True starter=False
+DNP 17:34:32 LV 4432775 Thornton Jr. valid=False starter=False
+DRESS 17:34:32 LV 4433889 Rogers valid=True starter=False
+DRESS 17:34:32 LV 4433901 Rucker valid=False starter=False
+DRESS 17:34:32 LV 4603186 Bech valid=True starter=False
+DNP 17:34:32 LV 4612077 Cabeldue valid=False starter=False
+DNP 17:34:32 LV 4682488 D. Johnson valid=False starter=False
+DRESS 17:34:32 LV 4685126 Lindenberg valid=True starter=False
+DRESS 17:34:32 LV 4685978 Luter Jr. valid=True starter=False
+DRESS 17:34:32 LV 4686658 Washington Jr. valid=True starter=False
+DRESS 17:34:32 LV 4688835 Hemby valid=False starter=False
+DRESS 17:34:32 LV 4694505 Grant valid=True starter=False
+DRESS 17:34:32 LV 4875295 Powers-Johnson valid=True starter=False
+DNP 17:34:32 LV 5150247 Benson valid=False starter=False
+DRESS 17:34:32 LV 5155825 Runyon valid=True starter=False
+DRESS 17:34:32 LV 5157289 McCoy valid=True starter=False
+INJ 17:34:32 NYG 4360516 Tyrone Tracy Jr. | Injured Reserve | 2026-11-18T20:16Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 17:34:32 NYG 3929950 Tremaine Edmunds | Injured Reserve | 2026-10-24T23:28Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 17:34:32 NYG 3123075 Braxton Berrios | Injured Reserve | 2026-10-14T21:17Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 17:34:32 NYG 4036132 Chauncey Golston | Injured Reserve | 2026-10-11T01:28Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 17:34:32 NYG 4689114 Jaxson Dart | Injured Reserve | 2026-09-30T20:35Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 17:34:32 JAX 4573319 Danny Striggow | Out | 2026-11-22T00:45Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:32 JAX 4875266 B.J. Green II | Injured Reserve | 2026-11-21T01:27Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 17:34:32 JAX 3134316 Matt Dickerson | Questionable | 2026-11-18T21:25Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 17:34:32 JAX 4242391 Robert Hainsey | Out | 2026-11-18T16:05Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:32 JAX 2970716 Eric Murray | Injured Reserve | 2026-11-04T01:11Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+POLL 17:34:32 JAX @ NYG kick=2026-11-22T21:25Z state=pre NYG n=56 dnp=6
+DRESS 17:34:32 NYG 16837 Harris valid=True starter=True
+DRESS 17:34:32 NYG 2977670 Reader valid=True starter=True
+DRESS 17:34:32 NYG 3115303 Eluemunor valid=True starter=True
+DRESS 17:34:32 NYG 3929936 Runyan valid=True starter=True
+DRESS 17:34:32 NYG 4040655 Mooney valid=True starter=True
+DRESS 17:34:32 NYG 4259566 A. Thomas valid=True starter=True
+DRESS 17:34:32 NYG 4361050 Likely valid=True starter=True
+DRESS 17:34:32 NYG 4361266 Newsome II valid=True starter=True
+DRESS 17:34:32 NYG 4362492 Washington valid=True starter=True
+DRESS 17:34:32 NYG 4371961 McFadden valid=True starter=True
+DRESS 17:34:32 NYG 4373809 Holland valid=True starter=True
+DRESS 17:34:32 NYG 4426326 Thibodeaux valid=True starter=True
+DRESS 17:34:32 NYG 4426489 Hudson valid=True starter=True
+DRESS 17:34:32 NYG 4428328 Banks valid=True starter=True
+DRESS 17:34:32 NYG 4429148 Johnson valid=True starter=True
+DRESS 17:34:32 NYG 4433970 McCarthy valid=True starter=True
+DRESS 17:34:32 NYG 4595348 Nabers valid=True starter=True
+DRESS 17:34:32 NYG 4696981 Skattebo valid=True starter=True
+DRESS 17:34:32 NYG 4725996 Carter valid=True starter=True
+DRESS 17:34:32 NYG 4950400 Reese valid=True starter=True
+DRESS 17:34:32 NYG 5159928 Jamison-Travis valid=True starter=True
+DRESS 17:34:32 NYG 2531358 Manhertz valid=True starter=False
+DRESS 17:34:32 NYG 2969939 Winston valid=True starter=False
+DRESS 17:34:32 NYG 2975417 Ricard valid=True starter=False
+DRESS 17:34:32 NYG 3042476 Smoot valid=True starter=False
+DRESS 17:34:32 NYG 3049339 Stinnie valid=True starter=False
+DRESS 17:34:32 NYG 3932901 Campbell valid=True starter=False
+DNP 17:34:32 NYG 4039243 Sills valid=False starter=False
+DNP 17:34:32 NYG 4040615 Harrison valid=False starter=False
+DRESS 17:34:32 NYG 4040761 Singletary valid=True starter=False
+DRESS 17:34:32 NYG 4240706 Pinnock valid=True starter=False
+DNP 17:34:32 NYG 4240771 Schmitz Jr. valid=False starter=False
+DRESS 17:34:32 NYG 4258237 Layne valid=False starter=False
+DRESS 17:34:32 NYG 4260224 Stout valid=True starter=False
+DRESS 17:34:32 NYG 4334405 T. Thomas valid=False starter=False
+DRESS 17:34:32 NYG 4360516 Tracy Jr. valid=False starter=False
+DRESS 17:34:32 NYG 4362234 Barnes valid=True starter=False
+DRESS 17:34:32 NYG 4426542 Alexander valid=True starter=False
+DRESS 17:34:32 NYG 4427207 Ford valid=True starter=False
+DRESS 17:34:32 NYG 4427278 Gipson valid=False starter=False
+DRESS 17:34:32 NYG 4427636 Jones valid=True starter=False
+DRESS 17:34:32 NYG 4430261 Nubin valid=True starter=False
+DRESS 17:34:32 NYG 4431321 Phillips valid=True starter=False
+DRESS 17:34:32 NYG 4431562 Mafah valid=False starter=False
+DRESS 17:34:32 NYG 4570296 Cambre valid=False starter=False
+DNP 17:34:32 NYG 4590292 Fidone II valid=False starter=False
+DRESS 17:34:32 NYG 4682648 Fields valid=True starter=False
+DRESS 17:34:32 NYG 4686362 Mbow valid=True starter=False
+DRESS 17:34:32 NYG 4691889 Desrosiers Jr. valid=True starter=False
+DRESS 17:34:32 NYG 4692590 Hyatt valid=True starter=False
+DRESS 17:34:32 NYG 4876380 Kelly valid=True starter=False
+DRESS 17:34:32 NYG 4883114 Mann valid=True starter=False
+DRESS 17:34:32 NYG 4921249 Hood valid=True starter=False
+DNP 17:34:32 NYG 5082353 Davis valid=False starter=False
+DRESS 17:34:32 NYG 5082424 Zvada valid=True starter=False
+DNP 17:34:32 NYG 5144942 Okoye valid=False starter=False
+POLL 17:34:32 JAX @ NYG kick=2026-11-22T21:25Z state=pre JAX n=57 dnp=6
+DRESS 17:34:32 JAX 2971275 Armstead valid=True starter=True
+DRESS 17:34:32 JAX 3050073 Oluokun valid=True starter=True
+DRESS 17:34:32 JAX 3134316 Dickerson valid=True starter=True
+DRESS 17:34:32 JAX 3915239 Hines-Allen valid=True starter=True
+DRESS 17:34:32 JAX 3916433 Meyers valid=True starter=True
+DRESS 17:34:32 JAX 4035791 Van Lanen valid=True starter=True
+DRESS 17:34:32 JAX 4048231 Cleveland valid=True starter=True
+DRESS 17:34:32 JAX 4240610 Miller valid=True starter=True
+DRESS 17:34:32 JAX 4242149 Brown valid=True starter=True
+DRESS 17:34:32 JAX 4242391 Hainsey valid=True starter=True
+DRESS 17:34:32 JAX 4242554 W. Little valid=True starter=True
+DRESS 17:34:32 JAX 4360310 Lawrence valid=True starter=True
+DRESS 17:34:32 JAX 4360502 Merriweather valid=True starter=True
+DRESS 17:34:32 JAX 4426349 Walker valid=True starter=True
+DRESS 17:34:32 JAX 4429168 Johnson valid=True starter=True
+DRESS 17:34:32 JAX 4430539 Strange valid=True starter=True
+DRESS 17:34:32 JAX 4432620 Washington valid=True starter=True
+DRESS 17:34:32 JAX 4432773 Bri. Thomas Jr. valid=True starter=True
+DRESS 17:34:32 JAX 4608929 Pregnon valid=True starter=True
+DRESS 17:34:32 JAX 4685415 Hunter valid=True starter=True
+DRESS 17:34:32 JAX 4880675 Lane III valid=True starter=True
+DRESS 17:34:32 JAX 4882093 Tuten valid=True starter=True
+DRESS 17:34:32 JAX 2576336 Abdullah valid=True starter=False
+DRESS 17:34:32 JAX 3045207 Lewis valid=True starter=False
+DRESS 17:34:32 JAX 3059989 Mullens valid=False starter=False
+DRESS 17:34:32 JAX 3115383 Godchaux valid=True starter=False
+DRESS 17:34:32 JAX 3115480 Cooke valid=True starter=False
+DRESS 17:34:32 JAX 3124587 Tavai valid=True starter=False
+DNP 17:34:32 JAX 3919512 Bates III valid=False starter=False
+DRESS 17:34:32 JAX 3928931 Matiscik valid=True starter=False
+DRESS 17:34:32 JAX 4047655 Jay. Jones valid=True starter=False
+DRESS 17:34:32 JAX 4244049 Morris valid=True starter=False
+DRESS 17:34:32 JAX 4334300 Gardeck valid=True starter=False
+DRESS 17:34:32 JAX 4360964 Faalele valid=True starter=False
+DRESS 17:34:32 JAX 4362619 Rodriguez Jr. valid=True starter=False
+DNP 17:34:32 JAX 4381558 Davis valid=False starter=False
+DRESS 17:34:32 JAX 4426448 Jar. Jones valid=True starter=False
+DRESS 17:34:32 JAX 4426981 Cox valid=False starter=False
+DRESS 17:34:32 JAX 4430271 Orhorhoro valid=True starter=False
+DRESS 17:34:32 JAX 4430481 Monheim valid=True starter=False
+DRESS 17:34:32 JAX 4431463 Milum valid=True starter=False
+DRESS 17:34:32 JAX 4432440 Muhammad valid=False starter=False
+DRESS 17:34:32 JAX 4572704 Combs valid=True starter=False
+DRESS 17:34:32 JAX 4573319 Striggow valid=True starter=False
+DRESS 17:34:32 JAX 4576129 McLeod valid=True starter=False
+DNP 17:34:32 JAX 4612298 Regis valid=False starter=False
+DRESS 17:34:32 JAX 4686248 Boerkircher valid=True starter=False
+DRESS 17:34:32 JAX 4686361 C. Little valid=True starter=False
+DNP 17:34:32 JAX 4832922 W. Williams valid=False starter=False
+DRESS 17:34:32 JAX 4836472 Bry. Thomas Jr. valid=True starter=False
+DRESS 17:34:32 JAX 4877475 Silmon-Craig valid=False starter=False
+DRESS 17:34:32 JAX 4879194 Cameron valid=True starter=False
+DNP 17:34:32 JAX 4889929 Ewers valid=False starter=False
+DRESS 17:34:32 JAX 4911851 Allen Jr. valid=True starter=False
+DRESS 17:34:32 JAX 4912185 Huskey valid=True starter=False
+DRESS 17:34:32 JAX 4917427 Koziol valid=True starter=False
+DNP 17:34:32 JAX 5085024 CJ Williams valid=False starter=False
+INJ 17:34:32 SF 16737 Mike Evans | Questionable | 2026-11-22T12:13Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 17:34:32 SF 4240542 Nate Hobbs | Injured Reserve | 2026-11-22T00:25Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 17:34:32 SF 3916903 Dre Greenlaw | Questionable | 2026-11-21T00:49Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 17:34:32 SF 4685397 Jordan James | Questionable | 2026-11-21T00:45Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 17:34:32 SF 4241464 Mac Jones | Questionable | 2026-11-21T00:40Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 17:34:32 MIN 4044540 Isaiah Rodgers | Questionable | 2026-11-20T22:27Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 17:34:32 MIN 3917315 Kyler Murray | Out | 2026-11-20T19:49Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:32 MIN 4875564 Bo Richter | Injured Reserve | 2026-11-19T01:59Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 17:34:32 MIN 4568007 Jay Ward | Questionable | 2026-11-18T22:23Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 17:34:32 MIN 4429205 Jordan Addison | Out | 2026-11-18T19:25Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+POLL 17:34:32 MIN VS SF kick=2026-11-23T01:20Z state=pre SF n=57 dnp=5
+DRESS 17:34:32 SF 13241 T. Williams valid=True starter=True
+DRESS 17:34:32 SF 16002 Juszczyk valid=True starter=True
+DRESS 17:34:32 SF 2577185 Brendel valid=True starter=True
+DRESS 17:34:32 SF 2971282 Buckner valid=True starter=True
+DRESS 17:34:32 SF 3040151 Kittle valid=True starter=True
+DRESS 17:34:32 SF 3117251 McCaffrey valid=True starter=True
+DRESS 17:34:32 SF 3126486 Samuel Sr. valid=True starter=True
+DRESS 17:34:32 SF 3138826 Warner valid=True starter=True
+DRESS 17:34:32 SF 3916075 McKivitz valid=True starter=True
+DRESS 17:34:32 SF 4035840 Odighizuwa valid=True starter=True
+DRESS 17:34:32 SF 4040605 Bosa valid=True starter=True
+DRESS 17:34:32 SF 4242488 Lenoir valid=True starter=True
+DRESS 17:34:32 SF 4243493 White valid=True starter=True
+DRESS 17:34:32 SF 4361741 Purdy valid=True starter=True
+DRESS 17:34:32 SF 4427325 Green valid=True starter=True
+DRESS 17:34:32 SF 4431466 Watkins valid=True starter=True
+DRESS 17:34:32 SF 4431523 Colby valid=True starter=True
+DRESS 17:34:32 SF 4565200 Stout valid=True starter=True
+DRESS 17:34:32 SF 4693644 Brown valid=True starter=True
+DRESS 17:34:32 SF 4696211 Mustapha valid=True starter=True
+DRESS 17:34:32 SF 5092959 Puni valid=True starter=True
+DRESS 17:34:32 SF 13729 Weeks valid=True starter=False
+DRESS 17:34:32 SF 15818 Allen valid=True starter=False
+DNP 17:34:32 SF 16737 Evans valid=False starter=False
+DRESS 17:34:32 SF 3043116 Robinson valid=True starter=False
+DRESS 17:34:32 SF 3047876 Hodge valid=False starter=False
+DRESS 17:34:32 SF 3052667 Okoronkwo valid=False starter=False
+DRESS 17:34:32 SF 3057524 Neal valid=True starter=False
+DRESS 17:34:32 SF 3116097 Gifford valid=True starter=False
+DRESS 17:34:32 SF 3125280 Waitman valid=True starter=False
+DRESS 17:34:32 SF 3858271 Davis valid=True starter=False
+DRESS 17:34:32 SF 4034862 Stoll valid=False starter=False
+DRESS 17:34:32 SF 4034949 Piñeiro valid=True starter=False
+DRESS 17:34:32 SF 4039029 Kareem valid=True starter=False
+DRESS 17:34:32 SF 4040612 Farrell valid=True starter=False
+DRESS 17:34:32 SF 4240554 Lowe valid=True starter=False
+DNP 17:34:32 SF 4241464 Jones valid=False starter=False
+DRESS 17:34:32 SF 4241807 Wallow valid=True starter=False
+DRESS 17:34:32 SF 4360290 B. Willis valid=True starter=False
+DRESS 17:34:32 SF 4360438 Aiyuk valid=False starter=False
+DRESS 17:34:32 SF 4372774 Patterson valid=True starter=False
+DNP 17:34:32 SF 4426698 Bethune valid=False starter=False
+DNP 17:34:32 SF 4430431 Rourke valid=False starter=False
+DRESS 17:34:32 SF 4432244 Height valid=True starter=False
+DRESS 17:34:32 SF 4565779 C. Willis valid=True starter=False
+DRESS 17:34:32 SF 4570410 Graham valid=False starter=False
+DRESS 17:34:32 SF 4575665 Cowing valid=True starter=False
+DRESS 17:34:32 SF 4685397 James valid=True starter=False
+DRESS 17:34:32 SF 4685523 Prysock valid=True starter=False
+DRESS 17:34:32 SF 4685623 M. Williams valid=True starter=False
+DRESS 17:34:32 SF 4686308 West valid=False starter=False
+DNP 17:34:32 SF 4691556 Cruz Jr. valid=False starter=False
+DRESS 17:34:32 SF 4693337 Sigle valid=True starter=False
+DRESS 17:34:32 SF 4693371 Thompson Jr. valid=True starter=False
+DRESS 17:34:32 SF 4696044 Black valid=True starter=False
+DRESS 17:34:32 SF 4775220 Valdez valid=True starter=False
+DRESS 17:34:32 SF 5086161 Dugger valid=True starter=False
+POLL 17:34:32 MIN VS SF kick=2026-11-23T01:20Z state=pre MIN n=54 dnp=7
+DRESS 17:34:32 MIN 14880 Cousins valid=True starter=True
+DRESS 17:34:32 MIN 3042519 A. Jones Sr. valid=True starter=True
+DRESS 17:34:32 MIN 3056916 Wilson valid=True starter=True
+DRESS 17:34:32 MIN 3123954 O'Neill valid=True starter=True
+DRESS 17:34:32 MIN 3133487 Van Ginkel valid=True starter=True
+DRESS 17:34:32 MIN 3930270 Brandel valid=True starter=True
+DRESS 17:34:32 MIN 4038999 Murphy Jr. valid=True starter=True
+DRESS 17:34:32 MIN 4044540 Rodgers valid=True starter=True
+DRESS 17:34:32 MIN 4045176 Fries valid=True starter=True
+DRESS 17:34:32 MIN 4046537 Metellus valid=True starter=True
+DRESS 17:34:32 MIN 4242436 T. Jackson valid=True starter=True
+DRESS 17:34:32 MIN 4262921 Jefferson valid=True starter=True
+DRESS 17:34:32 MIN 4360277 Redmond valid=True starter=True
+DRESS 17:34:32 MIN 4361985 Darrisaw valid=True starter=True
+DRESS 17:34:32 MIN 4430280 Pace Jr. valid=True starter=True
+DRESS 17:34:32 MIN 4433959 Yurosek valid=True starter=True
+DRESS 17:34:32 MIN 4565185 Felton valid=True starter=True
+DRESS 17:34:32 MIN 4565190 Turner valid=True starter=True
+DRESS 17:34:32 MIN 4602019 Banks valid=True starter=True
+DRESS 17:34:32 MIN 4690210 Huber valid=True starter=True
+DRESS 17:34:32 MIN 4878695 Bredeson valid=True starter=True
+DRESS 17:34:32 MIN 5093973 Rodriguez valid=True starter=True
+DRESS 17:34:32 MIN 14945 Smith valid=True starter=False
+DRESS 17:34:32 MIN 15726 DePaola valid=True starter=False
+DRESS 17:34:32 MIN 16772 Van Noy valid=True starter=False
+DNP 17:34:32 MIN 2573079 Wentz valid=False starter=False
+DNP 17:34:32 MIN 3728281 Cashman valid=False starter=False
+DNP 17:34:32 MIN 3886598 Jennings valid=False starter=False
+DNP 17:34:32 MIN 3917315 Murray valid=False starter=False
+DNP 17:34:32 MIN 4036133 Hockenson valid=False starter=False
+DRESS 17:34:32 MIN 4239140 Van Demark valid=True starter=False
+DRESS 17:34:32 MIN 4240631 Dallas valid=True starter=False
+DRESS 17:34:32 MIN 4259252 Pierre valid=True starter=False
+DRESS 17:34:32 MIN 4360569 Mason valid=True starter=False
+DRESS 17:34:32 MIN 4360637 J. Jones valid=True starter=False
+DRESS 17:34:32 MIN 4361112 Culp valid=True starter=False
+DRESS 17:34:32 MIN 4362010 Jurgens valid=True starter=False
+DRESS 17:34:32 MIN 4430656 Price valid=True starter=False
+DRESS 17:34:32 MIN 4431520 Chambliss valid=True starter=False
+DRESS 17:34:32 MIN 4567104 Reichard valid=True starter=False
+DRESS 17:34:32 MIN 4568007 Ward valid=True starter=False
+DNP 17:34:32 MIN 4573398 Brosmer valid=False starter=False
+DRESS 17:34:32 MIN 4592836 Tiernan valid=True starter=False
+DNP 17:34:32 MIN 4629149 Ingram-Dawkins valid=False starter=False
+DRESS 17:34:32 MIN 4695609 Vaughn valid=True starter=False
+DRESS 17:34:32 MIN 4696782 Williams valid=True starter=False
+DRESS 17:34:32 MIN 4698728 Orange valid=True starter=False
+DRESS 17:34:32 MIN 4708049 Bartholomew valid=True starter=False
+DRESS 17:34:32 MIN 4710865 Jak. Thomas valid=True starter=False
+DRESS 17:34:32 MIN 4712579 Bell valid=False starter=False
+DRESS 17:34:32 MIN 4799994 Thorson valid=True starter=False
+DRESS 17:34:32 MIN 4877652 Golday valid=True starter=False
+DRESS 17:34:32 MIN 5082397 Jac. Thomas valid=True starter=False
+DRESS 17:34:32 MIN 5091793 Demmings valid=True starter=False
+INJ 17:34:32 WSH 2576736 Lucas Patrick | Questionable | 2026-11-22T00:59Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 17:34:32 WSH 4239694 Amik Robertson | Questionable | 2026-11-22T00:26Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 17:34:32 WSH 4575131 Jacory Croskey-Merritt | Injured Reserve | 2026-11-21T23:35Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 17:34:32 WSH 4697815 Rachaad White | Questionable | 2026-11-21T21:21Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 17:34:32 WSH 3051890 Laremy Tunsil | Injured Reserve | 2026-11-21T00:56Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 17:34:32 CIN 4401811 Kyle Dugger | Questionable | 2026-11-22T00:54Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 17:34:32 CIN 3125082 Dalton Risner | Out | 2026-11-22T00:42Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 17:34:32 CIN 4426422 Dax Hill | Questionable | 2026-11-22T00:17Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 17:34:32 CIN 4368003 Andrei Iosivas | Injured Reserve | 2026-11-21T21:54Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 17:34:32 CIN 3051746 Oren Burks | Injured Reserve | 2026-11-21T19:53Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+ROSTER_ERR CIN @ WSH WSH HTTP Error 404: Not Found
+ROSTER_ERR CIN @ WSH CIN HTTP Error 404: Not Found

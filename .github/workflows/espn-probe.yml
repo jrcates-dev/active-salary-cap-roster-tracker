@@ -6,9 +6,10 @@ on:
     paths: [".github/probe/**", ".github/workflows/espn-probe.yml"]
 
 jobs:
-  probe:
+  snapshot:
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - run: python3 .github/probe/espn_probe.py 2045
+      # One pass: the deadline is already behind us.
+      - run: python3 .github/probe/espn_probe.py 0000

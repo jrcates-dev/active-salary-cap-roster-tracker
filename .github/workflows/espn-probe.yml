@@ -8,8 +8,12 @@ on:
 jobs:
   snapshot:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix:
+        # UTC: now; 10 min after the 4:05 PM ET inactives; after the 4:25 PM ET inactives.
+        at: ["0000", "1945", "2010"]
     steps:
       - uses: actions/checkout@v4
-      # One pass: the deadline is already behind us.
-      - run: python3 .github/probe/espn_probe.py 0000
+      - run: python3 .github/probe/espn_probe.py ${{ matrix.at }}

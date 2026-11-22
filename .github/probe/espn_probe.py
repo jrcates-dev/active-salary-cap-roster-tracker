@@ -1,14 +1,14 @@
 """Temporary probe: which ESPN field marks gameday inactives before kickoff?
 
-Prints, per game and team, how ESPN's per-game roster fields are distributed, one raw
-entry, and the summary endpoint's keys. Loops when given a deadline. Not part of the site.
+Waits until a given UTC time, then prints one pass over today's games: per team, who
+ESPN marks didNotPlay on its game roster, and the summary endpoint's injury entries.
+Not part of the site.
 """
 
 import json
 import sys
 import time
 import urllib.request
-from collections import Counter
 from datetime import UTC, datetime
 
 CORE = "https://sports.core.api.espn.com/v2/sports/football/leagues/nfl"
@@ -26,28 +26,22 @@ def now():
     return datetime.now(UTC).strftime("%H:%M:%S")
 
 
-def describe(entries):
-    out = []
-    for field in ("active", "didNotPlay", "starter", "valid", "ejected"):
-        c = Counter(str(e.get(field)) for e in entries)
-        out.append(f"{field}={dict(c)}")
-    return " ".join(out)
-
-
-def one_pass(first):
+def one_pass():
     sb = get(f"{SITE}/scoreboard")
     for ev in sb["events"]:
         comp = ev["competitions"][0]
         state = comp["status"]["type"]["state"]
-        if first:
-            try:
-                summ = get(f"{SITE}/summary?event={ev['id']}")
-                print(f"SUMMARY_KEYS {ev['shortName']} {sorted(summ.keys())}")
-                for k in ("injuries", "rosters", "inactives"):
-                    if k in summ:
-                        print(f"SUMMARY_{k.upper()} {ev['shortName']} {json.dumps(summ[k])[:1500]}")
-            except Exception as exc:  # noqa: BLE001
-                print(f"SUMMARY_ERR {ev['shortName']} {exc}")
+        if state == "post":
+            continue
+        try:
+            summ = get(f"{SITE}/summary?event={ev['id']}")
+            for t in summ.get("injuries", []):
+                abbr = t["team"]["abbreviation"]
+                for i in t.get("injuries", []):
+                    a = i.get("athlete", {})
+                    print(f"INJ {now()} {abbr} {a.get('id')} {a.get('fullName')} | {i.get('status')} | {i.get('date')} | type={json.dumps(i.get('type'))[:80]}")
+        except Exception as exc:  # noqa: BLE001
+            print(f"SUMMARY_ERR {ev['shortName']} {exc}")
         for c in comp["competitors"]:
             abbr = c["team"]["abbreviation"]
             try:
@@ -56,23 +50,21 @@ def one_pass(first):
                 print(f"ROSTER_ERR {ev['shortName']} {abbr} {exc}")
                 continue
             entries = r.get("entries", [])
-            if first and entries:
-                print(f"ROSTER_TOP_KEYS {sorted(r.keys())}")
-                print(f"ENTRY_RAW {json.dumps(entries[0])[:1500]}")
-                first = False
-            print(f"POLL {now()} {ev['shortName']} kick={ev['date']} state={state} {abbr} n={len(entries)} {describe(entries)}")
+            dnp = [e for e in entries if e.get("didNotPlay")]
+            print(f"POLL {now()} {ev['shortName']} kick={ev['date']} state={state} {abbr} n={len(entries)} dnp={len(dnp)}")
+            for e in dnp:
+                print(f"DNP {now()} {abbr} {e.get('playerId')} {e.get('displayName')} valid={e.get('valid')} starter={e.get('starter')}")
     sys.stdout.flush()
 
 
-def main(until_hhmm):
-    deadline = datetime.now(UTC).replace(hour=int(until_hhmm[:2]), minute=int(until_hhmm[2:]), second=0)
-    first = True
-    while True:
-        one_pass(first)
-        first = False
-        if datetime.now(UTC) >= deadline:
-            break
-        time.sleep(600)
+def main(at_hhmm):
+    target = datetime.now(UTC).replace(hour=int(at_hhmm[:2]), minute=int(at_hhmm[2:]), second=0)
+    wait = (target - datetime.now(UTC)).total_seconds()
+    if wait > 0:
+        print(f"waiting {wait:.0f}s until {target.isoformat()}")
+        sys.stdout.flush()
+        time.sleep(wait)
+    one_pass()
 
 
 if __name__ == "__main__":

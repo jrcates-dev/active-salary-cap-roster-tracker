@@ -1,13 +1,14 @@
-"""Temporary probe: does ESPN's per-game roster flag gameday inactives before kickoff?
+"""Temporary probe: which ESPN field marks gameday inactives before kickoff?
 
-Polls today's NFL games every few minutes and prints, per team, how many players ESPN
-marks inactive, plus the names the first time a list appears. Not part of the site.
+Prints, per game and team, how ESPN's per-game roster fields are distributed, one raw
+entry, and the summary endpoint's keys. Loops when given a deadline. Not part of the site.
 """
 
 import json
 import sys
 import time
 import urllib.request
+from collections import Counter
 from datetime import UTC, datetime
 
 CORE = "https://sports.core.api.espn.com/v2/sports/football/leagues/nfl"
@@ -25,58 +26,54 @@ def now():
     return datetime.now(UTC).strftime("%H:%M:%S")
 
 
-def roster(eid, tid):
-    url = f"{CORE}/events/{eid}/competitions/{eid}/competitors/{tid}/roster?limit=200"
-    return get(url)
+def describe(entries):
+    out = []
+    for field in ("active", "didNotPlay", "starter", "valid", "ejected"):
+        c = Counter(str(e.get(field)) for e in entries)
+        out.append(f"{field}={dict(c)}")
+    return " ".join(out)
+
+
+def one_pass(first):
+    sb = get(f"{SITE}/scoreboard")
+    for ev in sb["events"]:
+        comp = ev["competitions"][0]
+        state = comp["status"]["type"]["state"]
+        if first:
+            try:
+                summ = get(f"{SITE}/summary?event={ev['id']}")
+                print(f"SUMMARY_KEYS {ev['shortName']} {sorted(summ.keys())}")
+                for k in ("injuries", "rosters", "inactives"):
+                    if k in summ:
+                        print(f"SUMMARY_{k.upper()} {ev['shortName']} {json.dumps(summ[k])[:1500]}")
+            except Exception as exc:  # noqa: BLE001
+                print(f"SUMMARY_ERR {ev['shortName']} {exc}")
+        for c in comp["competitors"]:
+            abbr = c["team"]["abbreviation"]
+            try:
+                r = get(f"{CORE}/events/{ev['id']}/competitions/{ev['id']}/competitors/{c['id']}/roster?limit=200")
+            except Exception as exc:  # noqa: BLE001
+                print(f"ROSTER_ERR {ev['shortName']} {abbr} {exc}")
+                continue
+            entries = r.get("entries", [])
+            if first and entries:
+                print(f"ROSTER_TOP_KEYS {sorted(r.keys())}")
+                print(f"ENTRY_RAW {json.dumps(entries[0])[:1500]}")
+                first = False
+            print(f"POLL {now()} {ev['shortName']} kick={ev['date']} state={state} {abbr} n={len(entries)} {describe(entries)}")
+    sys.stdout.flush()
 
 
 def main(until_hhmm):
-    deadline = datetime.now(UTC).replace(
-        hour=int(until_hhmm[:2]), minute=int(until_hhmm[2:]), second=0
-    )
-    seen = {}
+    deadline = datetime.now(UTC).replace(hour=int(until_hhmm[:2]), minute=int(until_hhmm[2:]), second=0)
     first = True
     while True:
-        sb = get(f"{SITE}/scoreboard")
-        for ev in sb["events"]:
-            comp = ev["competitions"][0]
-            state = comp["status"]["type"]["state"]
-            kick = ev["date"]
-            if not kick.startswith(datetime.now(UTC).strftime("%Y-%m-%d")) and state == "pre" and not kick.startswith("2026-11-23T01"):
-                continue
-            if first:
-                try:
-                    summ = get(f"{SITE}/summary?event={ev['id']}")
-                    print(f"SUMMARY_KEYS {ev['shortName']} {sorted(summ.keys())}")
-                except Exception as exc:  # noqa: BLE001
-                    print(f"SUMMARY_ERR {ev['shortName']} {exc}")
-            parts = []
-            for c in comp["competitors"]:
-                abbr = c["team"]["abbreviation"]
-                try:
-                    r = roster(ev["id"], c["id"])
-                except Exception as exc:  # noqa: BLE001
-                    parts.append(f"{abbr} ERR {exc}")
-                    continue
-                entries = r.get("entries", [])
-                if first and entries:
-                    print(f"ENTRY_KEYS {sorted(entries[0].keys())}")
-                    first = False
-                ina = [e for e in entries if e.get("active") is False]
-                dnp = [e for e in entries if e.get("didNotPlay")]
-                parts.append(f"{abbr} n={len(entries)} inactive={len(ina)} dnp={len(dnp)}")
-                key = (ev["id"], abbr)
-                names = sorted((str(e.get("playerId")), e.get("displayName", "?")) for e in ina)
-                if names and seen.get(key) != names:
-                    seen[key] = names
-                    for pid, nm in names:
-                        print(f"INA {now()} {abbr} {pid} {nm}")
-            print(f"POLL {now()} {ev['shortName']} kick={kick} state={state} | " + " | ".join(parts))
-        sys.stdout.flush()
+        one_pass(first)
+        first = False
         if datetime.now(UTC) >= deadline:
             break
-        time.sleep(300)
+        time.sleep(600)
 
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else "2045")
+    main(sys.argv[1] if len(sys.argv) > 1 else "0000")

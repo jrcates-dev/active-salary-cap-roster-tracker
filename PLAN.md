@@ -218,7 +218,7 @@ The web app never calls an outside API at request time. Jobs pull the source fil
 - **Daily, 07:30 UTC:** contracts, weekly rosters, injuries, depth charts, 30 minutes after nflverse updates. Recompute every team's rollup and write the week's snapshot.
 - **Game days, every 15 minutes from 2.5 hours before the first kickoff:** gameday active flags (phase 2), then a rollup for the teams playing.
 - **Weekly, Tuesday:** freeze the previous week's snapshot and archive it.
-- **On every run:** reconcile each team's total against the source's team total and fail loudly if any team is off by more than 1 percent.
+- **On every run:** reconcile each team's total against the source's team total and fail loudly if any team is off by more than 1 percent while the hand-entered reference is fresh. A team that has traded, cut or signed someone since the reference date is reported as moved, with the moves, until the reference is refreshed.
 
 ### Repository layout
 

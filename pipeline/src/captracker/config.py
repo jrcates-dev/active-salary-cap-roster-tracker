@@ -20,6 +20,12 @@ DEFAULT_SEASON = int(os.environ.get("CAPTRACKER_SEASON", "2026"))
 # within this fraction of the published OverTheCap figure.
 RECONCILE_TOLERANCE = 0.01
 
+# The OverTheCap reference is typed in by hand, so it ages while trades, cuts and new
+# contracts keep moving every team's total (and OverTheCap's own figure with it). The
+# gate fails the run only while the reference is this many days old or newer; after
+# that a team outside tolerance is reported as having moved since the reference.
+REFERENCE_FRESH_DAYS = 7
+
 NFLVERSE_RELEASES = "https://github.com/nflverse/nflverse-data/releases/download"
 NFLVERSE_RAW = "https://raw.githubusercontent.com/nflverse"
 

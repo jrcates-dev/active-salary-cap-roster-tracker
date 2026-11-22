@@ -180,6 +180,10 @@ export interface ReconcileTeam {
   ok: boolean;
   allowance?: number;
   note?: string;
+  /** Outside tolerance, but the team has moved since the reference (or it is past its freshness window). */
+  moved?: boolean;
+  /** Roster moves since the reference that explain the gap, e.g. "Jessie Bates (to JAX)". */
+  moves?: string[];
 }
 
 /** Team (unit "all") and unit totals for one week of the season. */
@@ -375,6 +379,9 @@ export interface Snapshot {
     passed: boolean;
     teams_checked: number;
     teams_failing: number;
+    /** Older snapshots lack these. */
+    teams_moved?: number;
+    reference_fresh?: boolean;
     teams: ReconcileTeam[];
   } | null;
 }

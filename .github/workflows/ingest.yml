@@ -76,11 +76,12 @@ jobs:
         run: captracker fetch
 
       - name: Build snapshot and reconcile
-        # All 32 teams pass: 30 within 1%, Baltimore and Indianapolis within their
-        # disclosed allowances (data/reference/known_gaps_<season>.csv). The gate still
-        # reports without blocking by default, because a trade after the hand-entered
-        # reference date would otherwise stop the daily deploy; a failure surfaces in
-        # the health check below and fails the run after the site is published.
+        # Each team is checked against the hand-entered OverTheCap totals. A team more
+        # than 1% off fails only while that reference is fresh and no roster move since
+        # its date explains the gap; teams that moved since are reported as a warning
+        # (data/reference/README.md). The gate reports without blocking the deploy; a
+        # failure surfaces in the health check below and fails the run after the site
+        # is published.
         run: |
           WEEK_ARG=""
           if [ -n "$WEEK_INPUT" ]; then WEEK_ARG="--week $WEEK_INPUT"; fi

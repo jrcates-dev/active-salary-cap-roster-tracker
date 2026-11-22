@@ -39,7 +39,9 @@ def assign_groups(contract_years: pl.DataFrame, crosswalk: pl.DataFrame) -> pl.D
 
 
 # Roster statuses whose salary counts against the cap (suspended players are unpaid).
-CAP_COUNTING_STATUS = ("ACT", "INA", "RES", "PUP", "NFI", "DEV")
+# EXE is the exempt list (Brandon Aiyuk in 2026): off the 53, still on the cap, and
+# OverTheCap counts him in active cap spending.
+CAP_COUNTING_STATUS = ("ACT", "INA", "RES", "PUP", "NFI", "DEV", "EXE")
 
 # A practice squad player's cap charge is his practice squad pay, not the NFL
 # contract he may also hold (a drafted rookie stashed on the practice squad, for

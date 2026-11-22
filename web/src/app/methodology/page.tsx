@@ -37,7 +37,7 @@ export default async function MethodologyPage() {
         </Section>
 
         <Section title="What counts">
-          <li>Every player on the latest roster, at his {s.season} cap number: the 53, gameday inactives, injured reserve, PUP, NFI and suspended.</li>
+          <li>Every player on the latest roster, at his {s.season} cap number: the 53, gameday inactives, injured reserve, PUP, NFI, suspended and the exempt list.</li>
           <li>Practice squad players at no more than {money(247_500)} a season, prorated from their first week.</li>
           <li>Released, retired and traded players leave their old team&apos;s total.</li>
           <li>Dead money sits beside the roster total and never inside a position group.</li>
@@ -184,12 +184,23 @@ export default async function MethodologyPage() {
               Each team&apos;s counted total is checked against OverTheCap&apos;s published active cap as of {rec.reference_as_of}. A team passes within{" "}
               {pct(rec.tolerance, 0)}, or within its own disclosed allowance for a gap that is understood.{" "}
               <B>
-                {rec.teams_checked - rec.teams_failing} of {rec.teams_checked} teams pass.
+                {rec.teams_checked - rec.teams_failing - (rec.teams_moved ?? 0)} of {rec.teams_checked} teams pass
+                {rec.teams_moved ? `, and ${rec.teams_moved} have moved since then` : ""}.
               </B>{" "}
-              The daily job also flags any team whose total moves more than 1% day over day.
+              OverTheCap&apos;s figures are read by hand, so they describe the rosters on that day. A trade, cut or new contract since then moves a
+              team&apos;s total here and on OverTheCap alike; those teams are marked as moved, with the moves we can see, until the figures are read
+              again. The daily job also flags any team whose total moves more than 1% day over day.
             </li>
             {rec.teams
-              .filter((t) => t.allowance)
+              .filter((t) => t.moved && t.moves?.length)
+              .map((t) => (
+                <li key={`moved-${t.team}`}>
+                  <B>{teamName[t.team] ?? t.team}</B> ({t.diff_pct > 0 ? "+" : ""}
+                  {pct(t.diff_pct)}) since {rec.reference_as_of}: {t.moves?.join(", ")}
+                </li>
+              ))}
+            {rec.teams
+              .filter((t) => t.allowance && !t.moved)
               .map((t) => (
                 <li key={t.team}>
                   <B>{teamName[t.team] ?? t.team}</B> ({t.diff_pct > 0 ? "+" : ""}
@@ -226,12 +237,13 @@ export default async function MethodologyPage() {
                             <td className="num text-right">{money(t.nflverse_total)}</td>
                             <td className="num text-right">{money(t.otc_active)}</td>
                             <td className="num text-right">
-                              <span className={t.ok ? "text-ink-2" : "font-semibold text-ink"}>
+                              <span className={t.ok && !t.moved ? "text-ink-2" : "font-semibold text-ink"}>
                                 {t.diff_pct > 0 ? "+" : ""}
                                 {pct(t.diff_pct)}
                               </span>
                               {!t.ok && <span className="ml-2 text-xs text-accent">outside gate</span>}
-                              {t.ok && t.allowance ? <span className="ml-2 text-xs text-ink-3">known gap</span> : null}
+                              {t.moved && <span className="ml-2 text-xs text-ink-3">moved since</span>}
+                              {t.ok && !t.moved && t.allowance ? <span className="ml-2 text-xs text-ink-3">known gap</span> : null}
                             </td>
                           </tr>
                         ))}

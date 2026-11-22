@@ -383,3 +383,71 @@ def test_export_carries_the_whole_regular_season():
     )
     out = export._games(games, 2026)
     assert sorted({g["week"] for g in out}) == list(range(1, 19))
+
+
+def test_moved_teams_are_one_warning_not_an_error():
+    report = {
+        "tolerance": 0.01,
+        "reference_as_of": "2026-11-09",
+        "teams": [
+            {"team": "NE", "ok": True, "allowance": 0, "diff_pct": 0.001},
+            {
+                "team": "ATL",
+                "ok": True,
+                "moved": True,
+                "moves": ["Jessie Bates (to JAX)"],
+                "allowance": 0,
+                "diff_pct": -0.132,
+            },
+            {"team": "SEA", "ok": True, "moved": True, "moves": [], "diff_pct": -0.029},
+        ],
+    }
+    issues = health.evaluate(
+        week=11,
+        freshness={"roster_week": 11, "injury_week": 11},
+        reconcile_report=report,
+        totals={},
+        previous=None,
+        today=date(2026, 11, 22),
+    )
+    assert not any(i.level == "error" for i in issues)
+    moved = [i for i in issues if i.title == "2 teams moved since the OverTheCap reference"]
+    assert len(moved) == 1 and moved[0].level == "warning"
+    assert "ATL -13.2%: Jessie Bates (to JAX)" in moved[0].message
+    assert "SEA -2.9%" in moved[0].message
+
+
+def test_exempt_list_counts_against_the_cap():
+    # Brandon Aiyuk, 2026: on the exempt list, off the 53, still on SF's cap (and in
+    # OverTheCap's active cap spending).
+    grouped = pl.DataFrame(
+        {
+            "gsis_id": ["00-EXE", "00-CUT"],
+            "team": ["SF", "SF"],
+            "cap_number": [12_450_790, 5_000_000],
+            "latest_team": ["SF", "SF"],
+            "players_status": ["RLS", "CUT"],
+        }
+    )
+    status = pl.DataFrame(
+        {
+            "gsis_id": ["00-EXE", "00-CUT"],
+            "team": ["SF", "SF"],
+            "week": [11, 11],
+            "roster_status": ["EXE", "CUT"],
+            "report_status": [None, None],
+            "practice_status": [None, None],
+            "injury": [None, None],
+            "gameday_flag": ["inactive", "unknown"],
+            "inactive_reason": ["exempt", None],
+        },
+        schema_overrides={
+            "week": pl.Int32,
+            "report_status": pl.String,
+            "practice_status": pl.String,
+            "injury": pl.String,
+        },
+    )
+    fact = rollup.player_week_cap(grouped, status, 11)
+    counts = dict(zip(fact["gsis_id"], fact["counts_against_cap"], strict=True))
+    assert counts == {"00-EXE": True, "00-CUT": False}

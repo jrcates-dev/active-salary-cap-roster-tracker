@@ -10,6 +10,15 @@ Gameday flag rules (from the accounting rules in PLAN.md):
                the team's game is final (he dressed; INA marks the ones who did not), or
                a healthy scratch: INA without being on that week's injury report
   unknown      anything else (practice squad, cut, retired) - not counted toward a unit
+Gameday lists (ESPN's game rosters, unofficial; see `gameday`) settle the report once a
+team's list is posted, before the game is final:
+  newly flagged, on this week's    inactive, reason `gameday_inactive` (Questionable,
+  report                           Doubtful, listed with no status, or out last game)
+  newly flagged, not on the report a healthy scratch: active, as with INA
+  listed, not flagged              active when Questionable, Doubtful or out last game
+  Out, reserve lists, practice squad, anyone not on ESPN's list, and anyone flagged in
+  last game too (ESPN keeps those flags until kickoff, so they say nothing): unchanged
+Rows the list settled carry `flag_source` = "gameday".
 Each inactive row carries a reason so the UI can say why, and an absence type:
   week         this game only: ruled Out, Doubtful, a gameday inactive who was on the
                injury report, or still out from last game
@@ -66,6 +75,8 @@ ACTIVE_ROSTER = {"ACT"}
 REPORT_INACTIVE = {"Out": "out", "Doubtful": "doubtful"}
 # Missed the team's last game hurt, and the new week's report has no game status yet.
 OUT_LAST_GAME = "out_last_game"
+# On a team's posted gameday inactive list (ESPN, unofficial) while on the injury report.
+GAMEDAY_INACTIVE = "gameday_inactive"
 
 # Reserve lists: the player is out for weeks, not just this game.
 SEASON_LONG_ROSTER = {"RES", "PUP", "NFI", "SUS", "RSN", "RSR", "EXE"}
@@ -156,6 +167,7 @@ def player_week_status(
     games: pl.DataFrame | None = None,
     through_week: int | None = None,
     outlook: pl.DataFrame | None = None,
+    gameday: pl.DataFrame | None = None,
 ) -> pl.DataFrame:
     """Combine weekly rosters and the injury report for every week in the season.
 
@@ -163,6 +175,7 @@ def player_week_status(
     active whatever his report said: the roster file's INA status is the official list
     of who sat. With `through_week`, rosters are projected forward to that week.
     `outlook` is the hand-kept out-for-season table (`load_season_outlook`).
+    `gameday` is `gameday.to_frame`: players on posted gameday lists, flagged or not.
     """
     r = (
         rosters.filter((pl.col("season") == season) & (pl.col("game_type") == "REG"))
@@ -224,6 +237,24 @@ def player_week_status(
         .alias("_sat_hurt"),
     )
     df = _out_last_game(df)
+    if gameday is not None and gameday.height:
+        g = gameday.select(
+            pl.col("week").cast(df.schema["week"]), "team", "gsis_id", "espn_inactive"
+        ).unique(subset=["week", "team", "gsis_id"], keep="last")
+        df = df.join(g, on=["week", "team", "gsis_id"], how="left")
+    else:
+        df = df.with_columns(pl.lit(None, dtype=pl.Boolean).alias("espn_inactive"))
+    # The list only settles who is in doubt, and only until the game is final.
+    in_doubt = pl.col("report_status").is_in(["Questionable", "Doubtful"]) | pl.col(
+        "_out_last_game"
+    )
+    pending = ~pl.col("game_final") & pl.col("espn_inactive").is_not_null()
+    df = df.with_columns(
+        (pending & pl.col("espn_inactive") & on_report & pl.col("report_status").ne_missing("Out"))
+        .fill_null(False)
+        .alias("_list_out"),
+        (pending & ~pl.col("espn_inactive") & in_doubt).fill_null(False).alias("_list_in"),
+    )
 
     roster_reason = (
         pl.when(pl.col("_healthy_scratch"))
@@ -232,8 +263,10 @@ def player_week_status(
     )
     # Once the game is final the report no longer decides anything.
     report_reason = (
-        pl.when(pl.col("game_final"))
+        pl.when(pl.col("game_final") | pl.col("_list_in"))
         .then(pl.lit(None, dtype=pl.String))
+        .when(pl.col("_list_out"))
+        .then(pl.lit(GAMEDAY_INACTIVE))
         .when(pl.col("_out_last_game"))
         .then(pl.lit(OUT_LAST_GAME))
         .otherwise(pl.col("report_status").replace_strict(REPORT_INACTIVE, default=None))
@@ -245,13 +278,22 @@ def player_week_status(
         .then(pl.lit("inactive"))
         .when(on_active & report_reason.is_not_null())
         .then(pl.lit("inactive"))
-        .when(on_active & ~pl.col("game_final") & (pl.col("report_status") == "Questionable"))
+        .when(
+            on_active
+            & ~pl.col("game_final")
+            & ~pl.col("_list_in")
+            & (pl.col("report_status") == "Questionable")
+        )
         .then(pl.lit("questionable"))
         .when(on_active)
         .then(pl.lit("active"))
         .otherwise(pl.lit("unknown"))
         .alias("gameday_flag"),
         pl.coalesce(roster_reason, report_reason).alias("inactive_reason"),
+        pl.when(roster_reason.is_null() & on_active & (pl.col("_list_out") | pl.col("_list_in")))
+        .then(pl.lit("gameday"))
+        .otherwise(pl.lit(None, dtype=pl.String))
+        .alias("flag_source"),
     )
     out = out.with_columns(
         pl.when(pl.col("gameday_flag") != "inactive")
@@ -260,7 +302,15 @@ def player_week_status(
         .then(pl.lit("season"))
         .otherwise(pl.lit("week"))
         .alias("absence")
-    ).drop("_has_game", "_healthy_scratch", "_sat_hurt", "_out_last_game")
+    ).drop(
+        "_has_game",
+        "_healthy_scratch",
+        "_sat_hurt",
+        "_out_last_game",
+        "_list_out",
+        "_list_in",
+        "espn_inactive",
+    )
     return season_outlook(out, outlook).sort(["week", "team", "player_name"])
 
 

@@ -11,6 +11,8 @@ export function Footer({ snapshot: s }: { snapshot: Snapshot }) {
       : f.injury_week >= s.week
         ? `Week ${f.injury_week} injury report`
         : `Week ${s.week} injury report pending`;
+  // Games with both teams' gameday inactive lists in (ESPN, unofficial).
+  const lists = s.gameday?.games.filter((x) => Object.values(x.posted).every(Boolean)).length ?? 0;
   return (
     <footer className="mt-16 border-t border-line">
       <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-2 px-4 py-6 text-xs text-ink-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
@@ -24,6 +26,7 @@ export function Footer({ snapshot: s }: { snapshot: Snapshot }) {
         {!s.fixture && (
           <p className="num">
             Updated {stampLabel(s.generated_at)} · {injury}
+            {lists > 0 ? ` · Inactives in for ${lists} ${lists === 1 ? "game" : "games"} (unofficial)` : ""}
             {f?.reference_as_of ? ` · Cap space as of ${f.reference_as_of}` : ""}
           </p>
         )}

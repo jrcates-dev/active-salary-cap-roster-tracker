@@ -77,7 +77,7 @@ def player_week_cap(
     every total; that money is the team's dead money or another team's cap.
     Practice squad players count at practice squad pay.
     """
-    for c in ("absence", "outlook_basis", "outlook_note"):
+    for c in ("absence", "outlook_basis", "outlook_note", "flag_source"):
         if c not in status.columns:
             status = status.with_columns(pl.lit(None, dtype=pl.String).alias(c))
     weeks = team_status_weeks(status, week)
@@ -97,6 +97,7 @@ def player_week_cap(
             "absence",
             "outlook_basis",
             "outlook_note",
+            "flag_source",
         )
         .unique(subset=["gsis_id"], keep="last")
     )

@@ -112,6 +112,11 @@ export interface Player {
   source: CapSource;
   flag: Flag;
   reason: string | null;
+  /**
+   * "gameday" when a team's posted gameday inactive list (ESPN, unofficial) settled his
+   * flag before the game. Older snapshots lack it.
+   */
+  flag_source?: "gameday" | null;
   absence: Absence | null;
   outlook_basis?: OutlookBasis | null;
   /** The injury note from the out-for-season table, when it decided. */
@@ -227,6 +232,13 @@ export type HistoryPlayer = Pick<
   | "depth_role"
   | "out_tag"
 > & { week: number };
+
+/** Which games' gameday inactive lists are in (ESPN, unofficial), per team. */
+export interface Gameday {
+  checked_at: string;
+  source: string;
+  games: { game_id: string; fetched_at: string; posted: Record<string, boolean> }[];
+}
 
 export interface Freshness {
   schedule_week: number;
@@ -372,6 +384,8 @@ export interface Snapshot {
   dead_charges: DeadCharge[];
   /** Every counted player's contract, for the contract view. Older snapshots lack it. */
   contracts: ContractRecord[];
+  /** Gameday inactive lists read so far this week; null when none. Older snapshots lack it. */
+  gameday: Gameday | null;
   reconcile: {
     season: number;
     tolerance: number;

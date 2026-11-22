@@ -108,6 +108,7 @@ export function outTag(
     if (p.reason === "out") return "Ruled out this week";
     if (p.reason === "out_last_game") return "Out last game, no status yet";
     if (p.reason === "doubtful") return "Doubtful this week";
+    if (p.reason === "gameday_inactive") return "Inactive today (unofficial)";
     return "Inactive this week";
   }
   const list = RESERVE_SHORT[p.reason ?? ""] ?? "Reserve list";

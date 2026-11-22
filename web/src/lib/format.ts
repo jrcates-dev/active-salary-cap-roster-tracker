@@ -29,6 +29,7 @@ const REASONS: Record<string, string> = {
   out: "Ruled out",
   out_last_game: "Out last game",
   doubtful: "Doubtful",
+  gameday_inactive: "Gameday inactive (unofficial)",
 };
 
 export function reasonLabel(reason: string | null): string | null {
@@ -55,6 +56,13 @@ export function stampLabel(iso: string): string {
   const day = d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" });
   const time = d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" });
   return `${day}, ${time} UTC`;
+}
+
+/** "11:42 AM ET" from an ISO time: game-day times read in Eastern, like kickoffs. */
+export function etTimeLabel(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return `${d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/New_York" })} ET`;
 }
 
 /** "Nov 9" from "2026-11-09". */

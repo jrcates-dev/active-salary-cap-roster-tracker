@@ -15,10 +15,16 @@ What the probes on Nov 22, 2026 showed (see the PR that added this module):
     anyone no longer on the roster). So a list counts as posted only once it is due
     (kickoff minus 90 minutes) and it names someone the last game's list did not; from
     kickoff minus 60 minutes it counts whatever it holds.
+  - Posting adds today's inactives to last game's flags; it does not clear them. Last
+    game's flags clear only once the game starts and those players get on the field (all
+    35 that cleared during the 1 PM games had been flagged last game). So before kickoff
+    a flag means "inactive today" only for a player last game's list did not name. A
+    player on both is "carried": the list says nothing about them, and the injury report
+    decides. Without last game's list every flag is carried.
 
 The document is kept between runs (published with the site as data/gameday.json). Lists
 are frozen at kickoff: once a game starts, the last list seen before kickoff is carried
-forward, because `didNotPlay` starts meaning "has not played yet" during the game.
+forward, because during the game `didNotPlay` means "has not played yet".
 """
 
 from __future__ import annotations
@@ -179,19 +185,24 @@ def _team_entry(
     # ESPN's competitor id is the team's id, the same in every game.
     last: set[str] | None = None
     prev_event = game["previous_espn_id"].get(team)
-    if prev_event and now < game["kickoff"] - LIST_CERTAIN:
+    if prev_event:
         try:
             _, last = _game_roster(fetch, prev_event, team_id)
         except RuntimeError as exc:  # no last list: wait for kickoff minus 60 instead
             log.warning("ESPN roster for %s's last game unavailable: %s", team, exc)
     posted = list_posted(now, game["kickoff"], flagged, last)
-    mapped_flagged = sorted(ids[i] for i in flagged if i in ids)
-    mapped_dressed = sorted(ids[i] for i in listed - flagged if i in ids)
+    # Last game's flags stay set until kickoff, so only a new flag says "inactive today".
+    carried = flagged if last is None else flagged & last
+
+    def mapped(espn_ids: set[str]) -> list[str]:
+        return sorted(ids[i] for i in espn_ids if i in ids) if posted else []
+
     return {
         "team": team,
         "posted": posted,
-        "inactive": mapped_flagged if posted else [],
-        "dressed": mapped_dressed if posted else [],
+        "inactive": mapped(flagged - carried),
+        "carried": mapped(carried),
+        "dressed": mapped(listed - flagged),
         "unmapped": len({i for i in listed if i not in ids}),
     }
 
@@ -277,7 +288,14 @@ def lists_signature(doc: dict | None) -> list:
     if not doc:
         return []
     return sorted(
-        (g["game_id"], t["team"], t["posted"], tuple(t["inactive"]), tuple(t["dressed"]))
+        (
+            g["game_id"],
+            t["team"],
+            t["posted"],
+            tuple(t["inactive"]),
+            tuple(t.get("carried", [])),
+            tuple(t["dressed"]),
+        )
         for g in doc.get("games", [])
         for t in g["teams"]
     )
@@ -304,7 +322,8 @@ def write(doc: dict, path: Path) -> Path:
 
 
 def to_frame(doc: dict | None) -> pl.DataFrame:
-    """One row per player on a posted list: week, team, gsis_id, espn_inactive."""
+    """One row per player a posted list settles: week, team, gsis_id, espn_inactive.
+    Carried players get no row, so the injury report decides for them."""
     schema = {
         "week": pl.Int32,
         "team": pl.String,

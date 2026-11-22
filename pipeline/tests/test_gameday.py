@@ -156,11 +156,39 @@ def test_a_new_list_is_read_and_mapped_to_nflverse_ids():
     (game,) = doc["games"]
     teams = {t["team"]: t for t in game["teams"]}
     assert teams["BUF"]["posted"] is True
-    assert teams["BUF"]["inactive"] == ["00-B1", "00-B2"]
+    # B1 was flagged last game too: ESPN keeps that flag until kickoff, so it says nothing.
+    assert teams["BUF"]["inactive"] == ["00-B2"]
+    assert teams["BUF"]["carried"] == ["00-B1"]
     assert teams["BUF"]["dressed"] == ["00-B3", "00-B4"]
     assert teams["BUF"]["unmapped"] == 1  # ESPN id 99 is in no players file
     assert teams["MIA"]["posted"] is False and teams["MIA"]["inactive"] == []
     assert game["frozen"] is False and game["kickoff"] == "2026-11-22T18:00:00Z"
+
+
+def test_last_games_flags_are_carried_not_counted():
+    # 50 minutes out MIA's list counts whatever it holds, but M2 was flagged last game.
+    doc = _collect(KICKOFF - timedelta(minutes=50), _espn([("2", True)]))
+    mia = next(t for t in doc["games"][0]["teams"] if t["team"] == "MIA")
+    assert mia["posted"] is True
+    assert mia["inactive"] == [] and mia["carried"] == ["00-M2"] and mia["dressed"] == ["00-M1"]
+    rows = gameday.to_frame(doc).filter(pl.col("team") == "MIA")
+    assert rows["gsis_id"].to_list() == ["00-M1"]  # no row for M2: the report decides
+
+
+def test_without_last_games_list_every_flag_is_carried():
+    espn = _espn([("1", True), ("2", True), ("3", False)])
+
+    def no_last_game(url: str) -> dict:
+        if "/events/900/" in url or "/events/901/" in url:
+            raise RuntimeError("could not fetch")
+        return espn(url)
+
+    early = _collect(KICKOFF - timedelta(minutes=80), no_last_game)
+    assert all(t["posted"] is False for t in early["games"][0]["teams"])
+    late = _collect(KICKOFF - timedelta(minutes=50), no_last_game)
+    buf = next(t for t in late["games"][0]["teams"] if t["team"] == "BUF")
+    assert buf["posted"] is True and buf["inactive"] == []
+    assert buf["carried"] == ["00-B1", "00-B2"] and buf["dressed"] == ["00-B3"]
 
 
 def test_lists_freeze_at_kickoff():

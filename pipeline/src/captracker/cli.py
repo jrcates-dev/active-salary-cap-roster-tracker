@@ -336,7 +336,11 @@ def cmd_gameday(args: argparse.Namespace) -> int:
         print(f"::warning title=Gameday list missing::{msg}" if in_actions else msg)
     for g in doc["games"]:
         lists = ", ".join(
-            f"{t['team']} {len(t['inactive'])} out" if t["posted"] else f"{t['team']} not yet"
+            (
+                f"{t['team']} {len(t['inactive'])} out, {len(t.get('carried', []))} carried"
+                if t["posted"]
+                else f"{t['team']} not yet"
+            )
             for t in g["teams"]
         )
         print(f"{g['game_id']}: {lists}{' (frozen at kickoff)' if g.get('frozen') else ''}")

@@ -62,11 +62,16 @@ rosters (`gameday.py`, the only code that knows ESPN's shape) and writes
 - **When a list counts:** until a team's new list is posted ESPN still shows last game's,
   so a list counts once it is due (kickoff minus 90 minutes) and names someone last
   game's list did not, or from kickoff minus 60 minutes whatever it holds.
+- **Which flags count:** posting adds today's inactives to last game's flags without
+  clearing them; those clear only as players take the field after kickoff. So only a
+  player flagged now and not last game is inactive today. One flagged both times is
+  `carried` in the document and gets no row, so the injury report decides. If last
+  game's list can't be read, every flag is carried.
 - **Frozen at kickoff:** during a game `didNotPlay` starts meaning "has not played yet",
   so a game under way keeps the last list seen before kickoff (`--previous` is the
   published `data/gameday.json`). Final games are left to nflverse's official INA rows.
-- **What a list changes** (`rosters.player_week_status`): a flagged player on this week's
-  injury report becomes inactive (`gameday_inactive`); a Questionable or Doubtful player
+- **What a list changes** (`rosters.player_week_status`): a newly flagged player on this
+  week's injury report becomes inactive (`gameday_inactive`); a Questionable or Doubtful player
   listed and not flagged becomes active; a flagged player not on the report is a healthy
   scratch and stays active. Out, reserve lists and practice squad never change. Rows it
   settled carry `flag_source: "gameday"`, and the snapshot's `gameday` block says which

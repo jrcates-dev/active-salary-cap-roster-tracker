@@ -61,7 +61,9 @@ export default async function MethodologyPage() {
             the game. On game days the site reads each team&apos;s list from ESPN&apos;s game rosters every 10 minutes and marks it unofficial: a
             player on the injury report who is on the list is out for the game (&ldquo;Inactive today&rdquo;), and a questionable or doubtful player
             who is dressing counts as active. Players ruled out, on a reserve list or on the practice squad stay as they are, and a healthy scratch
-            still counts as active. Each matchup says whether its lists are in. The official list replaces ESPN&apos;s the morning after the game.
+            still counts as active. ESPN keeps last game&apos;s inactives on a team&apos;s list until kickoff, so a player who was inactive last game
+            and is on the list again stays as the injury report has him. Each matchup says whether its lists are in. The official list replaces
+            ESPN&apos;s the morning after the game.
           </li>
           <li>
             A player who missed his team&apos;s last game hurt (ruled out, or listed doubtful or questionable and then inactive) stays out between games, tagged &ldquo;Out last game&rdquo;, until the new week&apos;s

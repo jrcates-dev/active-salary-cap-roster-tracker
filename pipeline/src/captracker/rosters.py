@@ -12,11 +12,12 @@ Gameday flag rules (from the accounting rules in PLAN.md):
   unknown      anything else (practice squad, cut, retired) - not counted toward a unit
 Gameday lists (ESPN's game rosters, unofficial; see `gameday`) settle the report once a
 team's list is posted, before the game is final:
-  flagged, on this week's report   inactive, reason `gameday_inactive` (Questionable,
-                                   Doubtful, listed with no status, or out last game)
-  flagged, not on the report       a healthy scratch: active, as with INA
+  newly flagged, on this week's    inactive, reason `gameday_inactive` (Questionable,
+  report                           Doubtful, listed with no status, or out last game)
+  newly flagged, not on the report a healthy scratch: active, as with INA
   listed, not flagged              active when Questionable, Doubtful or out last game
-  Out, reserve lists, practice squad, and anyone not on ESPN's list: unchanged
+  Out, reserve lists, practice squad, anyone not on ESPN's list, and anyone flagged in
+  last game too (ESPN keeps those flags until kickoff, so they say nothing): unchanged
 Rows the list settled carry `flag_source` = "gameday".
 Each inactive row carries a reason so the UI can say why, and an absence type:
   week         this game only: ruled Out, Doubtful, a gameday inactive who was on the

@@ -9,25 +9,20 @@ permissions:
   contents: write
 
 jobs:
-  snapshot:
+  backtest:
     runs-on: ubuntu-latest
-    timeout-minutes: 300
-    strategy:
-      fail-fast: false
-      matrix:
-        # UTC: now; 10 min after the 4:05 PM ET inactives; after the 4:25 PM ET inactives.
-        at: ["0000", "1945", "2010"]
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - run: |
           mkdir -p probe-out
-          python3 .github/probe/espn_probe.py ${{ matrix.at }} | tee probe-out/at-${{ matrix.at }}.txt
-      # Keep the output on the branch so it can be read without the logs API.
+          python3 .github/probe/espn_backtest.py 8 9 10 11 > probe-out/backtest.txt
+          tail -3 probe-out/backtest.txt
       - run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add probe-out
-          git commit -m "probe output ${{ matrix.at }}"
+          git commit -m "probe output backtest"
           for i in 1 2 3 4 5; do
             git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}" && break
             sleep $((i * 5))

@@ -1,0 +1,288 @@
+waiting 7973s until 2026-11-22T19:45:00.139199+00:00
+INJ 19:45:00 BUF 4684527 T.J. Sanders | Out | 2026-11-22T17:08Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:00 BUF 4683153 Skyler Bell | Out | 2026-11-22T16:55Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:00 BUF 4568624 Dorian Williams | Out | 2026-11-22T16:37Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:00 BUF 3915487 Mike Danna | Out | 2026-11-22T16:37Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:00 BUF 4379778 Christian Benford | Out | 2026-11-22T16:37Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:00 MIA 4819257 Jonah Savaiinaea | Questionable | 2026-11-22T19:30Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:00 MIA 4567225 Jaylin Simpson | Out | 2026-11-22T17:29Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:00 MIA 4431664 Dante Trader Jr. | Out | 2026-11-22T17:06Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:00 MIA 4426446 Caedan Wallace | Out | 2026-11-22T16:40Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:00 MIA 4430681 Jared Wayne | Out | 2026-11-22T16:40Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+POLL 19:45:00 MIA @ BUF kick=2026-11-22T18:00Z state=in BUF n=57 dnp=8
+DNP 19:45:00 BUF 3915487 Danna valid=False starter=False
+DNP 19:45:00 BUF 4039034 Buechele valid=False starter=False
+DNP 19:45:00 BUF 4379778 Benford valid=False starter=False
+DNP 19:45:00 BUF 4385690 Kincaid valid=False starter=False
+DNP 19:45:00 BUF 4568624 Williams valid=False starter=False
+DNP 19:45:00 BUF 4683153 Bell valid=False starter=False
+DNP 19:45:00 BUF 4684527 Sanders valid=False starter=False
+DNP 19:45:00 BUF 4869533 Bowry valid=False starter=False
+POLL 19:45:00 MIA @ BUF kick=2026-11-22T18:00Z state=in MIA n=58 dnp=7
+DNP 19:45:00 MIA 2977680 Pinion valid=False starter=False
+DNP 19:45:00 MIA 4362135 Haynes valid=False starter=False
+DNP 19:45:00 MIA 4426446 Wallace valid=False starter=False
+DNP 19:45:00 MIA 4430681 Wayne valid=False starter=False
+DNP 19:45:00 MIA 4431664 Trader Jr. valid=False starter=False
+DNP 19:45:00 MIA 4567225 Simpson valid=False starter=False
+DNP 19:45:00 MIA 4912052 Joly valid=False starter=False
+INJ 19:45:00 CHI 4426386 Roschon Johnson | Questionable | 2026-11-22T18:34Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:00 CHI 15168 Case Keenum | Out | 2026-11-22T16:56Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:00 CHI 4877376 Jayden Loving | Out | 2026-11-22T16:40Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:00 CHI 4360319 Jordan McFadden | Out | 2026-11-22T16:40Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:00 CHI 4911952 Keyshaun Elliott | Out | 2026-11-22T16:40Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:00 NO 4361259 Zach Wilson | Out | 2026-11-22T16:48Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:00 NO 4241993 Pete Werner | Out | 2026-11-22T16:45Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:00 NO 4569682 Audric Estime | Out | 2026-11-22T16:43Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:00 NO 3917331 Erik McCoy | Out | 2026-11-22T16:39Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:00 NO 4430379 Asim Richards | Out | 2026-11-22T16:39Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+POLL 19:45:01 NO @ CHI kick=2026-11-22T18:00Z state=in CHI n=56 dnp=5
+DNP 19:45:01 CHI 15168 Keenum valid=False starter=False
+DNP 19:45:01 CHI 4360319 McFadden valid=False starter=False
+DNP 19:45:01 CHI 4361093 Gordon valid=False starter=False
+DNP 19:45:01 CHI 4877376 Loving valid=False starter=False
+DNP 19:45:01 CHI 4911952 Elliott valid=False starter=False
+POLL 19:45:01 NO @ CHI kick=2026-11-22T18:00Z state=in NO n=58 dnp=7
+DNP 19:45:01 NO 3917331 McCoy valid=False starter=False
+DNP 19:45:01 NO 4241993 Werner valid=False starter=False
+DNP 19:45:01 NO 4361259 Z. Wilson valid=False starter=False
+DNP 19:45:01 NO 4429568 Emerson Jr. valid=False starter=False
+DNP 19:45:01 NO 4430379 Richards valid=False starter=False
+DNP 19:45:01 NO 4569682 Estimé valid=False starter=False
+DNP 19:45:01 NO 4606711 Fuaga valid=False starter=False
+INJ 19:45:01 DAL 4428914 Dee Winters | Questionable | 2026-11-22T19:05Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:01 DAL 4685266 Jaishawn Barham | Out | 2026-11-22T17:16Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:01 DAL 3929850 P.J. Locke | Out | 2026-11-22T16:31Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:01 DAL 4426485 Jonathan Mingo | Out | 2026-11-22T16:31Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:01 DAL 4242355 Jake Ferguson | Out | 2026-11-22T16:31Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:01 TEN 4429607 Cor'Dale Flott | Questionable | 2026-11-22T19:33Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:01 TEN 4240532 Tony Adams | Questionable | 2026-11-22T18:52Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:01 TEN 4685555 Nicholas Singleton | Out | 2026-11-22T16:55Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:01 TEN 4685145 Jaylon Jones | Out | 2026-11-22T16:36Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:01 TEN 5081785 Jackie Marshall | Out | 2026-11-22T16:36Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+POLL 19:45:01 TEN @ DAL kick=2026-11-22T18:00Z state=in DAL n=57 dnp=6
+DNP 19:45:01 DAL 2980097 Bullard valid=False starter=False
+DNP 19:45:01 DAL 3929850 Locke valid=False starter=False
+DNP 19:45:01 DAL 4242355 Ferguson valid=False starter=False
+DNP 19:45:01 DAL 4426485 Mingo valid=False starter=False
+DNP 19:45:01 DAL 4685263 Booker valid=False starter=False
+DNP 19:45:01 DAL 4685266 Barham valid=False starter=False
+POLL 19:45:01 TEN @ DAL kick=2026-11-22T18:00Z state=in TEN n=56 dnp=5
+DNP 19:45:01 TEN 4426987 Crenshaw-Dickson valid=False starter=False
+DNP 19:45:01 TEN 4567403 Diabate valid=False starter=False
+DNP 19:45:01 TEN 4685145 J. Jones valid=False starter=False
+DNP 19:45:01 TEN 4685555 Singleton valid=False starter=False
+DNP 19:45:01 TEN 5081785 Marshall valid=False starter=False
+INJ 19:45:01 DET 4566092 Ennis Rakestraw Jr. | Out | 2026-11-22T17:25Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:01 DET 3139387 D.J. Reed | Out | 2026-11-22T17:06Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:01 DET 4586333 Mekhi Wingo | Out | 2026-11-22T16:42Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:01 DET 4689333 Tyrus Wheat | Out | 2026-11-22T16:42Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:01 DET 4038432 Amen Ogbongbemiga | Out | 2026-11-22T16:42Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:01 TB 4912847 Jacob Parrish | Questionable | 2026-11-22T18:47Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:01 TB 3120590 Easton Stick | Out | 2026-11-22T17:15Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:01 TB 4034790 Antoine Winfield Jr. | Out | 2026-11-22T16:44Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:01 TB 4685549 Billy Schrauth | Out | 2026-11-22T16:44Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:01 TB 4427140 Trevor Keegan | Out | 2026-11-22T16:44Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+POLL 19:45:02 TB @ DET kick=2026-11-22T18:00Z state=in DET n=58 dnp=6
+DNP 19:45:02 DET 3139387 Reed valid=False starter=False
+DNP 19:45:02 DET 4038432 Ogbongbemiga valid=False starter=False
+DNP 19:45:02 DET 4566092 Rakestraw Jr. valid=False starter=False
+DNP 19:45:02 DET 4586333 Wingo valid=False starter=False
+DNP 19:45:02 DET 4689333 Wheat valid=False starter=False
+DNP 19:45:02 DET 5093004 Abney II valid=False starter=False
+POLL 19:45:02 TB @ DET kick=2026-11-22T18:00Z state=in TB n=56 dnp=6
+DNP 19:45:02 TB 3120590 Stick valid=False starter=False
+DNP 19:45:02 TB 4034790 Winfield Jr. valid=False starter=False
+DNP 19:45:02 TB 4427140 Keegan valid=False starter=False
+DNP 19:45:02 TB 4429007 Capehart valid=False starter=False
+DNP 19:45:02 TB 4685549 Schrauth valid=False starter=False
+DNP 19:45:02 TB 4890885 Garnes valid=False starter=False
+INJ 19:45:02 KC 4591008 Omarr Norman-Lott | Out | 2026-11-22T17:16Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:02 KC 4871063 Peter Woods | Out | 2026-11-22T17:13Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:02 KC 4567747 Garrett Nussmeier | Out | 2026-11-22T16:50Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:02 KC 5278708 Melvin Smith Jr. | Out | 2026-11-22T16:37Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:02 KC 4242459 Trey Smith | Out | 2026-11-22T16:37Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:02 ARI 4363408 Starling Thomas V | Out | 2026-11-22T16:34Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:02 ARI 4567410 Kingsley Eguakun | Out | 2026-11-22T16:34Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:02 ARI 4367199 Jon Gaines II | Out | 2026-11-22T16:34Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:02 ARI 3051775 Andrew Billings | Out | 2026-11-22T16:34Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:02 ARI 4430841 Carson Beck | Out | 2026-11-21T19:25Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+POLL 19:45:02 ARI @ KC kick=2026-11-22T18:00Z state=in KC n=58 dnp=7
+DNP 19:45:02 KC 4043041 Moore valid=False starter=False
+DNP 19:45:02 KC 4242459 T. Smith valid=False starter=False
+DNP 19:45:02 KC 4567048 Walker III valid=False starter=False
+DNP 19:45:02 KC 4567747 Nussmeier valid=False starter=False
+DNP 19:45:02 KC 4591008 Norman-Lott valid=False starter=False
+DNP 19:45:02 KC 4871063 Woods valid=False starter=False
+DNP 19:45:02 KC 5278708 M. Smith Jr. valid=False starter=False
+POLL 19:45:02 ARI @ KC kick=2026-11-22T18:00Z state=in ARI n=58 dnp=5
+DNP 19:45:02 ARI 3051775 Billings valid=False starter=False
+DNP 19:45:02 ARI 4363408 Thomas V valid=False starter=False
+DNP 19:45:02 ARI 4367199 Gaines II valid=False starter=False
+DNP 19:45:02 ARI 4430841 Beck valid=False starter=False
+DNP 19:45:02 ARI 4567410 Eguakun valid=False starter=False
+INJ 19:45:02 PHI 4431573 Smael Mondon Jr. | Out | 2026-11-22T16:40Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:02 PHI 4879250 Cole Payton | Out | 2026-11-22T16:38Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:02 PHI 4430814 Jake Majors | Out | 2026-11-22T16:33Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:02 PHI 4689651 Mac McWilliams | Out | 2026-11-22T16:33Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:02 PHI 4696203 Ajani Cornelius | Out | 2026-11-22T16:33Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:02 PIT 4037333 Alex Highsmith | Questionable | 2026-11-22T18:32Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:02 PIT 5081338 Kaden Wetjen | Out | 2026-11-22T17:19Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:02 PIT 4429955 Will Howard | Out | 2026-11-22T16:51Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:02 PIT 4431533 Gabriel Rubio | Out | 2026-11-22T16:39Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:02 PIT 3932886 Sean Murphy-Bunting | Out | 2026-11-22T16:39Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+POLL 19:45:02 PIT @ PHI kick=2026-11-22T18:00Z state=in PHI n=59 dnp=6
+DNP 19:45:02 PHI 15797 Johnson valid=False starter=False
+DNP 19:45:02 PHI 4430814 Majors valid=False starter=False
+DNP 19:45:02 PHI 4431573 Mondon Jr. valid=False starter=False
+DNP 19:45:02 PHI 4689651 McWilliams valid=False starter=False
+DNP 19:45:02 PHI 4696203 Cornelius valid=False starter=False
+DNP 19:45:02 PHI 4879250 Payton valid=False starter=False
+POLL 19:45:03 PIT @ PHI kick=2026-11-22T18:00Z state=in PIT n=55 dnp=7
+DNP 19:45:03 PIT 3932886 Murphy-Bunting valid=False starter=False
+DNP 19:45:03 PIT 4429164 Herbig valid=False starter=False
+DNP 19:45:03 PIT 4429955 Howard valid=False starter=False
+DNP 19:45:03 PIT 4431533 Rubio valid=False starter=False
+DNP 19:45:03 PIT 4714771 Allar valid=False starter=False
+DNP 19:45:03 PIT 5081338 Wetjen valid=False starter=False
+DNP 19:45:03 PIT 5081508 Heidenreich valid=False starter=False
+INJ 19:45:03 CAR 4431588 Ja'Tavion Sanders | Out | 2026-11-22T17:25Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:03 CAR 4428993 Haynes King | Out | 2026-11-22T17:06Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:03 CAR 4240595 Marco Wilson | Out | 2026-11-22T16:46Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:03 CAR 3117253 Bobby Okereke | Out | 2026-11-22T16:46Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:03 CAR 4239934 AJ Dillon | Out | 2026-11-22T16:46Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:03 BAL 5088338 Elijah Sarratt | Out | 2026-11-22T16:43Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:03 BAL 4685526 Adam Randall | Out | 2026-11-22T16:39Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:03 BAL 4428512 Kedon Slovis | Out | 2026-11-22T16:35Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:03 BAL 4685736 Emery Jones Jr. | Out | 2026-11-22T16:32Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:03 BAL 4035245 Nnamdi Madubuike | Out | 2026-11-22T16:32Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+POLL 19:45:03 BAL @ CAR kick=2026-11-22T18:00Z state=in CAR n=59 dnp=7
+DNP 19:45:03 CAR 3117253 Okereke valid=False starter=False
+DNP 19:45:03 CAR 4239934 Dillon valid=False starter=False
+DNP 19:45:03 CAR 4240595 Wilson valid=False starter=False
+DNP 19:45:03 CAR 4428993 King valid=False starter=False
+DNP 19:45:03 CAR 4431077 Edwards valid=False starter=False
+DNP 19:45:03 CAR 4431588 Sanders valid=False starter=False
+DNP 19:45:03 CAR 4874515 Hecht valid=False starter=False
+POLL 19:45:03 BAL @ CAR kick=2026-11-22T18:00Z state=in BAL n=60 dnp=7
+DNP 19:45:03 BAL 3126356 Humphrey valid=False starter=False
+DNP 19:45:03 BAL 3858276 Hawkins valid=False starter=False
+DNP 19:45:03 BAL 4035245 Madubuike valid=False starter=False
+DNP 19:45:03 BAL 4428512 Slovis valid=False starter=False
+DNP 19:45:03 BAL 4685526 Randall valid=False starter=False
+DNP 19:45:03 BAL 4685736 E. Jones Jr. valid=False starter=False
+DNP 19:45:03 BAL 5088338 Sarratt valid=False starter=False
+INJ 19:45:03 LAC 4612826 Ladd McConkey | Questionable | 2026-11-22T12:33Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:03 LAC 4838693 Rodney Shelley | Injured Reserve | 2026-11-22T00:49Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 19:45:03 LAC 4411189 Trey Pipkins III | Questionable | 2026-11-22T00:44Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:03 LAC 4574105 Isas Waxter | Questionable | 2026-11-21T01:40Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:03 LAC 4360745 Kendall Williamson | Out | 2026-11-21T01:31Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:03 NYJ 4243375 Dylan Parham | Questionable | 2026-11-21T01:18Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:03 NYJ 3117255 Harrison Phillips | Questionable | 2026-11-21T01:15Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:03 NYJ 4002046 David Onyemata | Injured Reserve | 2026-11-21T01:01Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 19:45:03 NYJ 4683815 Trevin Wallace | Questionable | 2026-11-20T22:59Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:03 NYJ 4569371 Isaiah Williams | Out | 2026-11-20T16:11Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+POLL 19:45:03 NYJ @ LAC kick=2026-11-22T21:05Z state=pre LAC n=58 dnp=10
+DNP 19:45:03 LAC 2576702 Dupree valid=False starter=False
+DNP 19:45:03 LAC 4241597 Henley valid=False starter=False
+DNP 19:45:03 LAC 4360745 Williamson valid=False starter=False
+DNP 19:45:03 LAC 4430870 Lambert-Smith valid=False starter=False
+DNP 19:45:03 LAC 4432571 Still valid=False starter=False
+DNP 19:45:03 LAC 4567138 Eboigbe valid=False starter=False
+DNP 19:45:03 LAC 4574105 Waxter valid=False starter=False
+DNP 19:45:03 LAC 4612826 McConkey valid=False starter=False
+DNP 19:45:03 LAC 4685553 Thompson valid=False starter=False
+DNP 19:45:03 LAC 5082660 Harkey valid=False starter=False
+POLL 19:45:04 NYJ @ LAC kick=2026-11-22T21:05Z state=pre NYJ n=57 dnp=6
+DNP 19:45:04 NYJ 4241410 Woods valid=False starter=False
+DNP 19:45:04 NYJ 4426817 Brownlee Jr. valid=False starter=False
+DNP 19:45:04 NYJ 4569371 Williams valid=False starter=False
+DNP 19:45:04 NYJ 4574142 Lynn valid=False starter=False
+DNP 19:45:04 NYJ 4683815 Wallace valid=False starter=False
+DNP 19:45:04 NYJ 4723820 O. Cooper Jr. valid=False starter=False
+INJ 19:45:04 DEN 4432208 Caleb Lohner | Injured Reserve | 2026-11-21T00:17Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 19:45:04 DEN 4039059 Brandon Jones | Questionable | 2026-11-21T00:10Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:04 DEN 4066109 Eyioma Uwazurike | Injured Reserve | 2026-11-08T03:38Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 19:45:04 DEN 4568490 RJ Harvey | Injured Reserve | 2026-10-31T20:18Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 19:45:04 DEN 4362748 Tyler Badie | Injured Reserve | 2026-10-24T23:25Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 19:45:04 LV 4432665 Brock Bowers | Questionable | 2026-11-22T15:54Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:04 LV 3045172 Folorunso Fatukasi | Questionable | 2026-11-21T00:31Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:04 LV 4429109 Tonka Hemingway | Out | 2026-11-21T00:25Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:04 LV 4249087 Matt Gay | Questionable | 2026-11-20T18:53Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:04 LV 4243916 Patrick Johnson | Injured Reserve | 2026-11-01T02:52Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+POLL 19:45:04 LV @ DEN kick=2026-11-22T21:25Z state=pre DEN n=58 dnp=8
+DNP 19:45:04 DEN 3892775 Stidham valid=False starter=False
+DNP 19:45:04 DEN 4039057 Humphrey valid=False starter=False
+DNP 19:45:04 DEN 4039059 B. Jones valid=False starter=False
+DNP 19:45:04 DEN 4241820 Ehlinger valid=False starter=False
+DNP 19:45:04 DEN 4360853 Hufanga valid=False starter=False
+DNP 19:45:04 DEN 4429193 Abrams-Draine valid=False starter=False
+DNP 19:45:04 DEN 4868598 Casey valid=False starter=False
+DNP 19:45:04 DEN 5159802 Bentley valid=False starter=False
+POLL 19:45:04 LV @ DEN kick=2026-11-22T21:25Z state=pre LV n=59 dnp=6
+DNP 19:45:04 LV 4250393 McCollum valid=False starter=False
+DNP 19:45:04 LV 4360749 Booker IV valid=False starter=False
+DNP 19:45:04 LV 4432775 Thornton Jr. valid=False starter=False
+DNP 19:45:04 LV 4612077 Cabeldue valid=False starter=False
+DNP 19:45:04 LV 4682488 D. Johnson valid=False starter=False
+DNP 19:45:04 LV 5150247 Benson valid=False starter=False
+INJ 19:45:04 NYG 4360516 Tyrone Tracy Jr. | Injured Reserve | 2026-11-18T20:16Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 19:45:04 NYG 3929950 Tremaine Edmunds | Injured Reserve | 2026-10-24T23:28Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 19:45:04 NYG 3123075 Braxton Berrios | Injured Reserve | 2026-10-14T21:17Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 19:45:04 NYG 4036132 Chauncey Golston | Injured Reserve | 2026-10-11T01:28Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 19:45:04 NYG 4689114 Jaxson Dart | Injured Reserve | 2026-09-30T20:35Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 19:45:04 JAX 4573319 Danny Striggow | Out | 2026-11-22T00:45Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:04 JAX 4875266 B.J. Green II | Injured Reserve | 2026-11-21T01:27Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 19:45:04 JAX 3134316 Matt Dickerson | Questionable | 2026-11-18T21:25Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:04 JAX 4242391 Robert Hainsey | Out | 2026-11-18T16:05Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:04 JAX 2970716 Eric Murray | Injured Reserve | 2026-11-04T01:11Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+POLL 19:45:04 JAX @ NYG kick=2026-11-22T21:25Z state=pre NYG n=58 dnp=6
+DNP 19:45:04 NYG 4039243 Sills valid=False starter=False
+DNP 19:45:04 NYG 4040615 Harrison valid=False starter=False
+DNP 19:45:04 NYG 4240771 Schmitz Jr. valid=False starter=False
+DNP 19:45:04 NYG 4590292 Fidone II valid=False starter=False
+DNP 19:45:04 NYG 5082353 Davis valid=False starter=False
+DNP 19:45:04 NYG 5144942 Okoye valid=False starter=False
+POLL 19:45:05 JAX @ NYG kick=2026-11-22T21:25Z state=pre JAX n=57 dnp=6
+DNP 19:45:05 JAX 3919512 Bates III valid=False starter=False
+DNP 19:45:05 JAX 4381558 Davis valid=False starter=False
+DNP 19:45:05 JAX 4612298 Regis valid=False starter=False
+DNP 19:45:05 JAX 4832922 W. Williams valid=False starter=False
+DNP 19:45:05 JAX 4889929 Ewers valid=False starter=False
+DNP 19:45:05 JAX 5085024 CJ Williams valid=False starter=False
+INJ 19:45:05 SF 16737 Mike Evans | Questionable | 2026-11-22T18:00Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:05 SF 4240542 Nate Hobbs | Injured Reserve | 2026-11-22T00:25Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 19:45:05 SF 3916903 Dre Greenlaw | Questionable | 2026-11-21T00:49Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:05 SF 4685397 Jordan James | Questionable | 2026-11-21T00:45Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:05 SF 4241464 Mac Jones | Questionable | 2026-11-21T00:40Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:05 MIN 4044540 Isaiah Rodgers | Questionable | 2026-11-20T22:27Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:05 MIN 3917315 Kyler Murray | Out | 2026-11-20T19:49Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:05 MIN 4875564 Bo Richter | Injured Reserve | 2026-11-19T01:59Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 19:45:05 MIN 4568007 Jay Ward | Questionable | 2026-11-18T22:23Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:05 MIN 4429205 Jordan Addison | Out | 2026-11-18T19:25Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+POLL 19:45:05 MIN VS SF kick=2026-11-23T01:20Z state=pre SF n=57 dnp=5
+DNP 19:45:05 SF 16737 Evans valid=False starter=False
+DNP 19:45:05 SF 4241464 Jones valid=False starter=False
+DNP 19:45:05 SF 4426698 Bethune valid=False starter=False
+DNP 19:45:05 SF 4430431 Rourke valid=False starter=False
+DNP 19:45:05 SF 4691556 Cruz Jr. valid=False starter=False
+POLL 19:45:05 MIN VS SF kick=2026-11-23T01:20Z state=pre MIN n=54 dnp=7
+DNP 19:45:05 MIN 2573079 Wentz valid=False starter=False
+DNP 19:45:05 MIN 3728281 Cashman valid=False starter=False
+DNP 19:45:05 MIN 3886598 Jennings valid=False starter=False
+DNP 19:45:05 MIN 3917315 Murray valid=False starter=False
+DNP 19:45:05 MIN 4036133 Hockenson valid=False starter=False
+DNP 19:45:05 MIN 4573398 Brosmer valid=False starter=False
+DNP 19:45:05 MIN 4629149 Ingram-Dawkins valid=False starter=False
+INJ 19:45:05 WSH 2576736 Lucas Patrick | Questionable | 2026-11-22T00:59Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:05 WSH 4239694 Amik Robertson | Questionable | 2026-11-22T00:26Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:05 WSH 4575131 Jacory Croskey-Merritt | Injured Reserve | 2026-11-21T23:35Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 19:45:05 WSH 4697815 Rachaad White | Questionable | 2026-11-21T21:21Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:05 WSH 3051890 Laremy Tunsil | Injured Reserve | 2026-11-21T00:56Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 19:45:05 CIN 4401811 Kyle Dugger | Questionable | 2026-11-22T00:54Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:05 CIN 3125082 Dalton Risner | Out | 2026-11-22T00:42Z | type={"id": "4", "name": "INJURY_STATUS_OUT", "description": "out", "abbreviation": "
+INJ 19:45:05 CIN 4426422 Dax Hill | Questionable | 2026-11-22T00:17Z | type={"id": "2", "name": "INJURY_STATUS_QUESTIONABLE", "description": "questionable",
+INJ 19:45:05 CIN 4368003 Andrei Iosivas | Injured Reserve | 2026-11-21T21:54Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+INJ 19:45:05 CIN 3051746 Oren Burks | Injured Reserve | 2026-11-21T19:53Z | type={"id": "5", "name": "INJURY_STATUS_IR", "description": "Injured Reserve", "abbre
+ROSTER_ERR CIN @ WSH WSH HTTP Error 404: Not Found
+ROSTER_ERR CIN @ WSH CIN HTTP Error 404: Not Found

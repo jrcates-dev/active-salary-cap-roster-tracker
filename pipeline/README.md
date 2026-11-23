@@ -104,6 +104,7 @@ injury news (a public IR tracker plus team announcements; never OverTheCap or Sp
 | `positions.py` | the 13 position groups, 3 units, raw-label normalization and the hand-maintained override table |
 | `contracts.py` | explode the contracts file's `season_history` into one cap row per player per season; derive year-one cap for this season's rookie deals |
 | `estimates.py` | minimum-salary estimates for rostered players with no contract row |
+| `proration.py` | each player's current stint on a team from the weekly rosters (on the squad, on the 53, on reserve), and the 18-week proration of a season's pay from a given week |
 | `crosswalk.py` | player id crosswalk (gsis, otc, espn, pfr, sleeper), plus name matching for contracts without a `gsis_id` |
 | `rosters.py` | weekly roster status + injury report + schedule -> `player_week_status` with the active / inactive / questionable flag and the absence type (this week, long-term, or out for the season); resolves Questionable once a game is final; projects rosters to the coming week |
 | `depth.py` | starters from the daily nflverse (ESPN) depth chart: top of each slot on offense, defense, K, P and LS; a player out keeps the role he had before he went out |

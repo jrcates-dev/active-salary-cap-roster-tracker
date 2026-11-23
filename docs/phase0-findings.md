@@ -172,7 +172,10 @@ had no 2026 cap number at all. Four changes closed it:
    row at all: the minimum for their years of experience, prorated from the first week
    they appear. `cap_source = "estimate_minimum"`. 41 players, $8.9M.
 3. **Practice squad pay.** `DEV` players count at most $247,500 a season (prorated),
-   not their full contract figure, matching how OverTheCap counts them.
+   not their full contract figure, matching how OverTheCap counts them. (Since
+   November 2026: rows from the contracts file keep their cap line, which already holds
+   a veteran's higher practice squad pay and his elevations; only derived rows are
+   priced here. See "Cap hit audit, November 2026" below.)
 4. **Roster rules.** Released, retired and traded players drop out of their old team's
    total; teams on a bye keep their last week's statuses instead of falling out of the
    week.
@@ -212,3 +215,40 @@ players "Gameday inactive".
   ESPN adapter is only needed for a pre-kickoff signal beyond the injury report.
 - Dead money: team-level only, from the hand-entered reference table, refreshed by hand
   when the check drifts.
+
+## Cap hit audit, November 2026
+
+Every player's cap hit on all 32 OverTheCap team pages (read by hand on 2026-11-23)
+was matched against the week 11 snapshot. Before the fixes below, players summed to
+$57.7M off in absolute terms with 216 players off by more than a rounding error. After
+them, $42.6M and 144 players, of which $27.2M is roster timing (players on one side
+only, because OverTheCap's page moves the moment a transaction posts and the nflverse
+weekly roster does not).
+
+Rules now applied (`contracts.derive_first_year`, `proration.py`, `rollup._derived_cap`):
+
+1. **Contract cap lines are kept as they are.** The `season_history` line for this
+   season is OverTheCap's own charge, prorated for a mid-season signing, with practice
+   squad pay and elevations in it. The old $247,500 ceiling for `DEV` players cut
+   veterans on the squad (paid up to about $30K a week) short.
+2. **Derived rows are prorated from the weekly rosters.** Salaries are paid in 18
+   weekly checks; a player who joined after week 1 counts (18 - start + 1) / 18 of his
+   season figure. The start is the week his current stint on the team began: the week
+   he joined the practice squad for a squad deal (up to three elevations do not end
+   it, a release does), or the week he joined the 53 (for a promoted player, the week
+   of the promotion).
+3. **Veteran Salary Benefit.** A one-year deal at a veteran minimum ($1.215M or $1.3M)
+   counts $1.075M plus its bonus.
+4. **Split rookie deals.** Rookies from the third round on (and undrafted) on injured
+   reserve are paid the $515K split salary: $370K a season less, from the week they
+   went on reserve.
+5. **Claimed and traded rookies** count their $885K salary for the new team; the bonus
+   stays behind as dead money. The current team is the last one in a "BUF/CLE" label.
+6. **Undrafted three-year deals** count $885K plus a third of any bonus.
+
+Known gaps left: Daiyan Henley (LAC, new deal not in the contracts file); Daniel Jones
+(IND, still on the nflverse roster); two NFI rookies OverTheCap counts at bonus only;
+International Pathway practice squad players (OverTheCap counts $0); a few promoted
+players whose contracts-file line still shows only practice squad pay (MIA's Jordan
+Jefferson, Eric Watts and Brady Cook, MIN's Jeshaun Jones); and late-round rookie year
+one, which is still APY less $210K (off by up to about $50K a player).

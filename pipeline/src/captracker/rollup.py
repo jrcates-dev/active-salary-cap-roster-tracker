@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import polars as pl
 
+from . import proration
+from .contracts import IR_SPLIT_2026
 from .positions import GROUP_BY_CODE, POSITION_GROUPS, assign_group, unit_for
 
 FLAGS = ("active", "inactive", "questionable", "unknown")
@@ -43,10 +45,59 @@ def assign_groups(contract_years: pl.DataFrame, crosswalk: pl.DataFrame) -> pl.D
 # OverTheCap counts him in active cap spending.
 CAP_COUNTING_STATUS = ("ACT", "INA", "RES", "PUP", "NFI", "DEV", "EXE")
 
-# A practice squad player's cap charge is his practice squad pay, not the NFL
-# contract he may also hold (a drafted rookie stashed on the practice squad, for
-# example). 2026 practice squad minimum: $13,750 a week for 18 weeks.
+# 2026 practice squad minimum: $13,750 a week for 18 weeks. Veterans on the squad are
+# paid more (up to about $30K a week), and the contracts file carries what each one is
+# actually charged, elevations included, so this rate is only used for a practice squad
+# player whose only deal in the file is a standard contract with no 2026 cap line.
 PRACTICE_SQUAD_CAP = 247_500
+
+# A deal whose value is under the rookie minimum is a practice squad deal.
+STANDARD_MINIMUM = 885_000
+
+# What a split rookie deal saves for a full season on injured reserve: the rookie
+# minimum less the 2026 split salary (`contracts.IR_SPLIT_2026`).
+IR_SPLIT_SAVING = STANDARD_MINIMUM - IR_SPLIT_2026
+
+
+def _derived_cap() -> pl.Expr:
+    """Season cap charge for rows whose cap number the pipeline worked out itself.
+
+    Rows from the contracts file (`cap_source == "contract"`) already carry
+    OverTheCap's charge for the season, prorated for mid-season signings and with
+    practice squad pay and elevations in it, and are kept as they are. A derived row
+    (`derived_rookie_scale`) holds a full season's figure, so it is prorated here:
+
+    - a practice squad deal, at its rate, from the week he joined the squad (a
+      player released and re-signed starts over; up to three elevations do not);
+    - a practice squad player whose deal in the file is a standard contract, at the
+      practice squad minimum, from the same week;
+    - anyone else, at the derived figure, from the week he joined the roster (for a
+      promoted player, the week of the promotion), less the split-salary saving for
+      the weeks from his move to injured reserve to the end of the season when his
+      rookie deal is split (`ir_split`). OverTheCap counts the rest of the season on
+      the split, as it does any salary still to be paid.
+    """
+    derived = pl.col("cap_source") == "derived_rookie_scale"
+    on_squad = pl.col("roster_status") == "DEV"
+    squad_deal = (pl.col("contract_years") == 1) & (pl.col("contract_apy") < STANDARD_MINIMUM)
+    from_squad_start = proration.prorate(
+        pl.when(squad_deal).then(pl.col("contract_apy")).otherwise(pl.lit(PRACTICE_SQUAD_CAP)),
+        pl.coalesce("squad_start", "stint_start"),
+    )
+    on_ir_split = pl.col("ir_split").fill_null(False) & pl.col("reserve_start").is_not_null()
+    from_roster_start = proration.prorate(
+        pl.col("cap_number"), pl.coalesce("roster_start", "stint_start")
+    ) - pl.when(on_ir_split).then(
+        proration.prorate(pl.lit(IR_SPLIT_SAVING), pl.col("reserve_start"))
+    ).otherwise(0)
+    return (
+        pl.when(~derived | pl.col("stint_start").is_null())
+        .then(pl.col("cap_number"))
+        .when(on_squad | squad_deal)
+        .then(from_squad_start)
+        .otherwise(from_roster_start)
+        .alias("cap_number")
+    )
 
 
 def team_status_weeks(status: pl.DataFrame, week: int) -> pl.DataFrame:
@@ -75,7 +126,8 @@ def player_week_cap(
     holdout; his flag is `unknown`). Rows for players who were released or retired, or who are on
     another team's roster, stay in the table for transparency but are left out of
     every total; that money is the team's dead money or another team's cap.
-    Practice squad players count at practice squad pay.
+    Derived cap numbers are prorated for the weeks the player has been on the team
+    (`_derived_cap`).
     """
     for c in ("absence", "outlook_basis", "outlook_note", "flag_source"):
         if c not in status.columns:
@@ -101,7 +153,19 @@ def player_week_cap(
         )
         .unique(subset=["gsis_id"], keep="last")
     )
-    df = grouped_contracts.join(latest, on="gsis_id", how="left")
+    defaults = {
+        "cap_source": pl.lit("contract"),
+        "contract_years": pl.lit(None, dtype=pl.Int32),
+        "contract_apy": pl.lit(None, dtype=pl.Int64),
+        "ir_split": pl.lit(False),
+    }
+    grouped_contracts = grouped_contracts.with_columns(
+        e.alias(c) for c, e in defaults.items() if c not in grouped_contracts.columns
+    )
+    stints = proration.stints(status, week).rename({"team": "roster_team"})
+    df = grouped_contracts.join(latest, on="gsis_id", how="left").join(
+        stints, on=["gsis_id", "roster_team"], how="left"
+    )
     on_own_roster = (pl.col("roster_team") == pl.col("team")) & pl.col("roster_status").is_in(
         list(CAP_COUNTING_STATUS)
     )
@@ -117,10 +181,7 @@ def player_week_cap(
         pl.lit(week).cast(pl.Int32).alias("week"),
         counts.fill_null(False).alias("counts_against_cap"),
         pl.col("cap_number").alias("contract_cap_number"),
-        pl.when(pl.col("roster_status") == "DEV")
-        .then(pl.min_horizontal("cap_number", pl.lit(PRACTICE_SQUAD_CAP)))
-        .otherwise(pl.col("cap_number"))
-        .alias("cap_number"),
+        _derived_cap(),
         pl.when(counts.fill_null(False))
         .then(pl.col("gameday_flag").fill_null("unknown"))
         .otherwise(pl.lit("off_roster"))

@@ -243,7 +243,8 @@ export function ContractBody({ file }: { file: ContractFile }) {
     <div className="px-4 pb-8 sm:px-6">
       {ps && (
         <Notice>
-          On the practice squad: he counts {money(p.cap)} against the cap this season (practice squad pay, prorated), not the contract figures below.
+          On the practice squad: he counts {money(p.cap)} against the cap this season, his practice squad pay for the weeks he has been on the squad
+          (with any game-day elevations).
         </Notice>
       )}
       {c.basis === "rookie_scale" && (

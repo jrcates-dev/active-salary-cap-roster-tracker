@@ -126,5 +126,6 @@ def estimate_missing(
         "cap_number",
         pl.lit(None, dtype=pl.Float64).alias("cap_pct"),
         pl.lit("estimate_minimum").alias("cap_source"),
+        pl.lit(False).alias("ir_split"),
     )
     return rows.select(contract_years.columns).cast(contract_years.schema)

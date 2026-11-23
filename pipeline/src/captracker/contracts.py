@@ -102,6 +102,7 @@ def contract_years(
         *SEASON_MONEY_COLUMNS,
         "cap_pct",
         pl.lit("contract").alias("cap_source"),
+        pl.lit(False).alias("ir_split"),
     ).sort(["team", "cap_number"], descending=[False, True])
 
 
@@ -113,6 +114,29 @@ def contract_years(
 ROOKIE_RATIO_EARLY_ROUNDS = 8 / 11
 ROOKIE_LATE_ROUND_OFFSET = 210_000
 ROOKIE_MINIMUM_2026 = 885_000
+
+# One-year deals are not rookie contracts and carry no escalators: they count at their
+# value. Practice squad deals are one-year deals under the rookie minimum.
+# A veteran (4+ credited seasons) on a one-year minimum deal counts under the Veteran
+# Salary Benefit (CBA Article 26): the two-year player minimum plus any bonus, not his
+# salary. OverTheCap: Jonathan Owens, $1.215M salary and a $187.5K bonus, counts $1.2625M.
+VSB_CAP_2026 = 1_075_000
+VETERAN_MINIMUMS_2026 = (1_215_000, 1_300_000)  # 4-6 and 7+ credited seasons
+VSB_MAX_BONUS_2026 = 152_500
+
+# Rookie deals from the third round on (and undrafted ones) carry a split salary: on
+# injured reserve the player is paid the lower "split" figure. OverTheCap counts Kaleb
+# Proctor (round 4, on IR all season) at $515K plus his bonus proration, not $885K.
+# Rounds 1 and 2 are not split.
+IR_SPLIT_2026 = 515_000
+IR_SPLIT_FIRST_ROUND = 3
+IR_SPLIT_MAX_APY = 2_000_000
+
+# Undrafted rookies sign three-year minimum deals ($885K, $1.03M, $1.185M: $1,033,333 a
+# year). Anything above that average is signing bonus, spread over the three years, so
+# year one counts $885K plus a third of the bonus: the excess over the base average.
+UDFA_YEARS = 3
+UDFA_BASE_APY_2026 = 1_033_333
 
 
 def derive_first_year(
@@ -127,6 +151,9 @@ def derive_first_year(
     an empty season_history, so without this the whole 2026 rookie class would be
     missing or valued at the minimum. Rows are flagged `cap_source =
     "derived_rookie_scale"`.
+
+    The cap number here is a full season's. A deal signed after week 1 covers only
+    the weeks left; `rollup.player_week_cap` prorates it from the weekly rosters.
     """
     abbrs = set(nick_to_abbr.values())
     # A player promoted from the practice squad can carry two active deals signed this
@@ -142,19 +169,50 @@ def derive_first_year(
     )
     if new.is_empty():
         return pl.DataFrame()
+    if "draft_year" not in new.columns:
+        new = new.with_columns(pl.lit(None, dtype=pl.Int32).alias("draft_year"))
 
     def team_of(label: str | None) -> str | None:
         if label is None:
             return None
         if label in nick_to_abbr:
             return nick_to_abbr[label]
-        first = label.split("/")[0]
-        return first if first in abbrs else None
+        # A deal that changed teams is labeled with every team it was on, the current
+        # one last ("BUF/CLE" for a rookie Cleveland claimed off waivers from Buffalo).
+        current = label.split("/")[-1]
+        return current if current in abbrs else None
 
     apy = (pl.col("apy") * MILLION).round(0)
+    one_year = pl.col("years") == 1
+    # The bonus on a minimum deal is usually its only guaranteed money, so when the
+    # rest is exactly a veteran minimum, that is his salary; otherwise take the
+    # highest minimum the deal reaches.
+    guaranteed = (pl.col("guaranteed") * MILLION).round(0)
+    vet_min = (
+        pl.when((apy - guaranteed).cast(pl.Int64).is_in(list(VETERAN_MINIMUMS_2026)))
+        .then(apy - guaranteed)
+        .when(apy >= VETERAN_MINIMUMS_2026[1])
+        .then(pl.lit(VETERAN_MINIMUMS_2026[1]))
+        .otherwise(pl.lit(VETERAN_MINIMUMS_2026[0]))
+    )
+    vsb = one_year & apy.is_between(
+        VETERAN_MINIMUMS_2026[0], VETERAN_MINIMUMS_2026[1] + VSB_MAX_BONUS_2026
+    )
+    # The team that claims or trades for a rookie takes on his salary only; his
+    # signing bonus stays on the drafting team's books as dead money. OverTheCap counts
+    # Toriano Pride Jr. (drafted by Buffalo, claimed by Cleveland) at $885K in Cleveland.
+    moved = pl.col("team").str.contains("/", literal=True)
     cap = (
-        pl.when(pl.col("draft_round").is_between(1, 3))
+        pl.when(vsb)
+        .then(VSB_CAP_2026 + (apy - vet_min).clip(lower_bound=0))
+        .when(one_year)
+        .then(apy)
+        .when(moved)
+        .then(pl.lit(ROOKIE_MINIMUM_2026))
+        .when(pl.col("draft_round").is_between(1, 3))
         .then(apy * ROOKIE_RATIO_EARLY_ROUNDS)
+        .when(pl.col("draft_round").is_null() & (pl.col("years") == UDFA_YEARS))
+        .then(ROOKIE_MINIMUM_2026 + (apy - UDFA_BASE_APY_2026).clip(lower_bound=0))
         .otherwise(pl.max_horizontal(apy - ROOKIE_LATE_ROUND_OFFSET, pl.lit(ROOKIE_MINIMUM_2026)))
         .round(0)
         .cast(pl.Int64)
@@ -174,8 +232,14 @@ def derive_first_year(
         apy.cast(pl.Int64).alias("contract_apy"),
         (pl.col("guaranteed") * MILLION).round(0).cast(pl.Int64).alias("contract_guaranteed"),
         "apy_cap_pct",
-        pl.lit(ROOKIE_MINIMUM_2026, dtype=pl.Int64).alias("base_salary"),
-        (cap - ROOKIE_MINIMUM_2026).clip(lower_bound=0).alias("prorated_bonus"),
+        pl.when(one_year)
+        .then(pl.min_horizontal(apy, vet_min).cast(pl.Int64))
+        .otherwise(pl.lit(ROOKIE_MINIMUM_2026, dtype=pl.Int64))
+        .alias("base_salary"),
+        pl.when(one_year)
+        .then(pl.lit(0, dtype=pl.Int64))
+        .otherwise((cap - ROOKIE_MINIMUM_2026).clip(lower_bound=0))
+        .alias("prorated_bonus"),
         *[
             pl.lit(0, dtype=pl.Int64).alias(c)
             for c in (
@@ -191,6 +255,12 @@ def derive_first_year(
         cap.alias("cap_number"),
         pl.lit(None, dtype=pl.Float64).alias("cap_pct"),
         pl.lit("derived_rookie_scale").alias("cap_source"),
+        (
+            (pl.col("years") >= 2)
+            & (apy < IR_SPLIT_MAX_APY)
+            & pl.col("draft_round").fill_null(IR_SPLIT_FIRST_ROUND).ge(IR_SPLIT_FIRST_ROUND)
+            & pl.col("draft_year").fill_null(season).eq(season)
+        ).alias("ir_split"),
     ).filter(pl.col("team").is_not_null())
 
 

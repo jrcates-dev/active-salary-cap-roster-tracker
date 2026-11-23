@@ -38,7 +38,14 @@ export default async function MethodologyPage() {
 
         <Section title="What counts">
           <li>Every player on the latest roster, at his {s.season} cap number: the 53, gameday inactives, injured reserve, PUP, NFI, suspended and the exempt list.</li>
-          <li>Practice squad players at no more than {money(247_500)} a season, prorated from their first week.</li>
+          <li>
+            Practice squad players at their practice squad pay: OverTheCap&apos;s figure where the contracts file has one (veterans are paid more than the
+            minimum, and game-day elevations add to it), otherwise the {money(247_500)} minimum, prorated from the week they joined the squad.
+          </li>
+          <li>
+            Salaries are paid in 18 weekly checks, so a player who joined after week 1 counts only the weeks left (a week-8 signing counts 11/18 of his
+            salary).
+          </li>
           <li>Released, retired and traded players leave their old team&apos;s total.</li>
           <li>Dead money sits beside the roster total and never inside a position group.</li>
           <li>Teams on a bye keep their statuses from the last week they played.</li>
@@ -179,7 +186,11 @@ export default async function MethodologyPage() {
         <Section title="Estimates">
           <li>
             <B>Rookie scale</B> ({derived} players): {s.season} draft picks without a cap line. Rounds 1 to 3 take 8/11 of the contract&apos;s average per
-            year; later rounds take the average less {money(210_000)}, never below the {money(885_000)} minimum.
+            year; later rounds take the average less {money(210_000)}, never below the {money(885_000)} minimum. Undrafted rookies take{" "}
+            {money(885_000)} plus a third of any bonus; a rookie claimed or traded takes {money(885_000)} for his new team. From the third round on, a
+            rookie on injured reserve is paid the {money(515_000)} split salary for the weeks since he went on it. A veteran on a one-year minimum deal
+            counts {money(1_075_000)} plus his bonus (the Veteran Salary Benefit). All of these are prorated from the week the player joined the team
+            (for a player promoted from the practice squad, the week of the promotion).
           </li>
           <li>
             <B>League minimum</B> ({estimated} players): players with no contract at all, at the minimum for their experience, prorated from the week
